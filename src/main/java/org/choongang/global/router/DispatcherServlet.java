@@ -1,6 +1,5 @@
 package org.choongang.global.router;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
@@ -27,6 +26,6 @@ public class DispatcherServlet extends HttpServlet  {
         bc.loadBeans();
 
         RouterService service = bc.getBean(RouterService.class);
-        service.route();
+        service.route(request, response);
     }
 }
