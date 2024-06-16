@@ -6,7 +6,7 @@ public class BeanContainerTest {
     @Test
     void beanLoadTest() {
         BeanContainer bc = BeanContainer.getInstance();
-       // bc.loadBeans("org.choongang");
+        bc.loadBeans();
 
 
 

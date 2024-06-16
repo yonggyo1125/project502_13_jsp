@@ -23,11 +23,13 @@ public class BeanContainer {
         beans = new HashMap<>();
     }
 
-    public void loadBeans(String path, String packageName) {
+    public void loadBeans() {
         // 패키지 경로 기준으로 스캔 파일 경로 조회
         try {
-            String rootPath = new File(path + packageName.replaceAll("\\.", "/")).getCanonicalPath();
+            String rootPath = new File(getClass().getResource("../../../").getPath()).getCanonicalPath();
+            String packageName = getClass().getPackageName().replace(".global.config.containers", "");
             List<Class> classNames = getClassNames(rootPath, packageName);
+
             for (Class clazz : classNames) {
                 // 인터페이스는 동적 객체 생성을 하지 않으므로 건너띄기
                 if (clazz.isInterface()) {
@@ -84,12 +86,22 @@ public class BeanContainer {
      * @param clazz
      * @return
      */
-    public Object getBean(Class clazz) {
-        return beans.get(clazz.getName());
+    public <T> T getBean(Class clazz) {
+        return (T)beans.get(clazz.getName());
     }
 
     public void addBean(Object obj) {
+
         beans.put(obj.getClass().getName(), obj);
+    }
+
+    public void addBean(String key, Object obj) {
+        beans.put(key, obj);
+    }
+
+    // 전체 컨테이너 객체 반환
+    public Map<String, Object> getBeans() {
+        return beans;
     }
 
     /**
@@ -110,9 +122,11 @@ public class BeanContainer {
             dependencies.add(obj);
         } else {
             for(Class clazz : parameters) {
+
                 Object obj = beans.get(clazz.getName());
                 if (obj == null) {
                     Constructor _con = clazz.getDeclaredConstructors()[0];
+
                     if (_con.getParameterTypes().length == 0) {
                         obj = _con.newInstance();
                     } else {
@@ -133,7 +147,7 @@ public class BeanContainer {
         List<File> files = getFiles(rootPath);
         for (File file : files) {
             String path = file.getAbsolutePath();
-            String className = packageName + "." + path.replace(rootPath + File.separator, "").replace(".java", "").replace(File.separator, ".");
+            String className = packageName + "." + path.replace(rootPath + File.separator, "").replace(".class", "").replace(File.separator, ".");
             try {
                 Class cls = Class.forName(className);
                 classes.add(cls);

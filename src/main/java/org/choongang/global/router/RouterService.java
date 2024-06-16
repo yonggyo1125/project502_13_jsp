@@ -5,30 +5,22 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RouterService {
-    private HttpServletRequest request;
-    private HttpServletResponse response;
 
+    private final HandlerMappingImpl handlerMapping;
 
     /**
      * 컨트롤러 라우팅
      *
-     * @param req
-     * @param res
      */
-    public void route(ServletRequest req, ServletResponse res) {
-        request = (HttpServletRequest)req;
-        response = (HttpServletResponse) res;
-
-        String uri = request.getRequestURI().replace(request.getContextPath(), "");
-        Object controller = searchController(uri);
+    public void route() {
+        handlerMapping.search();
     }
 
-    private Object searchController(String uri) {
-        System.out.println(uri);
-        return null;
-    }
+
 }

@@ -7,28 +7,26 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.choongang.global.config.containers.BeanContainer;
 
 import java.io.IOException;
 
 @WebServlet(urlPatterns = "/", initParams = @WebInitParam(name="packageName", value="org.choongang"))
 public class DispatcherServlet extends HttpServlet  {
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-
-        String packageName = config.getInitParameter("packageName");
-        String path = config.getServletContext().getRealPath(".") + "/../java/";
-        BeanContainer.getInstance().loadBeans(path, packageName);
-
-    }
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        HttpServletRequest request = (HttpServletRequest)req;
+        HttpServletResponse response = (HttpServletResponse)res;
         BeanContainer bc = BeanContainer.getInstance();
-        bc.addBean(req);
-        bc.addBean(res);
+        bc.addBean(HttpServletRequest.class.getName(), request);
+        bc.addBean(HttpServletResponse.class.getName(), response);
 
-        RouterService service = (RouterService)bc.getBean(RouterService.class);
-        service.route(req, res);
+        bc.loadBeans();
+
+        RouterService service = bc.getBean(RouterService.class);
+        service.route();
     }
 }
