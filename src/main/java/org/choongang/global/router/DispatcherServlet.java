@@ -15,16 +15,20 @@ import java.io.IOException;
 public class DispatcherServlet extends HttpServlet  {
     @Override
     public void init(ServletConfig config) throws ServletException {
+
         String packageName = config.getInitParameter("packageName");
-        BeanContainer.getInstance().loadBeans(packageName);
-
-
+        String path = config.getServletContext().getRealPath(".") + "/../java/";
+        BeanContainer.getInstance().loadBeans(path, packageName);
 
     }
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        BeanContainer bc = BeanContainer.getInstance();
+        bc.addBean(req);
+        bc.addBean(res);
 
-
+        RouterService service = (RouterService)bc.getBean(RouterService.class);
+        service.route(req, res);
     }
 }

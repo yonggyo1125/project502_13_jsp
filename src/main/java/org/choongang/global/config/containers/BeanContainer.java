@@ -23,12 +23,11 @@ public class BeanContainer {
         beans = new HashMap<>();
     }
 
-    public void loadBeans(String packageName) {
+    public void loadBeans(String path, String packageName) {
         // 패키지 경로 기준으로 스캔 파일 경로 조회
         try {
-            String rootPath = new File("./src/main/java/" + packageName.replaceAll("\\.", "/")).getCanonicalPath();
+            String rootPath = new File(path + packageName.replaceAll("\\.", "/")).getCanonicalPath();
             List<Class> classNames = getClassNames(rootPath, packageName);
-
             for (Class clazz : classNames) {
                 // 인터페이스는 동적 객체 생성을 하지 않으므로 건너띄기
                 if (clazz.isInterface()) {
@@ -56,8 +55,8 @@ public class BeanContainer {
                 if (isBean) {
                     Constructor con = clazz.getDeclaredConstructors()[0];
                     List<Object> objs = resolveDependencies(key, con);
-                    if (con.getParameterTypes().length > 0 && !beans.containsKey(key)) { // 생성자 매개변수가 있는 경우는 자동 생성되지 않았으므로 빈에 추가
-                        Object obj = con.newInstance(objs.toArray());
+                    if (!beans.containsKey(key)) {
+                        Object obj = con.getParameterTypes().length == 0 ? con.newInstance() : con.newInstance(objs.toArray());
                         beans.put(key, obj);
                     }
                 }
@@ -87,6 +86,10 @@ public class BeanContainer {
      */
     public Object getBean(Class clazz) {
         return beans.get(clazz.getName());
+    }
+
+    public void addBean(Object obj) {
+        beans.put(obj.getClass().getName(), obj);
     }
 
     /**
