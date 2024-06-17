@@ -5,9 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.choongang.global.config.annotations.RequestParam;
-import org.choongang.global.config.annotations.RestController;
-import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.annotations.*;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -34,14 +32,26 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         Method method = (Method)data.get(1); // 찾은 요청 메서드
 
         String m = request.getMethod().toUpperCase(); // 요청 메서드
-        String uri = request.getRequestURI();
         Annotation[] annotations = method.getDeclaredAnnotations();
 
-        /*
-        for (Annotation anno : annotations) {
 
+        /* PathVariable : 경로 변수 패턴 추출 S */
+        String pathUrl = null;
+        for (Annotation anno : annotations) {
+            if (m.equals("GET") && anno instanceof GetMapping) {
+
+            } else if (m.equals("POST") && anno instanceof PostMapping) {
+
+            } else if (m.equals("PATCH") && anno instanceof PatchMapping) {
+
+            } else if (m.equals("PUT") && anno instanceof PutMapping) {
+
+            } else if (m.equals("DELETE") && anno instanceof DeleteMapping) {
+
+            }
         }
-        */
+        /* PathVariable : 경로 변수 패턴 추출 E */
+
         /* 메서드 매개변수 의존성 주입 처리 S */
         List<Object> args = new ArrayList<>();
         for (Parameter param : method.getParameters()) {
@@ -105,8 +115,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                         Class clz = _method.getParameterTypes()[0];
                         // 자료형 변환 후 메서드 호출 처리
                         invokeMethod(paramObj,_method, value, clz);
-
-
                     }
                     args.add(paramObj);
                 } // endif
