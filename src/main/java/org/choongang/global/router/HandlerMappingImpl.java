@@ -14,22 +14,21 @@ import java.util.regex.Pattern;
 @Service
 public class HandlerMappingImpl implements HandlerMapping{
 
-    private Method method;
+
+    private String controllerUrl;
 
     @Override
     public Method search(HttpServletRequest request) {
 
-        String uri = request.getRequestURI();
-        String method = request.getMethod().toUpperCase();
         List<Object> items = getControllers();
 
         for (Object item : items) {
             /** Type 애노테이션에서 체크 S */
             // @RequestMapping, @GetMapping, @PostMapping, @PatchMapping, @PutMapping, @DeleteMapping
-            if (isMatch(request,item.getClass().getDeclaredAnnotations(), false)) {
+            if (isMatch(request,item.getClass().getDeclaredAnnotations(), false, null)) {
                 // 메서드 체크
                 for (Method m : item.getClass().getDeclaredMethods()) {
-                    if (isMatch(request, m.getDeclaredAnnotations(), true)) {
+                    if (isMatch(request, m.getDeclaredAnnotations(), true, controllerUrl)) {
                         return m;
                     }
                 }
@@ -41,7 +40,7 @@ public class HandlerMappingImpl implements HandlerMapping{
              *  - Type 애노테이션 주소 매핑이 되지 않은 경우, 메서드에서 패턴 체크
              */
             for (Method m : item.getClass().getDeclaredMethods()) {
-                if (isMatch(request, m.getDeclaredAnnotations(), true)) {
+                if (isMatch(request, m.getDeclaredAnnotations(), true, null)) {
                     return m;
                 }
             }
@@ -52,8 +51,15 @@ public class HandlerMappingImpl implements HandlerMapping{
     }
 
 
-
-    private boolean isMatch(HttpServletRequest request, Annotation[] annotations, boolean isMethod) {
+    /**
+     *
+     * @param request
+     * @param annotations : 적용 애노테이션 목록
+     * @param isMethod : 메서드의 에노테이션 체크인지
+     * @param prefixUrl : 컨트롤러 체크인 경우 타입 애노테이션에서 적용된 경우
+     * @return
+     */
+    private boolean isMatch(HttpServletRequest request, Annotation[] annotations, boolean isMethod, String prefixUrl) {
 
         String uri = request.getRequestURI();
         String method = request.getMethod().toUpperCase();
@@ -84,17 +90,21 @@ public class HandlerMappingImpl implements HandlerMapping{
 
                 String matchUrl = null;
                 if (isMethod) {
+                    String addUrl = prefixUrl == null ? "" : prefixUrl;
                     // 메서드인 경우 *와 {경로변수} 고려하여 처리
                     for(String mapping : mappings) {
                         String pattern = mapping.replace("/*", "/\\w*")
                                 .replaceAll("/\\{\\w+\\}", "/(\\\\w*)");
-                        Pattern p = Pattern.compile("^" + request.getContextPath() + pattern + "$");
+
+                        Pattern p = Pattern.compile("^" + request.getContextPath() + addUrl + pattern + "$");
                         Matcher matcher = p.matcher(uri);
                         return matcher.find();
                     }
                 } else {
                     matchUrl = Arrays.stream(mappings)
                             .filter(s -> uri.startsWith(request.getContextPath() + s)).toList().get(0);
+
+                    controllerUrl = matchUrl;
                 }
                 return matchUrl != null && !matchUrl.isBlank();
             }

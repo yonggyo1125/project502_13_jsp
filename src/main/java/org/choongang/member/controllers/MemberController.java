@@ -1,5 +1,7 @@
 package org.choongang.member.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Controller;
 import org.choongang.global.config.annotations.GetMapping;
@@ -12,8 +14,9 @@ import org.choongang.member.services.JoinService;
 public class MemberController {
     private final JoinService joinService;
 
-    @GetMapping("/join")
-    public String join() {
-        return null;
+    @GetMapping("/{mode}")
+    public String join(String mode, RequestJoin form, HttpServletRequest request, HttpServletResponse response) {
+
+        return "member/join";
     }
 }

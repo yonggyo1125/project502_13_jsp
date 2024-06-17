@@ -14,6 +14,7 @@ import java.lang.reflect.Method;
 public class RouterService {
 
     private final HandlerMappingImpl handlerMapping;
+    private final HandlerAdapterImpl handlerAdapter;
 
     /**
      * 컨트롤러 라우팅
@@ -26,7 +27,8 @@ public class RouterService {
             return;
         }
 
-        System.out.println(method);
+        // 찾은 컨트롤러 요청 메서드를 실행
+        handlerAdapter.execute(req, res, method);
 
     }
 
