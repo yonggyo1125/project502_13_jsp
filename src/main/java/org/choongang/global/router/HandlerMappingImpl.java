@@ -17,12 +17,7 @@ public class HandlerMappingImpl implements HandlerMapping{
     private Method method;
 
     @Override
-    public Object search(Class clazz) {
-        return BeanContainer.getInstance().getBean(clazz);
-    }
-
-    //@Override
-    public Object search(HttpServletRequest request) {
+    public Method search(HttpServletRequest request) {
 
         String uri = request.getRequestURI();
         String method = request.getMethod().toUpperCase();
@@ -32,7 +27,12 @@ public class HandlerMappingImpl implements HandlerMapping{
             /** Type 애노테이션에서 체크 S */
             // @RequestMapping, @GetMapping, @PostMapping, @PatchMapping, @PutMapping, @DeleteMapping
             if (isMatch(request,item.getClass().getDeclaredAnnotations(), false)) {
-                return item;
+                // 메서드 체크
+                for (Method m : item.getClass().getDeclaredMethods()) {
+                    if (isMatch(request, m.getDeclaredAnnotations(), true)) {
+                        return m;
+                    }
+                }
             }
             /** Type 애노테이션에서 체크 E */
 
@@ -42,8 +42,7 @@ public class HandlerMappingImpl implements HandlerMapping{
              */
             for (Method m : item.getClass().getDeclaredMethods()) {
                 if (isMatch(request, m.getDeclaredAnnotations(), true)) {
-                    setMethod(m);
-                    return item;
+                    return m;
                 }
             }
             /* Method 애노테이션에서 체크 E */
@@ -52,15 +51,7 @@ public class HandlerMappingImpl implements HandlerMapping{
         return null;
     }
 
-    @Override
-    public void setMethod(Method method) {
-        this.method = method;
-    }
 
-    @Override
-    public Method getMethod() {
-        return method;
-    }
 
     private boolean isMatch(HttpServletRequest request, Annotation[] annotations, boolean isMethod) {
 
