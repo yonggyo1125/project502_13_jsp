@@ -18,7 +18,7 @@ public class HandlerMappingImpl implements HandlerMapping{
     private String controllerUrl;
 
     @Override
-    public Method search(HttpServletRequest request) {
+    public List<Object> search(HttpServletRequest request) {
 
         List<Object> items = getControllers();
 
@@ -29,7 +29,7 @@ public class HandlerMappingImpl implements HandlerMapping{
                 // 메서드 체크
                 for (Method m : item.getClass().getDeclaredMethods()) {
                     if (isMatch(request, m.getDeclaredAnnotations(), true, controllerUrl)) {
-                        return m;
+                        return List.of(item, m);
                     }
                 }
             }
@@ -41,7 +41,7 @@ public class HandlerMappingImpl implements HandlerMapping{
              */
             for (Method m : item.getClass().getDeclaredMethods()) {
                 if (isMatch(request, m.getDeclaredAnnotations(), true, null)) {
-                    return m;
+                    return List.of(item, m);
                 }
             }
             /* Method 애노테이션에서 체크 E */
@@ -101,10 +101,12 @@ public class HandlerMappingImpl implements HandlerMapping{
                         return matcher.find();
                     }
                 } else {
-                    matchUrl = Arrays.stream(mappings)
-                            .filter(s -> uri.startsWith(request.getContextPath() + s)).toList().get(0);
-
-                    controllerUrl = matchUrl;
+                    List<String> matches = Arrays.stream(mappings)
+                            .filter(s -> uri.startsWith(request.getContextPath() + s)).toList();
+                    if (!matches.isEmpty()) {
+                        matchUrl = matches.get(0);
+                        controllerUrl = matchUrl;
+                    }
                 }
                 return matchUrl != null && !matchUrl.isBlank();
             }
@@ -122,7 +124,7 @@ public class HandlerMappingImpl implements HandlerMapping{
        return BeanContainer.getInstance().getBeans().entrySet()
                     .stream()
                     .map(s -> s.getValue())
-                .filter(b -> Arrays.stream(b.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof Controller))
+                .filter(b -> Arrays.stream(b.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof Controller || a instanceof RestController))
                 .toList();
     }
 }

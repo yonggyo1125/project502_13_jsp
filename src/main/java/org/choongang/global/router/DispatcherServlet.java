@@ -3,7 +3,6 @@ package org.choongang.global.router;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.annotation.WebInitParam;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,7 +11,7 @@ import org.choongang.global.config.containers.BeanContainer;
 
 import java.io.IOException;
 
-@WebServlet(urlPatterns = "/", initParams = @WebInitParam(name="packageName", value="org.choongang"))
+@WebServlet("/")
 public class DispatcherServlet extends HttpServlet  {
 
     @Override

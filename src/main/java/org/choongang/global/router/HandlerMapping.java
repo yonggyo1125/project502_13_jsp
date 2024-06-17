@@ -2,9 +2,9 @@ package org.choongang.global.router;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.lang.reflect.Method;
+import java.util.List;
 
 public interface HandlerMapping {
-    Method search(HttpServletRequest request);
+    List<Object> search(HttpServletRequest request);
 
 }
