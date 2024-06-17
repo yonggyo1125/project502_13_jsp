@@ -8,9 +8,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class HandlerMappingImpl implements HandlerMapping{
+
+    private Method method;
 
     @Override
     public Object search(Class clazz) {
@@ -27,37 +31,8 @@ public class HandlerMappingImpl implements HandlerMapping{
         for (Object item : items) {
             /** Type 애노테이션에서 체크 S */
             // @RequestMapping, @GetMapping, @PostMapping, @PatchMapping, @PutMapping, @DeleteMapping
-            Annotation[] annotations = item.getClass().getDeclaredAnnotations();
-            String[] mappings = null;
-            String matchUrl = null;
-            for (Annotation anno : annotations) {
-                if (anno instanceof RequestMapping) { // 모든 요청 방식 매핑
-                    RequestMapping mapping = (RequestMapping) anno;
-                    mappings = mapping.value();
-                } else if (anno instanceof GetMapping && method.equals("GET")) { // GET 방식 매핑
-                    GetMapping mapping = (GetMapping) anno;
-                    mappings = mapping.value();
-                } else if (anno instanceof PostMapping && method.equals("POST")) {
-                    PostMapping mapping = (PostMapping) anno;
-                    mappings = mapping.value();
-                } else if (anno instanceof PutMapping && method.equals("PUT")) {
-                    PutMapping mapping = (PutMapping) anno;
-                    mappings = mapping.value();
-                } else if (anno instanceof PatchMapping && method.equals("PATCH")) {
-                    PatchMapping mapping = (PatchMapping) anno;
-                    mappings = mapping.value();
-                } else if (anno instanceof DeleteMapping && method.equals("DELETE")) {
-                    DeleteMapping mapping = (DeleteMapping) anno;
-                    mappings = mapping.value();
-                }
-
-                if (mappings != null && mappings.length > 0) {
-                    matchUrl = Arrays.stream(mappings)
-                            .filter(s -> uri.startsWith(request.getContextPath() + s)).toList().get(0);
-                    if (matchUrl != null && !matchUrl.isBlank()) {
-                        return item;
-                    }
-                }
+            if (isMatch(request,item.getClass().getDeclaredAnnotations(), false)) {
+                return item;
             }
             /** Type 애노테이션에서 체크 E */
 
@@ -66,35 +41,9 @@ public class HandlerMappingImpl implements HandlerMapping{
              *  - Type 애노테이션 주소 매핑이 되지 않은 경우, 메서드에서 패턴 체크
              */
             for (Method m : item.getClass().getDeclaredMethods()) {
-                for (Annotation anno : m.getDeclaredAnnotations()) {
-                    mappings = null;
-                    if (anno instanceof RequestMapping) { // 모든 요청 방식 매핑
-                        RequestMapping mapping = (RequestMapping) anno;
-                        mappings = mapping.value();
-                    } else if (anno instanceof GetMapping && method.equals("GET")) { // GET 방식 매핑
-                        GetMapping mapping = (GetMapping) anno;
-                        mappings = mapping.value();
-                    } else if (anno instanceof PostMapping && method.equals("POST")) {
-                        PostMapping mapping = (PostMapping) anno;
-                        mappings = mapping.value();
-                    } else if (anno instanceof PutMapping && method.equals("PUT")) {
-                        PutMapping mapping = (PutMapping) anno;
-                        mappings = mapping.value();
-                    } else if (anno instanceof PatchMapping && method.equals("PATCH")) {
-                        PatchMapping mapping = (PatchMapping) anno;
-                        mappings = mapping.value();
-                    } else if (anno instanceof DeleteMapping && method.equals("DELETE")) {
-                        DeleteMapping mapping = (DeleteMapping) anno;
-                        mappings = mapping.value();
-                    }
-
-                    if (mappings != null && mappings.length > 0) {
-                        matchUrl = Arrays.stream(mappings)
-                                .filter(s -> uri.startsWith(request.getContextPath() + s)).toList().get(0);
-                        if (matchUrl != null && !matchUrl.isBlank()) {
-                            return item;
-                        }
-                    }
+                if (isMatch(request, m.getDeclaredAnnotations(), true)) {
+                    setMethod(m);
+                    return item;
                 }
             }
             /* Method 애노테이션에서 체크 E */
@@ -103,12 +52,72 @@ public class HandlerMappingImpl implements HandlerMapping{
         return null;
     }
 
+    @Override
+    public void setMethod(Method method) {
+        this.method = method;
+    }
+
+    @Override
+    public Method getMethod() {
+        return method;
+    }
+
+    private boolean isMatch(HttpServletRequest request, Annotation[] annotations, boolean isMethod) {
+
+        String uri = request.getRequestURI();
+        String method = request.getMethod().toUpperCase();
+        String[] mappings = null;
+        for (Annotation anno : annotations) {
+
+            if (anno instanceof RequestMapping) { // 모든 요청 방식 매핑
+                RequestMapping mapping = (RequestMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof GetMapping && method.equals("GET")) { // GET 방식 매핑
+                GetMapping mapping = (GetMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PostMapping && method.equals("POST")) {
+                PostMapping mapping = (PostMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PutMapping && method.equals("PUT")) {
+                PutMapping mapping = (PutMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PatchMapping && method.equals("PATCH")) {
+                PatchMapping mapping = (PatchMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof DeleteMapping && method.equals("DELETE")) {
+                DeleteMapping mapping = (DeleteMapping) anno;
+                mappings = mapping.value();
+            }
+
+            if (mappings != null && mappings.length > 0) {
+
+                String matchUrl = null;
+                if (isMethod) {
+                    // 메서드인 경우 *와 {경로변수} 고려하여 처리
+                    for(String mapping : mappings) {
+                        String pattern = mapping.replace("/*", "/\\w*")
+                                .replaceAll("/\\{\\w+\\}", "/(\\\\w*)");
+                        Pattern p = Pattern.compile("^" + request.getContextPath() + pattern + "$");
+                        Matcher matcher = p.matcher(uri);
+                        return matcher.find();
+                    }
+                } else {
+                    matchUrl = Arrays.stream(mappings)
+                            .filter(s -> uri.startsWith(request.getContextPath() + s)).toList().get(0);
+                }
+                return matchUrl != null && !matchUrl.isBlank();
+            }
+        }
+
+        return false;
+    }
+
     /**
      * 모든 컨트롤러 조회
      *
      * @return
      */
-    public List<Object> getControllers() {
+    private List<Object> getControllers() {
        return BeanContainer.getInstance().getBeans().entrySet()
                     .stream()
                     .map(s -> s.getValue())

@@ -19,10 +19,15 @@ public class RouterService {
      *
      */
     public void route(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        Object con = handlerMapping.search(req);
-        if (con == null) { // 처리 가능한 컨트롤러를 못찾은 경우 404 응답 코드
+        Object controller = handlerMapping.search(req);
+        if (controller == null) { // 처리 가능한 컨트롤러를 못찾은 경우 404 응답 코드
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
         }
+
+
+
+
     }
 
 
