@@ -36,34 +36,32 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         String m = request.getMethod().toUpperCase(); // 요청 메서드
         Annotation[] annotations = method.getDeclaredAnnotations();
 
+        /* 컨트롤러 애노테이션 처리 S */
+        String[] rootUrls = {""};
+        for (Annotation anno : controller.getClass().getDeclaredAnnotations()) {
+            rootUrls = getMappingUrl(m, anno);
+        }
+        /* 컨트롤러 애노테이션 처리 E */
 
-        /* PathVariable : 경로 변수 패턴 추출 S */
+        /* PathVariable : 경로 변수 패턴 추출  S */
         String[] pathUrls = null;
         List<String> pathVariables = new ArrayList<>();
         for (Annotation anno : annotations) {
-            if (m.equals("GET") && anno instanceof GetMapping) {
-                GetMapping mapping = (GetMapping) anno;
-                pathUrls = mapping.value();
-            } else if (m.equals("POST") && anno instanceof PostMapping) {
-                PostMapping mapping = (PostMapping) anno;
-                pathUrls = mapping.value();
-            } else if (m.equals("PATCH") && anno instanceof PatchMapping) {
-                PatchMapping mapping = (PatchMapping) anno;
-                pathUrls = mapping.value();
-            } else if (m.equals("PUT") && anno instanceof PutMapping) {
-                PutMapping mapping = (PutMapping) anno;
-                pathUrls = mapping.value();
-            } else if (m.equals("DELETE") && anno instanceof DeleteMapping) {
-                DeleteMapping mapping = (DeleteMapping) anno;
-                pathUrls = mapping.value();
-            }
+            pathUrls = getMappingUrl(m, anno);
         }
 
-        Pattern p = Pattern.compile("\\{(\\w+)\\}");
-        for (String url : pathUrls) {
-            Matcher matcher = p.matcher(url);
-            while (matcher.find()) {
-                pathVariables.add(matcher.group(1));
+        if (pathUrls != null) {
+            Pattern p = Pattern.compile("\\{(\\w+)\\}");
+            for (String url : pathUrls) {
+                Matcher matcher = p.matcher(url);
+
+                List<String> matched = new ArrayList<>();
+                while (matcher.find()) {
+                    matched.add(matcher.group(1));
+                }
+
+
+
             }
         }
         /* PathVariable : 경로 변수 패턴 추출 E */
@@ -80,7 +78,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                         paramName = requestParam.value();
                         break;
                     } else if (pa instanceof PathVariable) { // 경로 변수 매칭
-                        
+
                     }
                 }
 
@@ -121,7 +119,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     for (Method _method : cls.getDeclaredMethods()) {
                         String name = _method.getName();
                         if (!name.startsWith("set")) continue;
-                        ;
 
                         char[] chars = name.replace("set", "").toCharArray();
                         chars[0] = Character.toLowerCase(chars[0]);
@@ -220,5 +217,40 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    /**
+     * 요청 메서드 & 애노테이션으로 설정된 mapping Url 조회
+     *
+     * @param method
+     * @param anno
+     * @return
+     */
+    private String[] getMappingUrl(String method, Annotation anno) {
+
+        // RequestMapping은 모든 요청에 해당하므로 정의되어 있다면 이 설정으로 교체하고 반환한다.
+        if (anno instanceof  RequestMapping) {
+            RequestMapping mapping = (RequestMapping) anno;
+            return mapping.value();
+        }
+
+        if (method.equals("GET") && anno instanceof GetMapping) {
+            GetMapping mapping = (GetMapping) anno;
+            return mapping.value();
+        } else if (method.equals("POST") && anno instanceof PostMapping) {
+            PostMapping mapping = (PostMapping) anno;
+            return mapping.value();
+        } else if (method.equals("PATCH") && anno instanceof PatchMapping) {
+            PatchMapping mapping = (PatchMapping) anno;
+            return mapping.value();
+        } else if (method.equals("PUT") && anno instanceof PutMapping) {
+            PutMapping mapping = (PutMapping) anno;
+            return mapping.value();
+        } else if (method.equals("DELETE") && anno instanceof DeleteMapping) {
+            DeleteMapping mapping = (DeleteMapping) anno;
+            return mapping.value();
+        }
+
+        return null;
     }
 }
