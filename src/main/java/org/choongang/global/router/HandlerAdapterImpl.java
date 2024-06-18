@@ -14,6 +14,8 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class HandlerAdapterImpl implements HandlerAdapter {
@@ -36,18 +38,32 @@ public class HandlerAdapterImpl implements HandlerAdapter {
 
 
         /* PathVariable : 경로 변수 패턴 추출 S */
-        String pathUrl = null;
+        String[] pathUrls = null;
+        List<String> pathVariables = new ArrayList<>();
         for (Annotation anno : annotations) {
             if (m.equals("GET") && anno instanceof GetMapping) {
-
+                GetMapping mapping = (GetMapping) anno;
+                pathUrls = mapping.value();
             } else if (m.equals("POST") && anno instanceof PostMapping) {
-
+                PostMapping mapping = (PostMapping) anno;
+                pathUrls = mapping.value();
             } else if (m.equals("PATCH") && anno instanceof PatchMapping) {
-
+                PatchMapping mapping = (PatchMapping) anno;
+                pathUrls = mapping.value();
             } else if (m.equals("PUT") && anno instanceof PutMapping) {
-
+                PutMapping mapping = (PutMapping) anno;
+                pathUrls = mapping.value();
             } else if (m.equals("DELETE") && anno instanceof DeleteMapping) {
+                DeleteMapping mapping = (DeleteMapping) anno;
+                pathUrls = mapping.value();
+            }
+        }
 
+        Pattern p = Pattern.compile("\\{(\\w+)\\}");
+        for (String url : pathUrls) {
+            Matcher matcher = p.matcher(url);
+            while (matcher.find()) {
+                pathVariables.add(matcher.group(1));
             }
         }
         /* PathVariable : 경로 변수 패턴 추출 E */
@@ -59,10 +75,12 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 Class cls = param.getType();
                 String paramName = null, paramValue = null;
                 for (Annotation pa : param.getDeclaredAnnotations()) {
-                    if (pa instanceof RequestParam) {
+                    if (pa instanceof RequestParam) { // 요청 데이터 매칭
                         RequestParam requestParam = (RequestParam) pa;
                         paramName = requestParam.value();
                         break;
+                    } else if (pa instanceof PathVariable) { // 경로 변수 매칭
+                        
                     }
                 }
 

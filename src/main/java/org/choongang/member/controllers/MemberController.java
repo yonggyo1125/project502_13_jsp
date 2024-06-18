@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.*;
 import org.choongang.member.services.JoinService;
 
-@RestController
+@Controller
 @RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
