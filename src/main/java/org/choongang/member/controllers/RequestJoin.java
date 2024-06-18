@@ -4,6 +4,7 @@ import lombok.Data;
 import org.choongang.global.config.annotations.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class RequestJoin {
@@ -25,4 +26,6 @@ public class RequestJoin {
     private Double num66;
     @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDt;
+
+    private List<String> hobby;
 }

@@ -9,18 +9,21 @@ import org.choongang.global.config.annotations.*;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class HandlerAdapterImpl implements HandlerAdapter {
 
-    private ObjectMapper om;
+    private final ObjectMapper om;
 
     public HandlerAdapterImpl() {
         om = new ObjectMapper();
@@ -43,9 +46,9 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         }
         /* 컨트롤러 애노테이션 처리 E */
 
-        /* PathVariable : 경로 변수 패턴 추출  S */
-        String[] pathUrls = null;
-        List<String> pathVariables = new ArrayList<>();
+        /* PathVariable : 경로 변수 패턴 값 추출  S */
+        String[] pathUrls = {""};
+        Map<String, String> pathVariables = new HashMap<>();
         for (Annotation anno : annotations) {
             pathUrls = getMappingUrl(m, anno);
         }
@@ -60,33 +63,47 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     matched.add(matcher.group(1));
                 }
 
+                if (matched.isEmpty()) continue;;
 
+                for (String rUrl : rootUrls) {
+                    String _url = request.getContextPath() + rUrl + url;
+                    for (String s : matched) {
+                        _url = _url.replace("{" + s + "}", "(\\w*)");
+                    }
 
+                    Pattern p2 = Pattern.compile("^" + _url+"$");
+                    Matcher matcher2 = p2.matcher(request.getRequestURI());
+                    while (matcher2.find()) {
+                        for (int i = 0; i < matched.size(); i++) {
+                            pathVariables.put(matched.get(i), matcher2.group(i + 1));
+                        }
+                    }
+                }
             }
         }
-        /* PathVariable : 경로 변수 패턴 추출 E */
+
+        /* PathVariable : 경로 변수 패턴 값 추출 E */
 
         /* 메서드 매개변수 의존성 주입 처리 S */
         List<Object> args = new ArrayList<>();
         for (Parameter param : method.getParameters()) {
             try {
                 Class cls = param.getType();
-                String paramName = null, paramValue = null;
+                String paramValue = null;
                 for (Annotation pa : param.getDeclaredAnnotations()) {
-                    if (pa instanceof RequestParam) { // 요청 데이터 매칭
-                        RequestParam requestParam = (RequestParam) pa;
-                        paramName = requestParam.value();
+                    if (pa instanceof RequestParam requestParam) { // 요청 데이터 매칭
+                        String paramName = requestParam.value();
+                        paramValue = request.getParameter(paramName);
                         break;
-                    } else if (pa instanceof PathVariable) { // 경로 변수 매칭
-
+                    } else if (pa instanceof PathVariable pathVariable) { // 경로 변수 매칭
+                        String pathName = pathVariable.value();
+                        paramValue = pathVariables.get(pathName);
+                        break;
                     }
                 }
 
-                if (paramName != null && !paramName.isBlank()) {
-                    paramValue = request.getParameter(paramName);
-                    if (cls == int.class || cls == Integer.class || cls == long.class || cls == Long.class || cls == double.class || cls == Double.class ||  cls == float.class || cls == Float.class) {
-                        paramValue = paramValue == null || paramValue.isBlank()?"0":paramValue;
-                    }
+                if (cls == int.class || cls == Integer.class || cls == long.class || cls == Long.class || cls == double.class || cls == Double.class ||  cls == float.class || cls == Float.class) {
+                    paramValue = paramValue == null || paramValue.isBlank()?"0":paramValue;
                 }
 
                 if (cls == HttpServletRequest.class) {
@@ -129,7 +146,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
 
                         Class clz = _method.getParameterTypes()[0];
                         // 자료형 변환 후 메서드 호출 처리
-                        invokeMethod(paramObj,_method, value, clz);
+                        invokeMethod(paramObj,_method, value, clz, name);
                     }
                     args.add(paramObj);
                 } // endif
@@ -175,8 +192,9 @@ public class HandlerAdapterImpl implements HandlerAdapter {
      * @param method
      * @param value
      * @param clz
+     * @param fieldNm - 멤버변수명
      */
-    private void invokeMethod(Object paramObj, Method method, String value, Class clz) {
+    private void invokeMethod(Object paramObj, Method method, String value, Class clz, String fieldNm) {
         try {
             if (clz == String.class) { // 문자열 처리
                 method.invoke(paramObj, value);
@@ -211,7 +229,30 @@ public class HandlerAdapterImpl implements HandlerAdapter {
             } else if (clz == Double.class) {
                 method.invoke(paramObj, Double.valueOf(value));
                 /* 기본 자료형 및 Wrapper 클래스 자료형 처리 E */
+                // LocalDate, LocalTime, LocalDateTime 자료형 처리 S
+            } else if (clz == LocalDateTime.class || clz == LocalDate.class || clz == LocalTime.class) {
+               Field field = paramObj.getClass().getDeclaredField(fieldNm);
+               for (Annotation a : field.getDeclaredAnnotations()) {
+                   if (a instanceof DateTimeFormat dateTimeFormat) {
+                       String pattern = dateTimeFormat.value();
+                       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                       if (clz == LocalTime.class) {
+                           method.invoke(paramObj, LocalTime.parse(value, formatter));
+                       } else if (clz == LocalDate.class) {
+                           method.invoke(paramObj, LocalDate.parse(value, formatter));
+                       } else {
+                           method.invoke(paramObj, LocalDateTime.parse(value, formatter));
+                       }
+                       break;
+                   } // endif
+               } // endfor
+                // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
+                // List 형태 자료형 처리 
+            } else if (clz == List.class) {
+
             }
+
+
 
 
         } catch (Exception e) {

@@ -13,8 +13,8 @@ public class MemberController {
     private final JoinService joinService;
 
     @GetMapping("/{mode}/test/{num}")
-    public String join(@PathVariable("mode") String mode, @RequestParam("seq") int seq, RequestJoin form, HttpServletRequest request, HttpServletResponse response) {
-        System.out.printf("mode=%s, seq=%d%n", mode, seq);
+    public String join(@PathVariable("mode") String mode, @RequestParam("seq") int seq, RequestJoin form, HttpServletRequest request, HttpServletResponse response, @PathVariable("num") int num) {
+        System.out.printf("mode=%s, seq=%d, num=%d%n", mode, seq, num);
         System.out.println(form);
         return "member/join";
     }
