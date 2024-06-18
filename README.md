@@ -1146,3 +1146,135 @@ public class RequestJoin {
 <%@page contentType="text/html; charset=UTF-8" %>
 템플릿 출력
 ```
+
+# 레이아웃 구성 
+> 레이아웃은 커스텀 태그를 활용하여 구성합니다.
+> 공통 레이아웃(tags/layouts/common.tag) 구성은 모든 레이아웃의 기본이 될수 있는 구성이며 다른 레이아웃(예 - tags/layouts/main.tag)이 공통 레이아웃을 바탕으로 2차 구성을 하게 됩니다.
+> 화면 구성시에 각 출력 문구들은 메세지 파일을 통해 관리 됩니다. 메세지 파일은 역할별로 구분하여 commons.properties는 공통 문구, validations.properties는 유효성 검사시 문구, errors.properties는 에러 관련 문구로 분리합니다.
+
+## 메세지 파일 구성
+- src/main/resources/messages/commons.properties
+- src/main/resources/messages/validations.properties
+- src/main/resources/messages/errors.properties
+
+### commons.properties
+
+```properties
+# 사이트 공통
+SITE_TITLE=중앙정보처리학원
+```
+
+## 레이아웃 파일 구성 
+- 기준 경로 : webapp/WEB-INF/tags/layouts/
+
+### common.tag
+
+```jsp
+<%@ tag body-content="scriptless" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ attribute name="header" fragment="true" %>
+<%@ attribute name="footer" fragment="true" %>
+<%@ attribute name="commonCss" fragment="true" %>
+<%@ attribute name="commonJs" fragment="true" %>
+<%@ attribute name="title" %>
+<fmt:setBundle basename="messages.commons" />
+<c:url var="cssUrl" value="/static/css/" />
+<c:url var="jsUrl" value="/static/js/" />
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>
+         <c:if test="${!empty title}">
+         ${title} -
+         </c:if>
+         <fmt:message key="SITE_TITLE" />
+        </title>
+        <link rel="stylesheet" type="text/css" href="${cssUrl}style.css">
+        <jsp:invoke fragment="commonCss" />
+        <c:if test="${addCss != null}">
+            <c:forEach var="cssFile" items="${addCss}">
+                <link rel="stylesheet" type="text/css" href="${cssUrl}${cssFile}.css">
+            </c:forEach>
+        </c:if>
+
+        <script src="${jsUrl}common.js"></script>
+        <jsp:invoke fragment="commonJs" />
+        <c:if test="${addScript != null}">
+            <c:forEach var="jsFile" items="${addScript}">
+                <script src="${jsUrl}${jsFile}.js"></script>
+            </c:forEach>
+        </c:if>
+    </head>
+    <body>
+        <header>
+            <jsp:invoke fragment="header" />
+        </header>
+        <main>
+            <jsp:doBody />
+        </main>
+        <footer>
+            <jsp:invoke fragment="footer" />
+        </footer>
+    </body>
+    <iframe name="ifrmProcess" class="dn"></iframe>
+</html>
+```
+
+### main.tag
+
+```jsp
+<%@ tag body-content="scriptless" %>
+<%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<%@ attribute name="title" %>
+<c:url var="cssUrl" value="/static/css/" />
+<c:url var="jsUrl" value="/static/js/" />
+
+<layout:common title="${title}">
+    <jsp:attribute name="header">
+        <h1>메인 레이아웃 상단 영역!</h1>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <h1>메인 레이아웃 하단 영역!</h1>
+    </jsp:attribute>
+    <jsp:attribute name="commonCss">
+        <link rel="stylesheet" type="text/css" href="${cssUrl}main.css">
+    </jsp:attribute>
+    <jsp:attribute name="commonJs">
+        <script src="${jsUrl}main.js"></script>
+    </jsp:attribute>
+    <jsp:body>
+        <jsp:doBody />
+    </jsp:body>
+</layout:common>
+```
+
+## 공통 CSS, JS 추가 
+
+###  webapp/static/css/style.css
+
+```css
+.dn { display: none !important; }
+```
+
+###  webapp/static/js/common.js
+
+
+## 적용해보기
+
+> 지난 기본 구성시 생성한 ... WEB-INF/templates/member/join.jsp에 다음과 같이 적용해봅니다. 정상적으로 반영되는지 확인합니다. 
+
+```jsp
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main title="회원가입">
+    <h1>회원가입</h1>
+</layout:main>
+```
+
+## css, js, images이 있는 webapp/static 쪽 정적 경로 처리 
+> DispatcherServlet에 service 메서드는 모든 요청에 다 유입이 되므로 css, js 파일도 상관없이 모두 여기를 거쳐 가게 된다. 따라서 직접 읽어 올수 있도록 정적 경로 분리 처리를 해야 한다. 
