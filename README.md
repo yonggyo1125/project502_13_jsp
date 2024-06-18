@@ -529,11 +529,619 @@ public class BeanContainer {
 }
 ```
 
+## 라우팅 처리 
 
-> org/choongang/global/router/DispatcherServlet.java
+> 모든 요청은 단일 창구로 DispatcherServlet으로 유입이 되며 유입된 요청을 RouterService가 분석하여 BeanContainer에 등록된 컨트롤러 객체 및 요청 메서드를 HandlerMapping 구현체가 이를 찾아주게 됩니다. 찾아준 컨트롤러 객체의 요청 메서드는 HandlerAdapter 구현 객체가 실행하며 실행시에 요청 메서드에 정의된 매개변수에 따라 요청 데이터를 분석하여 이를 변수 또는 Data 클래스 형태의 객체에 알맞게 주입해 줍니다. 또한 서블릿 기본 객체인 HttpServletRequest request, HttpServletResponse response와 같은 객체를 주입한다면 이 역시 BeanContainer에서 찾아서 완성된 객체를 주입해 줍니다.
 
-- 모든 요청은 여기로 유입되고 요청 패턴에 맞는 주소와 요청 방식을 확인해 보고 적절한 컨트롤러를 실행해 줍니다. 
+- 기본 경로 : src/main/java/org/choongang/global/router/
+
+### HandlerMapping.java 
 
 ```java
+package org.choongang.global.router;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
+
+public interface HandlerMapping {
+    List<Object> search(HttpServletRequest request);
+
+}
+```
+
+### HandlerMappingImpl.java 
+
+```java
+package org.choongang.global.router;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.choongang.global.config.annotations.*;
+import org.choongang.global.config.containers.BeanContainer;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Service
+public class HandlerMappingImpl implements HandlerMapping{
+
+
+    private String controllerUrl;
+
+    @Override
+    public List<Object> search(HttpServletRequest request) {
+
+        List<Object> items = getControllers();
+
+        for (Object item : items) {
+            /** Type 애노테이션에서 체크 S */
+            // @RequestMapping, @GetMapping, @PostMapping, @PatchMapping, @PutMapping, @DeleteMapping
+            if (isMatch(request,item.getClass().getDeclaredAnnotations(), false, null)) {
+                // 메서드 체크
+                for (Method m : item.getClass().getDeclaredMethods()) {
+                    if (isMatch(request, m.getDeclaredAnnotations(), true, controllerUrl)) {
+                        return List.of(item, m);
+                    }
+                }
+            }
+            /** Type 애노테이션에서 체크 E */
+
+            /**
+             * Method 애노테이션에서 체크 S
+             *  - Type 애노테이션 주소 매핑이 되지 않은 경우, 메서드에서 패턴 체크
+             */
+            for (Method m : item.getClass().getDeclaredMethods()) {
+                if (isMatch(request, m.getDeclaredAnnotations(), true, null)) {
+                    return List.of(item, m);
+                }
+            }
+            /* Method 애노테이션에서 체크 E */
+        }
+
+        return null;
+    }
+
+
+    /**
+     *
+     * @param request
+     * @param annotations : 적용 애노테이션 목록
+     * @param isMethod : 메서드의 에노테이션 체크인지
+     * @param prefixUrl : 컨트롤러 체크인 경우 타입 애노테이션에서 적용된 경우
+     * @return
+     */
+    private boolean isMatch(HttpServletRequest request, Annotation[] annotations, boolean isMethod, String prefixUrl) {
+
+        String uri = request.getRequestURI();
+        String method = request.getMethod().toUpperCase();
+        String[] mappings = null;
+        for (Annotation anno : annotations) {
+
+            if (anno instanceof RequestMapping) { // 모든 요청 방식 매핑
+                RequestMapping mapping = (RequestMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof GetMapping && method.equals("GET")) { // GET 방식 매핑
+                GetMapping mapping = (GetMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PostMapping && method.equals("POST")) {
+                PostMapping mapping = (PostMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PutMapping && method.equals("PUT")) {
+                PutMapping mapping = (PutMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof PatchMapping && method.equals("PATCH")) {
+                PatchMapping mapping = (PatchMapping) anno;
+                mappings = mapping.value();
+            } else if (anno instanceof DeleteMapping && method.equals("DELETE")) {
+                DeleteMapping mapping = (DeleteMapping) anno;
+                mappings = mapping.value();
+            }
+
+            if (mappings != null && mappings.length > 0) {
+
+                String matchUrl = null;
+                if (isMethod) {
+                    String addUrl = prefixUrl == null ? "" : prefixUrl;
+                    // 메서드인 경우 *와 {경로변수} 고려하여 처리
+                    for(String mapping : mappings) {
+                        String pattern = mapping.replace("/*", "/\\w*")
+                                .replaceAll("/\\{\\w+\\}", "/(\\\\w*)");
+
+                        Pattern p = Pattern.compile("^" + request.getContextPath() + addUrl + pattern + "$");
+                        Matcher matcher = p.matcher(uri);
+                        return matcher.find();
+                    }
+                } else {
+                    List<String> matches = Arrays.stream(mappings)
+                            .filter(s -> uri.startsWith(request.getContextPath() + s)).toList();
+                    if (!matches.isEmpty()) {
+                        matchUrl = matches.get(0);
+                        controllerUrl = matchUrl;
+                    }
+                }
+                return matchUrl != null && !matchUrl.isBlank();
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 모든 컨트롤러 조회
+     *
+     * @return
+     */
+    private List<Object> getControllers() {
+       return BeanContainer.getInstance().getBeans().entrySet()
+                    .stream()
+                    .map(s -> s.getValue())
+                .filter(b -> Arrays.stream(b.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof Controller || a instanceof RestController))
+                .toList();
+    }
+}
+```
+
+### HandlerAdapter.java 
+
+```java 
+package org.choongang.global.router;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.util.List;
+
+public interface HandlerAdapter {
+    void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data);
+}
+```
+
+### HandlerAdapterImpl.java
+
+```java
+package org.choongang.global.router;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.choongang.global.config.annotations.*;
+
+import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Service
+public class HandlerAdapterImpl implements HandlerAdapter {
+
+    private final ObjectMapper om;
+
+    public HandlerAdapterImpl() {
+        om = new ObjectMapper();
+        om.registerModule(new JavaTimeModule());
+    }
+
+    @Override
+    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) {
+
+        Object controller = data.get(0); // 컨트롤러 객체
+        Method method = (Method)data.get(1); // 찾은 요청 메서드
+
+        String m = request.getMethod().toUpperCase(); // 요청 메서드
+        Annotation[] annotations = method.getDeclaredAnnotations();
+
+        /* 컨트롤러 애노테이션 처리 S */
+        String[] rootUrls = {""};
+        for (Annotation anno : controller.getClass().getDeclaredAnnotations()) {
+            rootUrls = getMappingUrl(m, anno);
+        }
+        /* 컨트롤러 애노테이션 처리 E */
+
+        /* PathVariable : 경로 변수 패턴 값 추출  S */
+        String[] pathUrls = {""};
+        Map<String, String> pathVariables = new HashMap<>();
+        for (Annotation anno : annotations) {
+            pathUrls = getMappingUrl(m, anno);
+        }
+
+        if (pathUrls != null) {
+            Pattern p = Pattern.compile("\\{(\\w+)\\}");
+            for (String url : pathUrls) {
+                Matcher matcher = p.matcher(url);
+
+                List<String> matched = new ArrayList<>();
+                while (matcher.find()) {
+                    matched.add(matcher.group(1));
+                }
+
+                if (matched.isEmpty()) continue;;
+
+                for (String rUrl : rootUrls) {
+                    String _url = request.getContextPath() + rUrl + url;
+                    for (String s : matched) {
+                        _url = _url.replace("{" + s + "}", "(\\w*)");
+                    }
+
+                    Pattern p2 = Pattern.compile("^" + _url+"$");
+                    Matcher matcher2 = p2.matcher(request.getRequestURI());
+                    while (matcher2.find()) {
+                        for (int i = 0; i < matched.size(); i++) {
+                            pathVariables.put(matched.get(i), matcher2.group(i + 1));
+                        }
+                    }
+                }
+            }
+        }
+
+        /* PathVariable : 경로 변수 패턴 값 추출 E */
+
+        /* 메서드 매개변수 의존성 주입 처리 S */
+        List<Object> args = new ArrayList<>();
+        for (Parameter param : method.getParameters()) {
+            try {
+                Class cls = param.getType();
+                String paramValue = null;
+                for (Annotation pa : param.getDeclaredAnnotations()) {
+                    if (pa instanceof RequestParam requestParam) { // 요청 데이터 매칭
+                        String paramName = requestParam.value();
+                        paramValue = request.getParameter(paramName);
+                        break;
+                    } else if (pa instanceof PathVariable pathVariable) { // 경로 변수 매칭
+                        String pathName = pathVariable.value();
+                        paramValue = pathVariables.get(pathName);
+                        break;
+                    }
+                }
+
+                if (cls == int.class || cls == Integer.class || cls == long.class || cls == Long.class || cls == double.class || cls == Double.class ||  cls == float.class || cls == Float.class) {
+                    paramValue = paramValue == null || paramValue.isBlank()?"0":paramValue;
+                }
+
+                if (cls == HttpServletRequest.class) {
+                    args.add(request);
+                } else if (cls == HttpServletResponse.class) {
+                    args.add(response);
+                } else if (cls == int.class) {
+                    args.add(Integer.parseInt(paramValue));
+                } else if (cls == Integer.class) {
+                    args.add(Integer.valueOf(paramValue));
+                } else if (cls == long.class) {
+                    args.add(Long.parseLong(paramValue));
+                } else if (cls == Long.class) {
+                    args.add(Long.valueOf(paramValue));
+                } else if (cls == float.class) {
+                    args.add(Float.parseFloat(paramValue));
+                } else if (cls == Float.class) {
+                    args.add(Float.valueOf(paramValue));
+                } else if (cls == double.class) {
+                    args.add(Double.parseDouble(paramValue));
+                } else if (cls == Double.class) {
+                    args.add(Double.valueOf(paramValue));
+                } else if (cls == String.class) {
+                    // 문자열인 경우
+                    args.add(paramValue);
+                } else {
+                    // 기타는 setter를 체크해 보고 요청 데이터를 주입
+                    // 동적 객체 생성
+                    Object paramObj = cls.getDeclaredConstructors()[0].newInstance();
+                    for (Method _method : cls.getDeclaredMethods()) {
+                        String name = _method.getName();
+                        if (!name.startsWith("set")) continue;
+
+                        char[] chars = name.replace("set", "").toCharArray();
+                        chars[0] = Character.toLowerCase(chars[0]);
+                        name = String.valueOf(chars);
+                        String value = request.getParameter(name);
+                        if (value == null) continue;
+
+
+                        Class clz = _method.getParameterTypes()[0];
+                        // 자료형 변환 후 메서드 호출 처리
+                        invokeMethod(paramObj,_method, value, clz, name);
+                    }
+                    args.add(paramObj);
+                } // endif
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        /* 메서드 매개변수 의존성 주입 처리 E */
+
+        /* 요청 메서드 호출 S */
+        try {
+            Object result = args.isEmpty() ? method.invoke(controller) : method.invoke(controller, args.toArray());
+
+            /**
+             *  컨트롤러 타입이 @Controller이면 템플릿 출력,
+             * @RestController이면 JSON 문자열로 출력, 응답 헤더를 application/json; charset=UTF-8로 고정
+             */
+           boolean isRest = Arrays.stream(controller.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof RestController);
+           // Rest 컨트롤러인 경우
+           if (isRest) {
+               response.setContentType("application/json; charset=UTF-8");
+               String json = om.writeValueAsString(result);
+               PrintWriter out = response.getWriter();
+               out.print(json);
+               return;
+           }
+
+            // 일반 컨트롤러인 경우 문자열 반환값을 템플릿 경로로 사용
+            String tpl = "/WEB-INF/templates/" + result + ".jsp";
+            RequestDispatcher rd = request.getRequestDispatcher(tpl);
+            rd.forward(request, response);
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        /* 요청 메서드 호출 E */
+    }
+
+    /**
+     * 자료형 변환 후 메서드 호출 처리
+     *
+     * @param paramObj
+     * @param method
+     * @param value
+     * @param clz
+     * @param fieldNm - 멤버변수명
+     */
+    private void invokeMethod(Object paramObj, Method method, String value, Class clz, String fieldNm) {
+        try {
+            if (clz == String.class) { // 문자열 처리
+                method.invoke(paramObj, value);
+
+                /* 기본 자료형 및 Wrapper 클래스 자료형 처리  S */
+            } else if (clz == boolean.class) {
+                method.invoke(paramObj, Boolean.parseBoolean(value));
+            } else if (clz == Boolean.class) {
+                method.invoke(paramObj, Boolean.valueOf(value));
+            } else if (clz == byte.class) {
+                method.invoke(paramObj, Byte.parseByte(value));
+            } else if (clz == Byte.class) {
+                method.invoke(paramObj, Byte.valueOf(value));
+            } else if (clz == short.class) {
+                method.invoke(paramObj, Short.parseShort(value));
+            } else if (clz == Short.class) {
+                method.invoke(paramObj, Short.valueOf(value));
+            } else if (clz == int.class) {
+                method.invoke(paramObj, Integer.parseInt(value));
+            } else if (clz == Integer.class) {
+                method.invoke(paramObj, Integer.valueOf(value));
+            } else if (clz == long.class) {
+                method.invoke(paramObj, Long.parseLong(value));
+            } else if (clz == Long.class) {
+                method.invoke(paramObj, Long.valueOf(value));
+            } else if (clz == float.class) {
+                method.invoke(paramObj, Float.parseFloat(value));
+            } else if (clz == Float.class) {
+                method.invoke(paramObj, Float.valueOf(value));
+            } else if (clz == double.class) {
+                method.invoke(paramObj, Double.parseDouble(value));
+            } else if (clz == Double.class) {
+                method.invoke(paramObj, Double.valueOf(value));
+                /* 기본 자료형 및 Wrapper 클래스 자료형 처리 E */
+                // LocalDate, LocalTime, LocalDateTime 자료형 처리 S
+            } else if (clz == LocalDateTime.class || clz == LocalDate.class || clz == LocalTime.class) {
+               Field field = paramObj.getClass().getDeclaredField(fieldNm);
+               for (Annotation a : field.getDeclaredAnnotations()) {
+                   if (a instanceof DateTimeFormat dateTimeFormat) {
+                       String pattern = dateTimeFormat.value();
+                       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                       if (clz == LocalTime.class) {
+                           method.invoke(paramObj, LocalTime.parse(value, formatter));
+                       } else if (clz == LocalDate.class) {
+                           method.invoke(paramObj, LocalDate.parse(value, formatter));
+                       } else {
+                           method.invoke(paramObj, LocalDateTime.parse(value, formatter));
+                       }
+                       break;
+                   } // endif
+               } // endfor
+                // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
+            }
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    /**
+     * 요청 메서드 & 애노테이션으로 설정된 mapping Url 조회
+     *
+     * @param method
+     * @param anno
+     * @return
+     */
+    private String[] getMappingUrl(String method, Annotation anno) {
+
+        // RequestMapping은 모든 요청에 해당하므로 정의되어 있다면 이 설정으로 교체하고 반환한다.
+        if (anno instanceof  RequestMapping) {
+            RequestMapping mapping = (RequestMapping) anno;
+            return mapping.value();
+        }
+
+        if (method.equals("GET") && anno instanceof GetMapping) {
+            GetMapping mapping = (GetMapping) anno;
+            return mapping.value();
+        } else if (method.equals("POST") && anno instanceof PostMapping) {
+            PostMapping mapping = (PostMapping) anno;
+            return mapping.value();
+        } else if (method.equals("PATCH") && anno instanceof PatchMapping) {
+            PatchMapping mapping = (PatchMapping) anno;
+            return mapping.value();
+        } else if (method.equals("PUT") && anno instanceof PutMapping) {
+            PutMapping mapping = (PutMapping) anno;
+            return mapping.value();
+        } else if (method.equals("DELETE") && anno instanceof DeleteMapping) {
+            DeleteMapping mapping = (DeleteMapping) anno;
+            return mapping.value();
+        }
+
+        return null;
+    }
+}
+```
+
+### RouterService.java
+
+```java
+package org.choongang.global.router;
+
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.choongang.global.config.annotations.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class RouterService {
+
+    private final HandlerMappingImpl handlerMapping;
+    private final HandlerAdapterImpl handlerAdapter;
+
+    /**
+     * 컨트롤러 라우팅
+     *
+     */
+    public void route(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        List<Object> data = handlerMapping.search(req);
+        if (data == null) { // 처리 가능한 컨트롤러를 못찾은 경우 404 응답 코드
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        // 찾은 컨트롤러 요청 메서드를 실행
+        handlerAdapter.execute(req, res, data);
+
+    }
+
+
+}
+```
+
+### DispatcherServlet.java
+
+```java
+package org.choongang.global.router;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.choongang.global.config.containers.BeanContainer;
+
+import java.io.IOException;
+
+@WebServlet("/")
+public class DispatcherServlet extends HttpServlet  {
+
+    @Override
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        HttpServletRequest request = (HttpServletRequest)req;
+        HttpServletResponse response = (HttpServletResponse)res;
+        BeanContainer bc = BeanContainer.getInstance();
+        bc.addBean(HttpServletRequest.class.getName(), request);
+        bc.addBean(HttpServletResponse.class.getName(), response);
+
+        bc.loadBeans();
+
+        RouterService service = bc.getBean(RouterService.class);
+        service.route(request, response);
+    }
+}
+```
+
+## 구현내용 적용해 보기
+
+> member 도메인을 만들고 다음과 같이 구성해 봅니다.
+> 구성이 완료되면 브라우저 주소창에 /컨텍스트 경로/member/mode/test/123?email=test@test.org&password=1234&regDt=2024-06-19 11:22:30 과 같이 입력해 본 후 정상적으로 값이 콘솔에 출력되는지 테스트 합니다. 
+> 또한 템플릿 webapp/WEB-INF/templates/member/join.jsp로 정상 출력되는지 테스트 합니다.
+
+
+### org/choongang/member/controllers/MemberController.java
+
+```java
+package org.choongang.member.controllers;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.choongang.global.config.annotations.*;
+import org.choongang.member.services.JoinService;
+
+@Controller
+@RequestMapping("/member")
+@RequiredArgsConstructor
+public class MemberController {
+    
+    @GetMapping("/{mode}/test/{num}")
+    public String join(@PathVariable("mode") String mode, @RequestParam("seq") int seq, RequestJoin form, HttpServletRequest request, HttpServletResponse response, @PathVariable("num") int num) {
+        
+        System.out.printf("mode=%s, seq=%d, num=%d%n", mode, seq, num);
+        System.out.println(form);
+        
+        return "member/join";
+    }
+}
+```
+
+### org/choongang/member/controllers/RequestJoin.java
+
+```java
+package org.choongang.member.controllers;
+
+import lombok.Data;
+import org.choongang.global.config.annotations.DateTimeFormat;
+
+import java.time.LocalDateTime;
+
+@Data
+public class RequestJoin {
+    private String email;
+    private String password;
+    private String confirmPassword;
+    private boolean termsAgree;
+    private byte num1;
+    private short num2;
+    private int num3;
+    private long num4;
+    private float num5;
+    private double num6;
+    private Byte num11;
+    private Short num22;
+    private Integer num33;
+    private Long num44;
+    private Float num55;
+    private Double num66;
+    @DateTimeFormat("yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime regDt;
+}
+```
+
+### webapp/WEB-INF/templates/member/join.jsp
+
+```jsp
+<%@page contentType="text/html; charset=UTF-8" %>
+템플릿 출력
 ```
