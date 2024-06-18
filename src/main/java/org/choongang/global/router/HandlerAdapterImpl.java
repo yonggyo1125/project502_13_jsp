@@ -247,14 +247,8 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                    } // endif
                } // endfor
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
-                // List 형태 자료형 처리 
-            } else if (clz == List.class) {
-
             }
-
-
-
-
+            
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
