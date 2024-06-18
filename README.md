@@ -1277,4 +1277,5 @@ SITE_TITLE=중앙정보처리학원
 ```
 
 ## css, js, images이 있는 webapp/static 쪽 정적 경로 처리 
-> DispatcherServlet에 service 메서드는 모든 요청에 다 유입이 되므로 css, js 파일도 상관없이 모두 여기를 거쳐 가게 된다. 따라서 직접 읽어 올수 있도록 정적 경로 분리 처리를 해야 한다. 
+> DispatcherServlet에 service 메서드는 모든 요청에 다 유입이 되므로 css, js 파일도 상관없이 모두 여기를 거쳐 가게 된다. 서블릿을 통한 요청 처리로 유입이 되므로 정상적으로 css, js로 처리가 되지 않는다. 따라서 직접 읽어 올수 있도록 정적 경로 분리 처리를 해야 한다. 
+
