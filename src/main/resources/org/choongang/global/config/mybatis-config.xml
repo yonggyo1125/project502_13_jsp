@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties>
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="username" value="PROJECT3" />
+        <property name="password" value="oracle" />
+        <property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="prodUsername" value="PROJECT3" />
+        <property name="prodPassword" value="oracle" />
+    </properties>
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        <environment id="prod">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${prodUrl}"/>
+                <property name="username" value="${prodUsername}"/>
+                <property name="password" value="${prodPassword}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+</configuration>

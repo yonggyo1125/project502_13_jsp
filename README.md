@@ -1231,8 +1231,8 @@ SITE_TITLE=중앙정보처리학원
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ attribute name="title" %>
-<c:url var="cssUrl" value="/static/css/" />
-<c:url var="jsUrl" value="/static/js/" />
+<c:url var="cssUrl" value="/css/" />
+<c:url var="jsUrl" value="/js/" />
 
 <layout:common title="${title}">
     <jsp:attribute name="header">
@@ -1538,3 +1538,154 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 
 > file.upload.path를 D:/uploads라고 하였다면 D:/uploads 디렉토리를 만들고 test.txt 파일을 하나 생성해 봅시다.
 > file.upload.url을 /uploads 라고 설정하였다면 브라우저 주소창에 /컨택스트 경로/uploads/test.txt로 정상 접속되는지 content-type은 text/plain으로 정상 응답 되는지 확인 합니다.
+
+# 마이바티스(mybatis) 설정
+
+> 마이바티스 매퍼 자원 경로와 파일명이 인터페이스의 패키지 경로 및 파일과 일치하여야 마이바티스가 구현체를 만들어 주게 됩니다. 따라서 src/main/resources에 생성하는 매퍼 경로는 src/main/java에 생성되는 경로와 동일하게 맞춰야 합니다.
+
+## 설정 XML 추가하기 
+
+- src/main/resources/org/choongang/global/config 디렉토리 생성 
+- 생성된 경로에 mybatis-config.xml 파일 생성
+- 설정은 [mybatis 공식 사이트 - 시작하기](https://mybatis.org/mybatis-3/ko/getting-started.html)를 참고할 것
+
+
+### src/main/resources/org/choongang/global/config/mybatis-config.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties>
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="username" value="PROJECT3" />
+        <property name="password" value="oracle" />
+        <property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="prodUsername" value="PROJECT3" />
+        <property name="prodPassword" value="oracle" />
+    </properties>
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        <environment id="prod">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${prodUrl}"/>
+                <property name="username" value="${prodUsername}"/>
+                <property name="password" value="${prodPassword}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+</configuration>
+```
+- 설정 중 하기 내용은 실제 배포 서버의 데이터베이스 설정에 맞게 지정합니다.
+
+```xml
+...
+<property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+<property name="prodUsername" value="PROJECT3" />
+<property name="prodPassword" value="oracle" />
+...
+```
+
+
+## 설정 파일 적용하기 
+
+> 설정 파일(mybatis-config.xml)의 정보를 가지고 마이바티스는 SqlSessionFactory 객체를 생성합니다. SqlSessionFactory 객체는 실제 SQL을 실행할 수 있는 SqlSession 객체를 생성할 수 있는데, SqlSession 객체는 실제로 자주 사용될 수 있습니다. 
+> 
+> 쉽게 접근할 수 있도록 정적으로 SqlSessionFactory 객체를 생성하고 SqlSession을 생성할 수 있는 정적 메서드를 다음과 가이 추가하여 구성합니다.
+
+### org/choongang/global/config/DBConn.java
+
+```java
+package org.choongang.global.config;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
+import java.io.IOException;
+import java.io.Reader;
+
+public class DBConn {
+    private static SqlSessionFactory factory;
+
+    static {
+        try {
+            String mode = System.getenv("mode");
+            mode = mode == null || !mode.equals("prod") ? "dev":"prod";
+
+            Reader reader = Resources.getResourceAsReader("org/choongang/global/config/mybatis-config.xml");
+            factory = new SqlSessionFactoryBuilder().build(reader, mode);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static SqlSession getSession(boolean autoCommit) {
+        return factory.openSession(autoCommit);
+    }
+
+    /**
+     * 기본 getSession() 메서드를 통해서 SqlSession 객체를 생성하는 경우는
+     * 하나의 SQL 쿼리 실행마다 COMMIT을 하도록 autoCommit을 true로 설정합니다.
+     * 
+     * @return
+     */
+    public static SqlSession getSession() {
+        return getSession(true);
+    }
+}
+```
+
+### 데이터베이스 연결 테스트
+
+
+#### src/test/java/org/choongang/global/config/DBConnTest.java
+
+```java
+package org.choongang.global.config;
+
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+/**
+ * 마이바티스 DB 연결 테스트
+ * 
+ */
+public class DBConnTest {
+    
+    @Test
+    @DisplayName("마이바티스 설정에 따라 SqlSession 객체가 정상 생성되는지 테스트")
+    void dbConnectionTest() {
+        assertDoesNotThrow(() -> {
+            SqlSession session = DBConn.getSession();
+            System.out.println(session);
+        });
+    }
+}
+```
+
+> 테스트 실행 시 예외 발생이 없고 다음과 같이 객체가 정상 생성되어 있어야 합니다. 테스트에 실패한다면 대부분 설정 파일(mybatis-config.xml)에 설정 정보가 정확하지 않은 경우이므로 설정파일을 꼼곰하게 검토해볼 것 
+
+```
+org.apache.ibatis.session.defaults.DefaultSqlSession@6692b6c6
+```
+
