@@ -1421,7 +1421,7 @@ public class RouterService {
 > application-prod.properties에서 prod는 환경 변수로 톰캣에서 실행시 설정하는 환경 변수로 prod값으로 설정하면 배포 서버의 설정으로 볼수 있습니다.
 
 
-## 설정 파일 
+## [설정 파일](https://github.com/yonggyo1125/project501_13_jsp/tree/config_file) 
 - application.properties는 개발 환경에 필요한 설정 파일
 - application-prod.properties는 배포 환경에 필요한 설정 파일
 
