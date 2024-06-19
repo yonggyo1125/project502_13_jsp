@@ -2,6 +2,7 @@ package org.choongang.global.router;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 
 import java.io.*;
@@ -27,7 +28,7 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 
     @Override
     public void route(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        // webapp/static 경로 처리 S
+        // webapp/static 경로 및 파일 업로드 경로 조회
         File file = getStaticPath(request);
         if (file.exists()) {
             Path source = file.toPath();
@@ -38,16 +39,24 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 
             InputStream in = new BufferedInputStream(new FileInputStream(file));
             out.write(in.readAllBytes());
-            return;
         }
-        // webapp/static 경로 처리 E
     }
 
+    // webapp/static 경로 또는 파일 객체 경로 조회 File 객체 조회
     private File getStaticPath(HttpServletRequest request) {
         String uri = request.getRequestURI().replace(request.getContextPath(), "");
         String path = request.getServletContext().getRealPath("/static");
         File file = new File(path + uri);
 
+        // webapp/static 경로에 파일이 없다면 파일 업로드 경로 File 객체 조회
+        if (!file.exists()) {
+            String uploadPath = AppConfig.get("file.upload.path");
+            String uploadUrl = AppConfig.get("file.upload.url");
+            if (uploadPath != null && !uploadPath.isBlank() && uploadUrl != null && !uploadUrl.isBlank()) {
+                uri = uri.replace(uploadUrl, "");
+                file = new File(uploadPath + uri);
+            } // endif
+        }
         return file;
     }
 }
