@@ -1413,3 +1413,74 @@ public class RouterService {
 ```
 
 > /컨택스트 경로/css/style.css, /컨택스트 경로/js/common.js가 정상적으로 접속이 된다면 반영 성공  
+
+
+# 설정 파일 구성
+
+> 설정 파일을 resources/application.properties, resources/application-prod.properties 생성합니다. 이번에 구성할 부분은 파일 업로드 경로와 URL을 설정합니다. 파일이 저장될 위치는 개발 환경에 따라 또는 배포하는 서버에 따라 달라질 수 있습니다. 이를 대응하기 위한 목적으로 환경에 따라 달라질 수 있는 값을 설정합니다.
+> application-prod.properties에서 prod는 환경 변수로 톰캣에서 실행시 설정하는 환경 변수로 prod값으로 설정하면 배포 서버의 설정으로 볼수 있습니다.
+
+
+## 설정 파일 
+- application.properties는 개발 환경에 필요한 설정 파일
+- application-prod.properties는 배포 환경에 필요한 설정 파일
+
+### src/main/resources/application.properties
+
+```properties
+# 파일 업로드 경로
+file.upload.path=D:/uploads
+
+# 파일 업로드 URL
+file.upload.url=/uploads
+```
+
+### src/main/resources/application-prod.properties
+
+```properties
+# 파일 업로드 경로
+file.upload.path=/home/ubuntu/uploads
+
+# 파일 업로드 URL
+file.upload.url=/uploads
+```
+
+### org/choongang/global/config/AppConfig.java
+
+> application.properties 또는 application-prod.properties에 있는 설정 파일을 불러오고 이를 조회할 수 있는 클래스 구성 
+
+```java
+package org.choongang.global.config;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ResourceBundle;
+
+/**
+ * 사이트 설정 로드 및 조회
+ *
+ */
+public class AppConfig {
+    private final static ResourceBundle bundle;
+    private final static Map<String, String> configs;
+    static {
+        // 환경 변수 mode에 따라 설정파일을 분리 예) prod이면 application-prod.properties로 읽어온다.
+        String mode = System.getenv("mode");
+        mode = mode == null || mode.isBlank() ? "":"-" + mode;
+
+        bundle = ResourceBundle.getBundle("application" + mode);
+        configs = new HashMap<>();
+        Iterator<String> iter = bundle.getKeys().asIterator();
+        while(iter.hasNext()) {
+            String key = iter.next();
+            String value = bundle.getString(key);
+            configs.put(key, value);
+        }
+    }
+
+    public static String get(String key) {
+        return configs.get(key);
+    }
+}
+```
