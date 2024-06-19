@@ -1147,7 +1147,7 @@ public class RequestJoin {
 템플릿 출력
 ```
 
-# 레이아웃 구성 
+# [레이아웃 구성](https://github.com/yonggyo1125/project501_13_jsp/tree/layout) 
 > 레이아웃은 커스텀 태그를 활용하여 구성합니다.
 > 공통 레이아웃(tags/layouts/common.tag) 구성은 모든 레이아웃의 기본이 될수 있는 구성이며 다른 레이아웃(예 - tags/layouts/main.tag)이 공통 레이아웃을 바탕으로 2차 구성을 하게 됩니다.
 > 화면 구성시에 각 출력 문구들은 메세지 파일을 통해 관리 됩니다. 메세지 파일은 역할별로 구분하여 commons.properties는 공통 문구, validations.properties는 유효성 검사시 문구, errors.properties는 에러 관련 문구로 분리합니다.
