@@ -1484,3 +1484,57 @@ public class AppConfig {
     }
 }
 ```
+
+### 설정 파일 적용해보기 - 파일 업로드 정적 경로 라우팅 추가 
+
+> 파일 업로드 경로는 개발 환경에 따라 배포 서버에 따라 달라질 수 있으므로 application.properties와 application-prod.properties에 달리 설정 될 수 있다. 
+> 정적 경로 라우팅은 webapp/static이 가장 먼저 체크 되고 그 후에는 설정된 파일 업로드 경로다 체크 됩니다.
+
+#### org/choongang/global/router/StaticResourceMappingImpl.java
+
+```java
+
+...
+
+@Service
+public class StaticResourceMappingImpl implements StaticResourceMapping {
+  ...
+  
+    @Override
+    public void route(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // webapp/static 경로 및 파일 업로드 경로 조회
+        File file = getStaticPath(request);
+        if (file.exists()) {
+            Path source = file.toPath();
+            String contentType = Files.probeContentType(source);
+            response.setContentType(contentType);
+
+            OutputStream out = response.getOutputStream();
+
+            InputStream in = new BufferedInputStream(new FileInputStream(file));
+            out.write(in.readAllBytes());
+        }
+    }
+
+    // webapp/static 경로 또는 파일 객체 경로 조회 File 객체 조회
+    private File getStaticPath(HttpServletRequest request) {
+        String uri = request.getRequestURI().replace(request.getContextPath(), "");
+        String path = request.getServletContext().getRealPath("/static");
+        File file = new File(path + uri);
+
+        // webapp/static 경로에 파일이 없다면 파일 업로드 경로 File 객체 조회
+        if (!file.exists()) {
+            String uploadPath = AppConfig.get("file.upload.path");
+            String uploadUrl = AppConfig.get("file.upload.url");
+            if (uploadPath != null && !uploadPath.isBlank() && uploadUrl != null && !uploadUrl.isBlank()) {
+                uri = uri.replace(uploadUrl, "");
+                file = new File(uploadPath + uri);
+            } // endif
+        }
+        return file;
+    }
+}
+```
+
+> file.upload.path를 D:/uploads라고 하였다면 D:/uploads 디렉토리를 만들고 test.txt 파일을 하나 생성해 봅시다.
+> file.upload.url을 /uploads 라고 설정하였다면 브라우저 주소창에 /컨택스트 경로/uploads/test.txt로 정상 접속되는지 content-type은 text/plain으로 정상 응답 되는지 확인 합니다.
