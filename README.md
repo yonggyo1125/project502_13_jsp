@@ -38,8 +38,8 @@ dependencies {
 ## MVC 기본 경로 생성 
 
 - 템플릿 경로 생성 : src/main/webapp/WEB-INF/templates
-- 사이트 전체 설정 경로 : src/main/java/choongang/global/config 
-- 라우터 설정 경로 : src/main/java/org/choongang/global/router
+- 사이트 전체 설정 경로 : src/main/java/org/choongang/global/config 
+- 라우터 설정 경로 : src/main/java/org/org/choongang/global/router
 
 ## 웹 설정 애노테이션
 - 기준 패키지 : src/main/java/org/choongang/global/config/annotations
