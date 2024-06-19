@@ -1727,3 +1727,23 @@ org.apache.ibatis.session.defaults.DefaultSqlSession@6692b6c6
 ...
 
 ```
+
+
+## 회원 기능 개발을 위한 MemberMapper.xml 과 MemberMapper 인터페이스 설정 
+
+- MEMBER 테이블 및 SEQ_MEMBER 시퀀스 생성 
+
+```sql
+CREATE TABLE MEMBER (
+	USER_NO NUMBER(10) PRIMARY KEY,
+	EMAIL VARCHAR2(60) NOT NULL UNIQUE,
+	PASSWORD VARCHAR2(65) NOT NULL,
+	USER_NAME VARCHAR2(30) NOT NULL,
+	USER_TYPE VARCHAR2(10) DEFAULT 'USER' CHECK(USER_TYPE IN ('USER', 'ADMIN')),
+	REG_DT DATE DEFAULT SYSDATE,
+	MOD_DT DATE
+);
+
+CREATE SEQUENCE SEQ_MEMBER;
+```
+
