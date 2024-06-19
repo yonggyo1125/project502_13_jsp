@@ -1689,3 +1689,41 @@ public class DBConnTest {
 org.apache.ibatis.session.defaults.DefaultSqlSession@6692b6c6
 ```
 
+## 로거 설정 추가
+
+> 마이바티스는 로거를 따로 설정하지 않으면 SQL 실행 내용이나 SQL 파라미터로 바인딩된 데이터를 확인할 수 없습니다. 소스 작성시에 문제가 발생하면 원인을 찾기 어려우므로 SQL 실행 로그가 자세하게 나올 수 있도록 설정합니다.
+> 
+> 로거는 종류가 다양하나 프로젝트에서는 slf4j-api와 그 구현체인 logback-classic을 사용합니다. 의존성은 추기 구성 때 추가 하였으므로 따로 추가하지는 않지만 누락되었다면 초기 의존성 설정을 확인해 보고 build.gradle 파일에 추가합니다.
+
+- [로거 설정 파일 참고](https://mybatis.org/mybatis-3/ko/logging.html#%EB%91%90%EB%B2%88%EC%A7%B8-%EB%8B%A8%EA%B3%84-logback-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
+ 
+### src/main/resources/logback.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+<configuration>
+
+    <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d [%5p] [%t] - %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="stdout"/>
+    </root>
+
+</configuration>
+```
+
+- root level="INFO" 설정은 전역 기본 로그 레벨이며 info레벨 부터 시작하여 INFO,WARN,ERROR, FATAL 로그를 함게 출력 합니다. 
+- mybatis mapper가 추가 되면 해당 mapper 패키지 경로를 debug 레벨로 설정을 추가하여 자세한 로그가 나올 수 있도록 설정을 추가합니다.
+
+```xml
+
+...
+<logger name="org.choongang.member.mapper" level="DEBUG" />
+...
+
+```
