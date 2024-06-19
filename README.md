@@ -1231,8 +1231,8 @@ SITE_TITLE=중앙정보처리학원
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ attribute name="title" %>
-<c:url var="cssUrl" value="/static/css/" />
-<c:url var="jsUrl" value="/static/js/" />
+<c:url var="cssUrl" value="/css/" />
+<c:url var="jsUrl" value="/js/" />
 
 <layout:common title="${title}">
     <jsp:attribute name="header">
@@ -1600,4 +1600,92 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 ...
 ```
 
+
+## 설정 파일 적용하기 
+
+> 설정 파일(mybatis-config.xml)의 정보를 가지고 마이바티스는 SqlSessionFactory 객체를 생성합니다. SqlSessionFactory 객체는 실제 SQL을 실행할 수 있는 SqlSession 객체를 생성할 수 있는데, SqlSession 객체는 실제로 자주 사용될 수 있습니다. 
+> 
+> 쉽게 접근할 수 있도록 정적으로 SqlSessionFactory 객체를 생성하고 SqlSession을 생성할 수 있는 정적 메서드를 다음과 가이 추가하여 구성합니다.
+
+### org/choongang/global/config/DBConn.java
+
+```java
+package org.choongang.global.config;
+
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+
+import java.io.IOException;
+import java.io.Reader;
+
+public class DBConn {
+    private static SqlSessionFactory factory;
+
+    static {
+        try {
+            String mode = System.getenv("mode");
+            mode = mode == null || !mode.equals("prod") ? "dev":"prod";
+
+            Reader reader = Resources.getResourceAsReader("org/choongang/global/config/mybatis-config.xml");
+            factory = new SqlSessionFactoryBuilder().build(reader, mode);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static SqlSession getSession(boolean autoCommit) {
+        return factory.openSession(autoCommit);
+    }
+
+    /**
+     * 기본 getSession() 메서드를 통해서 SqlSession 객체를 생성하는 경우는
+     * 하나의 SQL 쿼리 실행마다 COMMIT을 하도록 autoCommit을 true로 설정합니다.
+     * 
+     * @return
+     */
+    public static SqlSession getSession() {
+        return getSession(true);
+    }
+}
+```
+
+### 데이터베이스 연결 테스트
+
+
+#### src/test/java/org/choongang/global/config/DBConnTest.java
+
+```java
+package org.choongang.global.config;
+
+import org.apache.ibatis.session.SqlSession;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+/**
+ * 마이바티스 DB 연결 테스트
+ * 
+ */
+public class DBConnTest {
+    
+    @Test
+    @DisplayName("마이바티스 설정에 따라 SqlSession 객체가 정상 생성되는지 테스트")
+    void dbConnectionTest() {
+        assertDoesNotThrow(() -> {
+            SqlSession session = DBConn.getSession();
+            System.out.println(session);
+        });
+    }
+}
+```
+
+> 테스트 실행 시 예외 발생이 없고 다음과 같이 객체가 정상 생성되어 있어야 합니다. 테스트에 실패한다면 대부분 설정 파일(mybatis-config.xml)에 설정 정보가 정확하지 않은 경우이므로 설정파일을 꼼곰하게 검토해볼 것 
+
+```
+org.apache.ibatis.session.defaults.DefaultSqlSession@6692b6c6
+```
 
