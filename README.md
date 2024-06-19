@@ -38,8 +38,8 @@ dependencies {
 ## MVC 기본 경로 생성 
 
 - 템플릿 경로 생성 : src/main/webapp/WEB-INF/templates
-- 사이트 전체 설정 경로 : src/main/java/choongang/global/config 
-- 라우터 설정 경로 : src/main/java/org/choongang/global/router
+- 사이트 전체 설정 경로 : src/main/java/org/choongang/global/config 
+- 라우터 설정 경로 : src/main/java/org/org/choongang/global/router
 
 ## 웹 설정 애노테이션
 - 기준 패키지 : src/main/java/org/choongang/global/config/annotations
@@ -1180,8 +1180,8 @@ SITE_TITLE=중앙정보처리학원
 <%@ attribute name="commonJs" fragment="true" %>
 <%@ attribute name="title" %>
 <fmt:setBundle basename="messages.commons" />
-<c:url var="cssUrl" value="/static/css/" />
-<c:url var="jsUrl" value="/static/js/" />
+<c:url var="cssUrl" value="/css/" />
+<c:url var="jsUrl" value="/js/" />
 <!DOCTYPE html>
 <html>
     <head>
@@ -1279,3 +1279,137 @@ SITE_TITLE=중앙정보처리학원
 ## css, js, images이 있는 webapp/static 쪽 정적 경로 처리 
 > DispatcherServlet에 service 메서드는 모든 요청에 다 유입이 되므로 css, js 파일도 상관없이 모두 여기를 거쳐 가게 된다. 서블릿을 통한 요청 처리로 유입이 되므로 정상적으로 css, js로 처리가 되지 않는다. 따라서 직접 읽어 올수 있도록 정적 경로 분리 처리를 해야 한다. 
 
+
+### 웹 정적 경로 처리 
+- 정적 경로는 2가지 형태로 구현한다.
+  - webapp/static : 요청 URL에 해당하는 컨트롤러 및 요청 메서드를 찾지 못한 경우는 이 경로에서 정적인 자원을 찾는다. 가령 /css/style.css의 경로가 컨트롤러에 없는데 해당 자원이 webapp/static/css/style.css가 있다면 이 파일의 내용물을 출력한다. 
+  - 파일 업로드와 같은 설정 파일에서 유입되는 경우 - 설정 파일 처리 쪽에서 자세하게 설명
+- StaticResourceMapping의 check 메서드는 현재 요청 URL이 컨트롤러가 아닌 정적 경로에 해당하는지 체크 합니다. 즉 webapp/static에 존재하는지, 또는 별도 설정 파일 경로에 파일이 있는지를 체크 합니다.
+- StaticResourceMapping의 route 메서드는 정적 경로가 발견되었다면 해당 경로의 파일을 읽어 파일 형식(content-type)을 응답 헤더에 출력하고, 바디 쪽에 파일 내용을 출력하여 웹 화면에 보여줍니다.
+
+### org/choongang/router/StaticResourceMapping.java
+
+```java
+package org.choongang.global.router;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+
+public interface StaticResourceMapping {
+    // 정적 경로인지 체크
+    boolean check(HttpServletRequest request);
+    void route(HttpServletRequest request, HttpServletResponse response) throws IOException;
+}
+```
+
+### org/choongang/router/StaticResourceMappingImpl.java
+
+```java
+package org.choongang.global.router;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.choongang.global.config.annotations.Service;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+@Service
+public class StaticResourceMappingImpl implements StaticResourceMapping {
+
+    /**
+     * 정적 자원 경로인지 체크
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public boolean check(HttpServletRequest request) {
+
+        // webapp/static 경로 유무 체크
+        return getStaticPath(request).exists();
+
+    }
+
+    @Override
+    public void route(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // webapp/static 경로 처리 S
+        File file = getStaticPath(request);
+        if (file.exists()) {
+            Path source = file.toPath();
+            String contentType = Files.probeContentType(source);
+            response.setContentType(contentType);
+
+            OutputStream out = response.getOutputStream();
+
+            InputStream in = new BufferedInputStream(new FileInputStream(file));
+            out.write(in.readAllBytes());
+            return;
+        }
+        // webapp/static 경로 처리 E
+    }
+
+    private File getStaticPath(HttpServletRequest request) {
+        String uri = request.getRequestURI().replace(request.getContextPath(), "");
+        String path = request.getServletContext().getRealPath("/static");
+        File file = new File(path + uri);
+
+        return file;
+    }
+}
+```
+
+
+### org/choongang/router/RouterService.java
+
+- 정적 라우팅을 다음과 같이 반영합니다.
+
+```java
+
+...
+
+@Service
+@RequiredArgsConstructor
+public class RouterService {
+
+    private final HandlerMappingImpl handlerMapping;
+    private final HandlerAdapterImpl handlerAdapter;
+    private final StaticResourceMappingImpl staticResourceMapping;
+
+    /**
+     * 컨트롤러 라우팅
+     *
+     */
+    public void route(HttpServletRequest req, HttpServletResponse res) throws IOException {
+
+        List<Object> data = handlerMapping.search(req);
+        if (data == null) {
+
+            /**
+             *  처리 가능한 컨트롤러를 못찾은 경우 지정된 정적 경로에 파일이 있는지 체크 하고
+             *  해당 자원을 파일로 읽어 온 후 파일에 맞는 Content-Type으로 응답 헤더 추가 및 Body쪽에 출력하여 보일 수 있도록 한다.
+             *  정적 경로에도 파일을 찾을 수 없다면 404 응답 코드를 내보낸다.
+             */
+
+            // 정적 자원이라면 정적 라우팅 처리
+            if (staticResourceMapping.check(req)) {
+                staticResourceMapping.route(req, res);
+                return;
+            }
+
+            // 컨트롤러도 발견하지 못하고 정적 라우팅도 아니라면 404
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        // 찾은 컨트롤러 요청 메서드를 실행
+        handlerAdapter.execute(req, res, data);
+
+    }
+}
+```
+
+> /컨택스트 경로/css/style.css, /컨택스트 경로/js/common.js가 정상적으로 접속이 된다면 반영 성공  
