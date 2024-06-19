@@ -8,8 +8,8 @@
 <%@ attribute name="commonJs" fragment="true" %>
 <%@ attribute name="title" %>
 <fmt:setBundle basename="messages.commons" />
-<c:url var="cssUrl" value="/static/css/" />
-<c:url var="jsUrl" value="/static/js/" />
+<c:url var="cssUrl" value="/css/" />
+<c:url var="jsUrl" value="/js/" />
 <!DOCTYPE html>
 <html>
     <head>
