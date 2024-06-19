@@ -4,7 +4,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.choongang.global.config.annotations.Service;
 
-import java.io.File;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Service
 public class StaticResourceMappingImpl implements StaticResourceMapping {
@@ -24,11 +26,18 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
     }
 
     @Override
-    public void route(HttpServletRequest request, HttpServletResponse response) {
+    public void route(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // webapp/static 경로 처리 S
         File file = getStaticPath(request);
         if (file.exists()) {
+            Path source = file.toPath();
+            String contentType = Files.probeContentType(source);
+            response.setContentType(contentType);
 
+            OutputStream out = response.getOutputStream();
+
+            InputStream in = new BufferedInputStream(new FileInputStream(file));
+            out.write(in.readAllBytes());
             return;
         }
         // webapp/static 경로 처리 E
