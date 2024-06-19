@@ -1538,3 +1538,66 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 
 > file.upload.path를 D:/uploads라고 하였다면 D:/uploads 디렉토리를 만들고 test.txt 파일을 하나 생성해 봅시다.
 > file.upload.url을 /uploads 라고 설정하였다면 브라우저 주소창에 /컨택스트 경로/uploads/test.txt로 정상 접속되는지 content-type은 text/plain으로 정상 응답 되는지 확인 합니다.
+
+# 마이바티스(mybatis) 설정
+
+> 마이바티스 매퍼 자원 경로와 파일명이 인터페이스의 패키지 경로 및 파일과 일치하여야 마이바티스가 구현체를 만들어 주게 됩니다. 따라서 src/main/resources에 생성하는 매퍼 경로는 src/main/java에 생성되는 경로와 동일하게 맞춰야 합니다.
+
+## 설정 XML 추가하기 
+
+- src/main/resources/org/choongang/global/config 디렉토리 생성 
+- 생성된 경로에 mybatis-config.xml 파일 생성
+- 설정은 [mybatis 공식 사이트 - 시작하기](https://mybatis.org/mybatis-3/ko/getting-started.html)를 참고할 것
+
+
+### src/main/resources/org/choongang/global/config/mybatis-config.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties>
+        <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="username" value="PROJECT3" />
+        <property name="password" value="oracle" />
+        <property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+        <property name="prodUsername" value="PROJECT3" />
+        <property name="prodPassword" value="oracle" />
+    </properties>
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        <environment id="prod">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${prodUrl}"/>
+                <property name="username" value="${prodUsername}"/>
+                <property name="password" value="${prodPassword}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+</configuration>
+```
+- 설정 중 하기 내용은 실제 배포 서버의 데이터베이스 설정에 맞게 지정합니다.
+
+```xml
+...
+<property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />
+<property name="prodUsername" value="PROJECT3" />
+<property name="prodPassword" value="oracle" />
+...
+```
+
+
