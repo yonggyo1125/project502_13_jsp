@@ -1747,3 +1747,41 @@ CREATE TABLE MEMBER (
 CREATE SEQUENCE SEQ_MEMBER;
 ```
 
+### src/main/resources/org/choongang/member/mapper/MemberMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.choongang.member.mapper.MemberMapper">
+
+</mapper>
+```
+
+### src/main/java/org/choongang/member/mapper/MemberMapper.java
+
+```java
+package org.choongang.member.mapper;
+
+public interface MemberMapper {
+
+}
+```
+
+### org/choongang/member/services/JoinService.java
+
+> private final MemberMapper mapper; 의존성 추가
+
+```java
+
+...
+
+@Service
+@RequiredArgsConstructor
+public class JoinService {
+    private final JoinValidator validator;
+    private final MemberMapper mapper;
+}
+```
+

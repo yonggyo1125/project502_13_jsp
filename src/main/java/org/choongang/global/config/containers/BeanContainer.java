@@ -8,6 +8,7 @@ import org.choongang.global.config.annotations.Service;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,8 +41,21 @@ public class BeanContainer {
                 // 키값은 전체 클래스명, 값은 생성된 객체
                 String key = clazz.getName();
 
-                // 이미 생성된 객체라면 생성된 객체로 활용
-                if (beans.containsKey(key)) continue;;
+                /**
+                 *  이미 생성된 객체라면 생성된 객체로 활용
+                 *  매 요청시마다 새로 만들어야 객체가 있는 경우 갱신 처리
+                 *
+                 *  매 요청시 새로 갱신해야 하는 객체
+                 *      - HttpServletRequest
+                 *      - HttpServletResponse
+                 *      - HttpSession session
+                 *      - Mybatis mapper 구현 객체
+                 */
+
+                if (beans.containsKey(key)) {
+                    updateObject(beans.get(key));
+                    continue;
+                }
 
 
                 Annotation[] annotations = clazz.getDeclaredAnnotations();
@@ -172,5 +186,28 @@ public class BeanContainer {
             }
         }
         return items;
+    }
+
+    /**
+     * 컨테이너에 이미 담겨 있는 객체에서 매 요청시마다 새로 생성이 필요한 의존성이 있는 경우
+     * 갱신 처리
+     *  - HttpServletRequest
+     *  - HttpServletResponse
+     *  - HttpSession session
+     *  - Mybatis mapper 구현 객체
+     *
+     * @param bean
+     */
+    private void updateObject(Object bean) {
+        // 인터페이스인 경우 갱신 배제
+        if (bean.getClass().isInterface()) {
+            return;
+        }
+
+        Class clazz = bean.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            System.out.println(field);
+        }
     }
 }
