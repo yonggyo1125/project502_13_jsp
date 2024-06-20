@@ -12,4 +12,5 @@
         <appender-ref ref="stdout"/>
     </root>
 
+    <logger name="org.choongang.member.mapper" level="DEBUG" />
 </configuration>

@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.choongang.global.config.containers.BeanContainer;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ public class DispatcherServlet extends HttpServlet  {
         BeanContainer bc = BeanContainer.getInstance();
         bc.addBean(HttpServletRequest.class.getName(), request);
         bc.addBean(HttpServletResponse.class.getName(), response);
+        bc.addBean(HttpSession.class.getName(), request.getSession());
 
         bc.loadBeans();
 

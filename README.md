@@ -1713,7 +1713,8 @@ org.apache.ibatis.session.defaults.DefaultSqlSession@6692b6c6
     <root level="INFO">
         <appender-ref ref="stdout"/>
     </root>
-
+  
+   <logger name="org.choongang.member.mapper" level="DEBUG" />
 </configuration>
 ```
 
@@ -1747,3 +1748,325 @@ CREATE TABLE MEMBER (
 CREATE SEQUENCE SEQ_MEMBER;
 ```
 
+### src/main/resources/org/choongang/member/mapper/MemberMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.choongang.member.mapper.MemberMapper">
+
+</mapper>
+```
+
+### src/main/java/org/choongang/member/mapper/MemberMapper.java
+
+```java
+package org.choongang.member.mapper;
+
+public interface MemberMapper {
+
+}
+```
+
+### src/main/resources/org/choongang/global/config/mybatis-config.xml
+> MemberMapper.xml 추가   
+
+```xml
+...
+<configuration>
+...
+
+  <mappers>
+    <mapper resource="org/choongang/member/mapper/MemberMapper.xml"/>
+  </mappers>
+</configuration>
+```
+
+### org/choongang/member/services/JoinService.java
+
+> private final MemberMapper mapper; 의존성 추가
+
+```java
+
+...
+
+@Service
+@RequiredArgsConstructor
+public class JoinService {
+    private final JoinValidator validator;
+    private final MemberMapper mapper;
+}
+```
+
+## 매퍼 의존성 자동 주입 및 서블릿 기본 객체 요청시마다 갱신되도록 처리 
+
+> 마이바티스 매퍼의 패키지 경로를 지정하는 애노테이션 @MapperScan에 매퍼 인터페이스가 정의된 패키지들을 설정하면 자동 스캔하여 생성자 매개변수에 정의된 매퍼 객체를 생성하여 주입해 주게 됩니다.
+
+- @MapperScan : 매퍼 검색 패키지 범위를 설정한다. 
+- 예)
+
+```java
+@MapperScan({
+        "org.choongang.member.mapper",
+        "org.choongang.board.mapper"
+})
+public class MapperProvider {
+  ...
+}
+```
+> 위 설정은 org.choongang.member.mapper, org.choongang.board.mapper 두개의 패키지에 정의된 매퍼 인터페이스들이 검색 범위가 된다.
+
+- MapperProvider : 매퍼 인터페이스 정의를 찾아서 생성 및 반환
+
+### org/choongang/global/config/annotations/mybatis/MapperScan.java
+
+```java
+package org.choongang.global.config.annotations.mybatis;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * 매퍼 스캔 경로 설정
+ *
+ */
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface MapperScan {
+    String[] value();
+}
+```
+
+### org/choongang/global/config/containers/mybatis/MapperProvider.java
+
+```java 
+package org.choongang.global.config.containers.mybatis;
+
+import org.choongang.global.config.DBConn;
+import org.choongang.global.config.annotations.mybatis.MapperScan;
+
+import java.util.Arrays;
+
+@MapperScan({"org.choongang.member.mapper"})
+public class MapperProvider {
+
+    public static MapperProvider instance;
+
+    private MapperProvider() {}
+
+    public static MapperProvider getInstance() {
+        if (instance == null) {
+            instance = new MapperProvider();
+        }
+        return instance;
+    }
+
+    public <T> T getMapper(Class clz) {
+
+        MapperScan mapperScan = getClass().getAnnotation(MapperScan.class);
+        boolean isMapper = Arrays.stream(mapperScan.value()).anyMatch(s -> s.startsWith(clz.getPackageName()));
+
+        if (isMapper) {
+            return (T)DBConn.getSession().getMapper(clz);
+        }
+
+        return null;
+    }
+}
+```
+
+
+### org/choongang/global/router/DispatcherServlet.java
+> DispatcherServlet 요청 처리 메서드 service(...)에 HttpSession도 빈으로 등록
+> HttpServletRequest, HttpServletResponse, HttpSession과 같은 객체는 매청마다 다른 값을 가지고 있는 객체로 새로 생성이 되는데, 대부분의 객체가 싱글톤 객체이고 그 의존성이 고정되어 버린다. 이를 방지하기 위해 서블릿 기본 객체는 매요청시마다 갱신한다.
+
+```java
+
+...
+
+@WebServlet("/")
+public class DispatcherServlet extends HttpServlet  {
+
+    @Override
+    public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        ...
+      
+        bc.addBean(HttpSession.class.getName(), request.getSession());
+
+        bc.loadBeans();
+
+        RouterService service = bc.getBean(RouterService.class);
+        service.route(request, response);
+    }
+}
+
+```
+
+
+### org/choongang/global/config/containers/BeanContainer.java
+> 마이바티스 매퍼와 서블릿 기본 객체를 갱신하는 로직 반영 
+
+```java
+...
+
+public class BeanContainer {
+    
+    ...
+
+    private MapperProvider mapperProvider; // 마이바티스 매퍼 조회
+
+    public BeanContainer() {
+        beans = new HashMap<>();
+        mapperProvider = MapperProvider.getInstance();
+    }
+
+    public void loadBeans() {
+        // 패키지 경로 기준으로 스캔 파일 경로 조회
+        try {
+            
+            ...
+
+            for (Class clazz : classNames) {
+                // 인터페이스는 동적 객체 생성을 하지 않으므로 건너띄기
+                if (clazz.isInterface()) {
+                    continue;
+                }
+
+                // 애노테이션 중 Controller, RestController, Component, Service 등이 TYPE 애노테이션으로 정의된 경우 beans 컨테이너에 객체 생성하여 보관
+                // 키값은 전체 클래스명, 값은 생성된 객체
+                String key = clazz.getName();
+
+                /**
+                 *  이미 생성된 객체라면 생성된 객체로 활용
+                 *  매 요청시마다 새로 만들어야 객체가 있는 경우 갱신 처리
+                 *
+                 *  매 요청시 새로 갱신해야 하는 객체
+                 *      - HttpServletRequest
+                 *      - HttpServletResponse
+                 *      - HttpSession session
+                 *      - Mybatis mapper 구현 객체
+                 */
+
+                if (beans.containsKey(key)) {
+                    updateObject(beans.get(key));
+                    continue;
+                }
+
+
+              ...
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+        
+        ...
+      
+    /**
+     * 의존성의 의존성을 재귀적으로 체크하여 필요한 의존성의 객체를 모두 생성한다.
+     *
+     * @param con
+     */
+    private List<Object> resolveDependencies(String key, Constructor con) throws Exception {
+        List<Object> dependencies = new ArrayList<>();
+        if (beans.containsKey(key)) {
+            dependencies.add(beans.get(key));
+            return dependencies;
+        }
+
+        Class[] parameters = con.getParameterTypes();
+        if (parameters.length == 0) {
+            Object obj = con.newInstance();
+            dependencies.add(obj);
+        } else {
+            for(Class clazz : parameters) {
+                /**
+                 * 인터페이스라면 마이바티스 매퍼일수 있으므로 매퍼로 조회가 되는지 체크합니다.
+                 * 매퍼로 생성이 된다면 의존성 주입이 될 수 있도록 dependencies에 추가
+                 *
+                  */
+                if (clazz.isInterface()) {
+                    Object mapper = mapperProvider.getMapper(clazz);
+                    if (mapper != null) {
+                        dependencies.add(mapper);
+                        continue;
+                    }
+                }
+
+                Object obj = beans.get(clazz.getName());
+                if (obj == null) {
+                    Constructor _con = clazz.getDeclaredConstructors()[0];
+
+                    if (_con.getParameterTypes().length == 0) {
+                        obj = _con.newInstance();
+                    } else {
+                        List<Object> deps = resolveDependencies(clazz.getName(), _con);
+                        obj = _con.newInstance(deps.toArray());
+                    }
+                }
+                dependencies.add(obj);
+            }
+        }
+
+
+        return dependencies;
+    }
+
+      ...
+
+    /**
+     * 컨테이너에 이미 담겨 있는 객체에서 매 요청시마다 새로 생성이 필요한 의존성이 있는 경우
+     * 갱신 처리
+     *  - HttpServletRequest
+     *  - HttpServletResponse
+     *  - HttpSession session
+     *  - Mybatis mapper 구현 객체
+     *
+     * @param bean
+     */
+    private void updateObject(Object bean) {
+        // 인터페이스인 경우 갱신 배제
+        if (bean.getClass().isInterface()) {
+            return;
+        }
+
+        Class clazz = bean.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            Class clz = field.getType();
+            try {
+
+                /**
+                 * 필드가 마이바티스 매퍼 또는 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession) 이라면 갱신
+                 *
+                 */
+                
+                Object mapper = mapperProvider.getMapper(clz);
+
+                // 그외 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession)이라면 갱신
+                if (clz == HttpServletRequest.class || clz == HttpServletResponse.class || clz == HttpSession.class || mapper != null) {
+                    field.setAccessible(true);
+                }
+
+                if (clz == HttpServletRequest.class) {
+                    field.set(bean, getBean(HttpServletRequest.class));
+                } else if (clz == HttpServletResponse.class) {
+                    field.set(bean, getBean(HttpServletResponse.class));
+                } else if (clz == HttpSession.class) {
+                    field.set(bean, getBean(HttpSession.class));
+                } else if (mapper != null) { // 마이바티스 매퍼
+                    field.set(bean, mapper);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```

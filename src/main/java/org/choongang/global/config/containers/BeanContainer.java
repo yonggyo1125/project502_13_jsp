@@ -1,13 +1,18 @@
 package org.choongang.global.config.containers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.choongang.global.config.annotations.Component;
 import org.choongang.global.config.annotations.Controller;
 import org.choongang.global.config.annotations.RestController;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.mybatis.MapperProvider;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,9 +23,11 @@ public class BeanContainer {
 
     private Map<String, Object> beans;
 
+    private MapperProvider mapperProvider; // 마이바티스 매퍼 조회
 
     public BeanContainer() {
         beans = new HashMap<>();
+        mapperProvider = MapperProvider.getInstance();
     }
 
     public void loadBeans() {
@@ -40,8 +47,21 @@ public class BeanContainer {
                 // 키값은 전체 클래스명, 값은 생성된 객체
                 String key = clazz.getName();
 
-                // 이미 생성된 객체라면 생성된 객체로 활용
-                if (beans.containsKey(key)) continue;;
+                /**
+                 *  이미 생성된 객체라면 생성된 객체로 활용
+                 *  매 요청시마다 새로 만들어야 객체가 있는 경우 갱신 처리
+                 *
+                 *  매 요청시 새로 갱신해야 하는 객체
+                 *      - HttpServletRequest
+                 *      - HttpServletResponse
+                 *      - HttpSession session
+                 *      - Mybatis mapper 구현 객체
+                 */
+
+                if (beans.containsKey(key)) {
+                    updateObject(beans.get(key));
+                    continue;
+                }
 
 
                 Annotation[] annotations = clazz.getDeclaredAnnotations();
@@ -122,6 +142,18 @@ public class BeanContainer {
             dependencies.add(obj);
         } else {
             for(Class clazz : parameters) {
+                /**
+                 * 인터페이스라면 마이바티스 매퍼일수 있으므로 매퍼로 조회가 되는지 체크합니다.
+                 * 매퍼로 생성이 된다면 의존성 주입이 될 수 있도록 dependencies에 추가
+                 *
+                  */
+                if (clazz.isInterface()) {
+                    Object mapper = mapperProvider.getMapper(clazz);
+                    if (mapper != null) {
+                        dependencies.add(mapper);
+                        continue;
+                    }
+                }
 
                 Object obj = beans.get(clazz.getName());
                 if (obj == null) {
@@ -172,5 +204,54 @@ public class BeanContainer {
             }
         }
         return items;
+    }
+
+    /**
+     * 컨테이너에 이미 담겨 있는 객체에서 매 요청시마다 새로 생성이 필요한 의존성이 있는 경우
+     * 갱신 처리
+     *  - HttpServletRequest
+     *  - HttpServletResponse
+     *  - HttpSession session
+     *  - Mybatis mapper 구현 객체
+     *
+     * @param bean
+     */
+    private void updateObject(Object bean) {
+        // 인터페이스인 경우 갱신 배제
+        if (bean.getClass().isInterface()) {
+            return;
+        }
+
+        Class clazz = bean.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            Class clz = field.getType();
+            try {
+
+                /**
+                 * 필드가 마이바티스 매퍼 또는 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession) 이라면 갱신
+                 *
+                 */
+                
+                Object mapper = mapperProvider.getMapper(clz);
+
+                // 그외 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession)이라면 갱신
+                if (clz == HttpServletRequest.class || clz == HttpServletResponse.class || clz == HttpSession.class || mapper != null) {
+                    field.setAccessible(true);
+                }
+
+                if (clz == HttpServletRequest.class) {
+                    field.set(bean, getBean(HttpServletRequest.class));
+                } else if (clz == HttpServletResponse.class) {
+                    field.set(bean, getBean(HttpServletResponse.class));
+                } else if (clz == HttpSession.class) {
+                    field.set(bean, getBean(HttpSession.class));
+                } else if (mapper != null) { // 마이바티스 매퍼
+                    field.set(bean, mapper);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
