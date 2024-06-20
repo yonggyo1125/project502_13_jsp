@@ -1,9 +1,13 @@
 package org.choongang.global.config.containers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.choongang.global.config.annotations.Component;
 import org.choongang.global.config.annotations.Controller;
 import org.choongang.global.config.annotations.RestController;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.mybatis.MapperProvider;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
@@ -19,9 +23,11 @@ public class BeanContainer {
 
     private Map<String, Object> beans;
 
+    private MapperProvider mapperProvider; // 마이바티스 매퍼 조회
 
     public BeanContainer() {
         beans = new HashMap<>();
+        mapperProvider = MapperProvider.getInstance();
     }
 
     public void loadBeans() {
@@ -136,6 +142,18 @@ public class BeanContainer {
             dependencies.add(obj);
         } else {
             for(Class clazz : parameters) {
+                /**
+                 * 인터페이스라면 마이바티스 매퍼일수 있으므로 매퍼로 조회가 되는지 체크합니다.
+                 * 매퍼로 생성이 된다면 의존성 주입이 될 수 있도록 dependencies에 추가
+                 *
+                  */
+                if (clazz.isInterface()) {
+                    Object mapper = mapperProvider.getMapper(clazz);
+                    if (mapper != null) {
+                        dependencies.add(mapper);
+                        continue;
+                    }
+                }
 
                 Object obj = beans.get(clazz.getName());
                 if (obj == null) {
@@ -207,7 +225,33 @@ public class BeanContainer {
         Class clazz = bean.getClass();
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
-            System.out.println(field);
+            Class clz = field.getType();
+            try {
+
+                /**
+                 * 필드가 마이바티스 매퍼 또는 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession) 이라면 갱신
+                 *
+                 */
+                
+                Object mapper = mapperProvider.getMapper(clz);
+
+                // 그외 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession)이라면 갱신
+                if (clz == HttpServletRequest.class || clz == HttpServletResponse.class || clz == HttpSession.class || mapper != null) {
+                    field.setAccessible(true);
+                }
+
+                if (clz == HttpServletRequest.class) {
+                    field.set(bean, getBean(HttpServletRequest.class));
+                } else if (clz == HttpServletResponse.class) {
+                    field.set(bean, getBean(HttpServletResponse.class));
+                } else if (clz == HttpSession.class) {
+                    field.set(bean, getBean(HttpSession.class));
+                } else if (mapper != null) { // 마이바티스 매퍼
+                    field.set(bean, mapper);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
