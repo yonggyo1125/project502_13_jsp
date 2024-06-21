@@ -2070,3 +2070,6 @@ public class BeanContainer {
     }
 }
 ```
+
+# 에러페이지 구성 
+
