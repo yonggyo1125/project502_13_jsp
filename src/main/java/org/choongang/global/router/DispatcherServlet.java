@@ -17,16 +17,24 @@ public class DispatcherServlet extends HttpServlet  {
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        HttpServletRequest request = (HttpServletRequest)req;
-        HttpServletResponse response = (HttpServletResponse)res;
-        BeanContainer bc = BeanContainer.getInstance();
-        bc.addBean(HttpServletRequest.class.getName(), request);
-        bc.addBean(HttpServletResponse.class.getName(), response);
-        bc.addBean(HttpSession.class.getName(), request.getSession());
+        try {
+            HttpServletRequest request = (HttpServletRequest) req;
+            HttpServletResponse response = (HttpServletResponse) res;
+            BeanContainer bc = BeanContainer.getInstance();
+            bc.addBean(HttpServletRequest.class.getName(), request);
+            bc.addBean(HttpServletResponse.class.getName(), response);
+            bc.addBean(HttpSession.class.getName(), request.getSession());
 
-        bc.loadBeans();
+            bc.loadBeans();
 
-        RouterService service = bc.getBean(RouterService.class);
-        service.route(request, response);
+            RouterService service = bc.getBean(RouterService.class);
+            service.route(request, response);
+        } catch (Exception e) {
+            if (e instanceof ServletException || e instanceof IOException) {
+                throw e;
+            }
+
+
+        }
     }
 }

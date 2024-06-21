@@ -2071,5 +2071,7 @@ public class BeanContainer {
 }
 ```
 
-# 에러페이지 구성 
+# [에러페이지 구성](https://github.com/yonggyo1125/project501_13_jsp/tree/exception)
+
+
 
