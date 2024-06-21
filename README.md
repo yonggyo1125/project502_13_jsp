@@ -1539,7 +1539,7 @@ public class StaticResourceMappingImpl implements StaticResourceMapping {
 > file.upload.path를 D:/uploads라고 하였다면 D:/uploads 디렉토리를 만들고 test.txt 파일을 하나 생성해 봅시다.
 > file.upload.url을 /uploads 라고 설정하였다면 브라우저 주소창에 /컨택스트 경로/uploads/test.txt로 정상 접속되는지 content-type은 text/plain으로 정상 응답 되는지 확인 합니다.
 
-# 마이바티스(mybatis) 설정
+# [마이바티스(mybatis) 설정](https://github.com/yonggyo1125/project501_13_jsp/tree/mybatis)
 
 > 마이바티스 매퍼 자원 경로와 파일명이 인터페이스의 패키지 경로 및 파일과 일치하여야 마이바티스가 구현체를 만들어 주게 됩니다. 따라서 src/main/resources에 생성하는 매퍼 경로는 src/main/java에 생성되는 경로와 동일하게 맞춰야 합니다.
 
