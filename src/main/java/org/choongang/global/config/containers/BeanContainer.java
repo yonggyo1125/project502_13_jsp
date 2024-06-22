@@ -3,10 +3,7 @@ package org.choongang.global.config.containers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.choongang.global.config.annotations.Component;
-import org.choongang.global.config.annotations.Controller;
-import org.choongang.global.config.annotations.RestController;
-import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.annotations.*;
 import org.choongang.global.config.containers.mybatis.MapperProvider;
 
 import java.io.File;
@@ -43,7 +40,7 @@ public class BeanContainer {
                     continue;
                 }
 
-                // 애노테이션 중 Controller, RestController, Component, Service 등이 TYPE 애노테이션으로 정의된 경우 beans 컨테이너에 객체 생성하여 보관
+                // 애노테이션 중 Controller, RestController, Component, Service, ControllerAdvice, RestControllerAdvice 등이 TYPE 애노테이션으로 정의된 경우 beans 컨테이너에 객체 생성하여 보관
                 // 키값은 전체 클래스명, 값은 생성된 객체
                 String key = clazz.getName();
 
@@ -68,7 +65,7 @@ public class BeanContainer {
 
                 boolean isBean = false;
                 for (Annotation anno : annotations) {
-                    if (anno instanceof Controller || anno instanceof RestController || anno instanceof Service || anno instanceof Component)  {
+                    if (anno instanceof Controller || anno instanceof RestController || anno instanceof Service || anno instanceof Component || anno instanceof ControllerAdvice || anno instanceof RestControllerAdvice)  {
                         isBean = true;
                         break;
                     }

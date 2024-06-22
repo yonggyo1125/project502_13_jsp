@@ -5,7 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.choongang.global.advices.HandlerControllerAdvice;
 import org.choongang.global.config.annotations.*;
+import org.choongang.global.config.containers.BeanContainer;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
@@ -24,10 +26,12 @@ import java.util.regex.Pattern;
 public class HandlerAdapterImpl implements HandlerAdapter {
 
     private final ObjectMapper om;
+    private final HandlerControllerAdvice handlerControllerAdvice;
 
     public HandlerAdapterImpl() {
         om = new ObjectMapper();
         om.registerModule(new JavaTimeModule());
+        handlerControllerAdvice = BeanContainer.getInstance().getBean(HandlerControllerAdvice.class);
     }
 
     @Override
@@ -158,7 +162,10 @@ public class HandlerAdapterImpl implements HandlerAdapter {
 
         /* 요청 메서드 호출 S */
         try {
-            Object result = args.isEmpty() ? method.invoke(controller) : method.invoke(controller, args.toArray());
+            // controller 적용 범위  Advice 처리
+            handlerControllerAdvice.handle(controller);
+
+            Object result = method.invoke(controller, args.toArray());
 
             /**
              *  컨트롤러 타입이 @Controller이면 템플릿 출력,
