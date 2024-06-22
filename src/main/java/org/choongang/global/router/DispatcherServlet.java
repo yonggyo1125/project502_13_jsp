@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.choongang.global.config.containers.BeanContainer;
+import org.choongang.global.exceptions.ExceptionHandlerService;
 
 import java.io.IOException;
 
@@ -17,10 +18,10 @@ public class DispatcherServlet extends HttpServlet  {
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+        BeanContainer bc = BeanContainer.getInstance();
         try {
             HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) res;
-            BeanContainer bc = BeanContainer.getInstance();
             bc.addBean(HttpServletRequest.class.getName(), request);
             bc.addBean(HttpServletResponse.class.getName(), response);
             bc.addBean(HttpSession.class.getName(), request.getSession());
@@ -34,7 +35,9 @@ public class DispatcherServlet extends HttpServlet  {
                 throw e;
             }
 
-
+            // 예외 페이지 처리
+            ExceptionHandlerService service = bc.getBean(ExceptionHandlerService.class);
+            service.handle(e);
         }
     }
 }
