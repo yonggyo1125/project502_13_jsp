@@ -8,7 +8,7 @@ import org.choongang.global.exceptions.ExceptionHandler;
 @ControllerAdvice("org.choongang")
 public class CommonControllerAdvice {
 
-    @ModelAttribute
+    @ModelAttribute("commonValue2")
     public String commonValue() {
         return "공통 값 속성 추가 테스트";
     }

@@ -1,5 +1,6 @@
 package org.choongang.member.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.*;
@@ -12,7 +13,16 @@ public class MemberController {
     private final JoinService joinService;
 
     @GetMapping
-    public String index() {
+    public String index(HttpServletRequest request) {
+        String attr = (String) request.getAttribute("commonValue");
+       // System.out.println(attr);
+        /*
+        boolean bool = true;
+        if (bool) {
+            throw new RuntimeException("테스트1212121212");
+        }
+
+         */
         return "member/index";
     }
 
@@ -23,4 +33,16 @@ public class MemberController {
         joinService.process();
         return "member/join";
     }
+
+    /*
+    @ExceptionHandler({RuntimeException.class})
+    public String errorHandler(RuntimeException e1, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        System.out.println(e1);
+        System.out.println(e2);
+        System.out.println(request);
+        System.out.println(response);
+        System.out.println(session);
+
+        return "errors/error";
+    } */
 }

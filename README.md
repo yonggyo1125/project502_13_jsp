@@ -154,7 +154,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RequestMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -172,7 +172,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GetMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -189,7 +189,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PostMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -206,7 +206,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PatchMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -223,7 +223,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PutMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -240,7 +240,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DeleteMapping {
-    String[] value();
+    String[] value() default "";
 }
 ```
 
@@ -2073,5 +2073,552 @@ public class BeanContainer {
 
 # [에러페이지 구성](https://github.com/yonggyo1125/project501_13_jsp/tree/exception)
 
+> 404나 서블릿 기본 오류 500은 /WEB-INF/templates/errors/404.jsp, /WEB-INF/templates/errors/500.jsp을 통해서 출력될 수 있도록 처리
+> 응답 코드, 요청 URL, 요청 방식과 같은 기본 메세지를 EL 속성으로 추가(status, requestUrl, method) 
+> 기타 사용자 정의 예외에 의해 유입되는 경우 해당 예외가 정의된 뷰로 보일수 있도록 @ExceptionHandler에 발생할 수 있는 예외를 정의하고 
+> 이를 라우터에서 ExceptionHandlerService를 통해서 처리합니다.
+
+## 에러 페이지 및 응답 처리 
+
+### org/choongang/global/exceptions/ExceptionHandler.java
+
+```java
+package org.choongang.global.exceptions;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ExceptionHandler {
+    Class<? extends  Throwable>[] value();
+}
+```
+
+### org/choongang/global/exceptions/ExceptionHandlerService.java
+
+```java
+package org.choongang.global.exceptions;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
+import org.choongang.global.advices.HandlerControllerAdvice;
+import org.choongang.global.config.annotations.ControllerAdvice;
+import org.choongang.global.config.annotations.RestController;
+import org.choongang.global.config.annotations.RestControllerAdvice;
+import org.choongang.global.config.annotations.Service;
+
+import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ExceptionHandlerService {
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
+    private final HttpSession session;
+    private final HandlerControllerAdvice handlerAdvice;
+
+    public void handle(Exception e, Object controller) {
+        Class clazz = e.getClass();
+        Method method = null;
+        Object obj = controller;
+        boolean isRest = false;
+        // 컨트롤러 내부 에러 처리 메서드 조회 S
+        for (Method m : controller.getClass().getDeclaredMethods()) {
+           ExceptionHandler handler = m.getDeclaredAnnotation(ExceptionHandler.class);
+            if (handler != null && Arrays.stream(handler.value()).anyMatch(c -> isSuperClass(c, clazz))) {
+                method = m;
+                break;
+            }
+        }
+        // 컨트롤러 내부 에러 처리 메서드 조회 E
+
+        if (method == null) {  // 발견하지 못하였다면 ControllerAdvice 또는 RestControllerAdvice에서 찾기
+            String pkName = controller.getClass().getPackageName();
+            isRest = controller.getClass().getDeclaredAnnotation(RestController.class) != null;
+            List<Object> advices = handlerAdvice.getControllerAdvices(isRest);
+
+            for (Object advice : advices) {
+                String[] patterns = null;
+                if (isRest) {
+                    RestControllerAdvice rca = advice.getClass().getDeclaredAnnotation(RestControllerAdvice.class);
+                    patterns = rca.value();
+                } else {
+                    ControllerAdvice ca = advice.getClass().getDeclaredAnnotation(ControllerAdvice.class);
+                    patterns = ca.value();
+                }
+
+                if (patterns != null && Arrays.stream(patterns).anyMatch(pkName::startsWith)) {
+                    for (Method m : advice.getClass().getDeclaredMethods()) {
+                        ExceptionHandler handler = m.getDeclaredAnnotation(ExceptionHandler.class);
+                        if (handler != null && Arrays.stream(handler.value()).anyMatch(c -> isSuperClass(c, clazz))) {
+                            method = m;
+                            obj = advice;
+                            break;
+                        }
+                    }
+                }
+            } // endfor
+
+        } // endif
+
+        if (method == null) {
+            throw new RuntimeException(e);
+        }
+
+        List<Object> args = new ArrayList<>();
+        for (Class c : method.getParameterTypes()) {
+            if (isSuperClass(c, clazz)) {
+                args.add(e);
+            } else if (c == HttpServletRequest.class) {
+                args.add(request);
+            } else if (c == HttpServletResponse.class) {
+                args.add(response);
+            } else if (c == HttpSession.class) {
+                args.add(session);
+            }
+        }
+
+        try {
+            request.setAttribute("message", e.getMessage());
+            request.setAttribute("exception", e);
+
+            Object result = method.invoke(obj, args.toArray());
+
+            isRest = isRest ? isRest : obj.getClass().getDeclaredAnnotation(RestController.class) != null;
+            if (!isRest) { // Rest 방식이 아닌 경우 템플릿 출력
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/" + result + ".jsp");
+                rd.forward(request, response);
+                return;
+            }
+
+            // Rest 방식인 경우 JSON 형식으로 출력 처리
+            ObjectMapper om = new ObjectMapper();
+            om.registerModule(new JavaTimeModule());
+            response.setContentType("application/json; charset=UTF-8");
+            PrintWriter out = response.getWriter();
+            out.print(om.writeValueAsString(result));
+
+        } catch (Exception e2) {
+            e2.printStackTrace();
+        }
+    }
+
+    private boolean isSuperClass(Class clz, Class target) {
+        if (clz == target) {
+            return true;
+        }
+
+        Class superTarget = target.getSuperclass();
+        if (superTarget == null) {
+            return false;
+        }
+
+        return isSuperClass(clz, superTarget);
+    }
+}
+```
+
+### org/choongang/global/router/RouterService.java
+
+```java
+
+...
+
+@Service
+@RequiredArgsConstructor
+public class RouterService {
+
+  private final HandlerMappingImpl handlerMapping;
+  private final HandlerAdapterImpl handlerAdapter;
+  private final StaticResourceMappingImpl staticResourceMapping;
+  private final ExceptionHandlerService exceptionHandlerService;
+
+  /**
+   * 컨트롤러 라우팅
+   *
+   */
+  public void route(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    List<Object> data = null;
+    try {
+      data = handlerMapping.search(req);
+
+      // 요청 주소
+      String requestUrl = req.getRequestURI();
+      requestUrl = req.getQueryString() == null || req.getQueryString().isBlank() ? requestUrl : requestUrl + "?" + req.getQueryString();
+      req.setAttribute("requestUrl", requestUrl);
+
+      // 요청 메서드
+      req.setAttribute("method", req.getMethod());
+
+      if (data == null) {
+
+        /**
+         *  처리 가능한 컨트롤러를 못찾은 경우 지정된 정적 경로에 파일이 있는지 체크 하고
+         *  해당 자원을 파일로 읽어 온 후 파일에 맞는 Content-Type으로 응답 헤더 추가 및 Body쪽에 출력하여 보일 수 있도록 한다.
+         *  정적 경로에도 파일을 찾을 수 없다면 404 응답 코드를 내보낸다.
+         */
+
+        // 정적 자원이라면 정적 라우팅 처리
+        if (staticResourceMapping.check(req)) {
+          staticResourceMapping.route(req, res);
+          return;
+        }
+
+        // 컨트롤러도 발견하지 못하고 정적 라우팅도 아니라면 404
+        int status = HttpServletResponse.SC_NOT_FOUND;
+        res.setStatus(status);
+
+        // 없는 페이지 응답 상태 코드 추가
+        req.setAttribute("status", status);
+
+        // 404 없는 페이지 출력
+        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/templates/errors/404.jsp");
+        rd.forward(req, res);
+        return;
+      }
+
+      // 찾은 컨트롤러 요청 메서드를 실행
+      handlerAdapter.execute(req, res, data);
+    } catch (Exception e) {
+      req.setAttribute("message", e.getMessage());
+      req.setAttribute("exception", e);
+      if (e instanceof ServletException || e instanceof IOException) {
+        int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+        res.setStatus(status);
+        req.setAttribute("status", status);
+        RequestDispatcher rd = req.getRequestDispatcher("/WEB-INF/templates/errors/500.jsp");
+        rd.forward(req, res);
+
+        e.printStackTrace();
+        return;
+      }
+
+      // 예외 페이지 처리
+      if (data != null) {
+        exceptionHandlerService.handle(e, data.get(0));
+      }
+    }
+
+  }
+}
+```
+
+### 에러 출력 페이지 템플릿 추가
+
+#### webapp/WEB-INF/templates/errors/404.jsp 
+
+```jsp
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main>
+    <h1>${status} 없는 페이지 입니다.</h1>
+    <h2>${method} ${requestUrl}</h2>
+
+</layout:main>
+```
+
+### webapp/WEB-INF/templates/errors/500.jsp
+
+```jsp
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main>
+${message}
+</layout:main>
+```
+
+### webapp/WEB-INF/templates/errors/error.jsp
+
+```jsp 
+<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+<layout:main>
+${message}
+</layout:main>
+```
+
+### ExceptionHandler 적용 예
+
+> @ExceptionHandler를 컨트롤러에 지정하면 가장 먼저 우선 순위를 가집니다. 다만 없는 경우 해당 패키지 적용 범위에 있는 ControllerAdvice에 정의된 @ExceptionHandler를 찾아 적용합니다.
+> @ExceptionHandler로 등록된 메서드에는 발생한 예외 객체, 서블릿 기본 객체인 HttpServletRequest, HttpServletResponse, HttpSession 객체를 필요에 따라서 주입할 수 있습니다.
+> 컨트롤러가 @RestController이거나 @RestControllerAdvice로 정의된 경우 응답은 JSON으로 출력이 되고 그 반대의 경우는 반환값으로 템플릿을 찾아서 오류 페이지를 출력합니다.
+
+#### 컨트롤러 적용 예
+
+```java
+
+...
+
+@Controller
+@RequestMapping("/member")
+@RequiredArgsConstructor
+public class MemberController {
+    ...
+  
+    @ExceptionHandler(RuntimeException.class)
+    public String errorHandler(RuntimeException e1, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        
+      ...
+      
+      return "errors/error";
+    } 
+}
+
+```
+
+
+#### ControllerAdvice 적용 예 
+
+```java
+...
+
+@ControllerAdvice("org.choongang")
+public class CommonControllerAdvice {
+
+  ...
+
+    /**
+     * 공통 에러 페이지 처리
+     * 
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    public String errorHandler(Exception e, HttpServletRequest request) {
+
+        return "errors/error";
+    }
+}
+```
+
+
+## 컨트롤러 실행 전 공통 처리 정의 - Advice 
+
+> 공통 속성에 대한 처리를 합니다. 특정 패키지 범위에 정의한 컨트롤러 전역에 유지할 속성과 ExceptionHandler 적용 처리를 합니다. 
+> @ControllerAdvice, @RestControllerAdvice가 붙어 있는 클래스는 공통 속성에 대한 공유와 에러 공통 처리를 담당하게 됩니다. 
+> 이 역시 자동 스캔 범위에 해당하므로 BeanContainer 자동 스캔 범위로 추가하며 HandlerAdapterImpl에 컨트롤러 메서드 실행 전 @ModelAttribute로 지정된 메서드를 호출하고 공통 속성으로 처리합니다.
+> @ModelAttribute는 직접 설정한 이름 또는 메서드명으로 request 범위의 속성명으로 지정이 되며, 반환값이 값으로 등록됩니다.
+
+
+### org/choongang/global/config/annotations/ModelAttribute.java
+
+```java
+package org.choongang.global.config.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ModelAttribute {
+    String value() default "";
+}
+```
+
+
+### org/choongang/global/config/annotations/ControllerAdvice.java
+
+```java
+package org.choongang.global.config.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ControllerAdvice {
+    String[] value();
+}
+```
+
+### org/choongang/global/config/annotations/RestControllerAdvice.java
+
+```java
+package org.choongang.global.config.annotations;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RestControllerAdvice {
+    String[] value();
+}
+```
+
+
+
+### org/choongang/global/advices/CommonControllerAdvice.java
+
+```java 
+package org.choongang.global.advices;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.choongang.global.config.annotations.ControllerAdvice;
+import org.choongang.global.config.annotations.ModelAttribute;
+import org.choongang.global.exceptions.ExceptionHandler;
+
+@ControllerAdvice("org.choongang")
+public class CommonControllerAdvice {
+
+    @ModelAttribute("commonValue2")
+    public String commonValue() {
+        return "공통 값 속성 추가 테스트";
+    }
+
+    /**
+     * 공통 에러 페이지 처리
+     * 
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    public String errorHandler(Exception e, HttpServletRequest request) {
+
+        return "errors/error";
+    }
+}
+```
+
+### org/choongang/global/advices/RestCommonControllerAdvice.java
+
+```java
+package org.choongang.global.advices;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.choongang.global.config.annotations.RestControllerAdvice;
+import org.choongang.global.exceptions.ExceptionHandler;
+
+@RestControllerAdvice("org.choongang")
+public class CommonRestControllerAdvice {
+
+    /**
+     * Rest 공통 에러 출력 처리
+     *
+     * @param e
+     * @param request
+     * @return
+     */
+    @ExceptionHandler(Exception.class)
+    public String errorHandler(Exception e, HttpServletRequest request) {
+
+        return "error";
+    }
+}
+
+```
+
+
+### org/choongang/global/config/containers/BeanContainer.java
+
+> @ControllerAdvice와 @RestControllerAdvice를 자동 스캔 범위에 추가
+
+```java
+
+...
+
+public class BeanContainer {
+   
+  ...
+
+    public void loadBeans() {
+        // 패키지 경로 기준으로 스캔 파일 경로 조회
+        try {
+            String rootPath = new File(getClass().getResource("../../../").getPath()).getCanonicalPath();
+            String packageName = getClass().getPackageName().replace(".global.config.containers", "");
+            List<Class> classNames = getClassNames(rootPath, packageName);
+
+            for (Class clazz : classNames) {
+                
+                ...
+
+                boolean isBean = false;
+                for (Annotation anno : annotations) {
+                    if (anno instanceof Controller || anno instanceof RestController || anno instanceof Service || anno instanceof Component || anno instanceof ControllerAdvice || anno instanceof RestControllerAdvice)  {
+                        isBean = true;
+                        break;
+                    }
+                }
+               
+              
+              ...
+
+            }
+
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    ...
+}
+
+```
+
+
+### org/choongang/global/router/HandlerAdapterImpl.java
+
+```java
+
+...
+
+@Service
+public class HandlerAdapterImpl implements HandlerAdapter {
+
+    private final ObjectMapper om;
+    private final HandlerControllerAdvice handlerControllerAdvice;
+
+    public HandlerAdapterImpl() {
+        om = new ObjectMapper();
+        om.registerModule(new JavaTimeModule());
+        handlerControllerAdvice = BeanContainer.getInstance().getBean(HandlerControllerAdvice.class);
+    }
+
+    @Override
+    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) {
+
+      ...
+
+        /* 요청 메서드 호출 S */
+        try {
+            // controller 적용 범위  Advice 처리
+            handlerControllerAdvice.handle(controller);
+
+            Object result = method.invoke(controller, args.toArray());
+
+          ...
+
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        /* 요청 메서드 호출 E */
+    }
+    
+    ...
+  
+}
+```
 
 
