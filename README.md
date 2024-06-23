@@ -1,6 +1,11 @@
-# 초기 설정 
-- [초기설정 설명만 보기](https://github.com/yonggyo1125/project501_13_jsp/tree/setting)
 
+# 목차
+1. [사이트 기본 구성](https://github.com/yonggyo1125/project501_13_jsp?tab=readme-ov-file#%EC%B4%88%EA%B8%B0-%EC%84%A4%EC%A0%95)
+2. 게시판 만들기
+3. 포켓몬 도감 가이드
+
+---
+# 초기 설정
 ## 의존성 추가 
 - servlet-api, servlet.jsp-api, jstl, lombok, ojdbc11, mybatis, slf4j-api, logback-classic, jbcrypt, jackson databind, mockito, javafaker 등
 
