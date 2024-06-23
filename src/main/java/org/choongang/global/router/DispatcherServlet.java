@@ -17,9 +17,10 @@ public class DispatcherServlet extends HttpServlet  {
 
     @Override
     public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        HttpServletRequest request = (HttpServletRequest)req;
-        HttpServletResponse response = (HttpServletResponse)res;
         BeanContainer bc = BeanContainer.getInstance();
+        HttpServletRequest request = (HttpServletRequest) req;
+        HttpServletResponse response = (HttpServletResponse) res;
+
         bc.addBean(HttpServletRequest.class.getName(), request);
         bc.addBean(HttpServletResponse.class.getName(), response);
         bc.addBean(HttpSession.class.getName(), request.getSession());
