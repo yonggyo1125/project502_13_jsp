@@ -22,7 +22,7 @@ public class BeanContainer {
 
     private MapperProvider mapperProvider; // 마이바티스 매퍼 조회
 
-    public BeanContainer() {
+    private BeanContainer() {
         beans = new HashMap<>();
         mapperProvider = MapperProvider.getInstance();
     }
