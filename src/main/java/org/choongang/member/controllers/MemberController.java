@@ -12,7 +12,7 @@ import org.choongang.member.services.JoinService;
 public class MemberController {
     private final JoinService joinService;
 
-    @GetMapping
+    @GetMapping // /member
     public String index(HttpServletRequest request) {
         String attr = (String) request.getAttribute("commonValue");
        // System.out.println(attr);
@@ -24,6 +24,11 @@ public class MemberController {
 
          */
         return "member/index";
+    }
+
+    @GetMapping("/login/{mode}")  // /member/login
+    public String login(@PathVariable("mode") String mode) {
+        return "member/login";
     }
 
     @GetMapping("/{mode}/test/{num}")
@@ -38,7 +43,7 @@ public class MemberController {
     @ExceptionHandler({RuntimeException.class})
     public String errorHandler(RuntimeException e1, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
         System.out.println(e1);
-        System.out.println(e2);
+
         System.out.println(request);
         System.out.println(response);
         System.out.println(session);
