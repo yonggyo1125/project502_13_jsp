@@ -77,15 +77,26 @@ nav {
 
 nav > .inner {
     display: flex;
-    align-items: center;
+    height: 45px;
 }
 
 nav > .inner a {
-    height: 45px;
-    font-size: 1.5rem;
+    font-size: 1.35rem;
     color: #fff;
     padding: 0 25px;
+    line-height: 45px;
 }
 
-
+nav > .inner a:hover {
+    background: #414141;
+}
 /* 사이트 헤더 영역 E */
+
+/* 사이트 푸터 영역 S */
+footer {
+    margin-top: 100px;
+    min-height: 250px;
+    background: #f8f8f8;
+    border-top: 1px solid #ccc;
+}
+/* 사이트 푸터 영역 E */
