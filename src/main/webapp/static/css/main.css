@@ -18,6 +18,23 @@ header .site-top > .inner {
     align-items: center;
 }
 
+header .site-top i {
+    font-size: 1.3rem;
+    vertical-align: middle;
+}
+
+header .site-top a {
+    line-height: 1;
+}
+
+header .site-top a:hover {
+    text-decoration: underline;
+}
+
+header .site-top .right a {
+    margin-left: 10px;
+}
+
 header .logo-search {
     padding: 50px 0;
 }
