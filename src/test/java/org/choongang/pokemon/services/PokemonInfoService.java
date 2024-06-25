@@ -71,6 +71,7 @@ public class PokemonInfoService {
                 ApiResult<Pokemon> apiResult = om.readValue(response.body(), new TypeReference<>() {});
                 listData.setTotal(apiResult.getCount());
                 listData.setItems(apiResult.getResults());
+                System.out.println(listData);
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
             }
