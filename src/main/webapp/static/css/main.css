@@ -70,4 +70,22 @@ header .search-box button i {
     color: #fff;
     font-size: 1.5rem;
 }
+
+nav {
+    background: #000;
+}
+
+nav > .inner {
+    display: flex;
+    align-items: center;
+}
+
+nav > .inner a {
+    height: 45px;
+    font-size: 1.5rem;
+    color: #fff;
+    padding: 0 25px;
+}
+
+
 /* 사이트 헤더 영역 E */
