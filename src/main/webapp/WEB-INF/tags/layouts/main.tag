@@ -12,7 +12,19 @@
     <jsp:attribute name="header">
         <section class="site-top">
             <div class="layout-width inner">
-
+                <div class="left">
+                    <a href="<c:url value='/' />">
+                        <fmt:message key="홈" />
+                    </a>
+                </div>
+                <div class="right">
+                    <a href="<c:url value='/member/join' />">
+                        <fmt:message key="회원가입" />
+                    </a>
+                    <a href="<c:url value='/member/login' />">
+                        <fmt:message key="로그인" />
+                    </a>
+                </div>
             </div>
         </section>
 
