@@ -53,6 +53,14 @@
                     <fmt:message key="약관에_동의합니다." />
                 </label>
             </div>
+            <div class="button-group">
+                <button type="reset">
+                    <fmt:message key="다시입력" />
+                </button>
+                <button type="submit">
+                    <fmt:message key="가입하기" />
+                </button>
+            </div>
         </form>
     </section>
 </layout:main>
