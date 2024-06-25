@@ -20,6 +20,7 @@
          </c:if>
          <fmt:message key="SITE_TITLE" />
         </title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xeicon@2.3.3/xeicon.min.css">
         <link rel="stylesheet" type="text/css" href="${cssUrl}style.css">
         <jsp:invoke fragment="commonCss" />
         <c:if test="${addCss != null}">

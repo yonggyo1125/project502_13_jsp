@@ -1,14 +1,21 @@
 <%@ tag body-content="scriptless" %>
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ attribute name="title" %>
+<fmt:setBundle basename="messages.commons" />
 <c:url var="cssUrl" value="/css/" />
 <c:url var="jsUrl" value="/js/" />
 
 <layout:common title="${title}">
     <jsp:attribute name="header">
-        <h1>메인 레이아웃 상단 영역!</h1>
+        <section class="site-top">
+            <div class="layout-width inner">
+
+            </div>
+        </section>
+
     </jsp:attribute>
     <jsp:attribute name="footer">
         <h1>메인 레이아웃 하단 영역!</h1>
