@@ -1,4 +1,4 @@
-package org.choongang.pokemon.entities;
+package org.choongang.pokemon.entities.api;
 
 import lombok.Data;
 

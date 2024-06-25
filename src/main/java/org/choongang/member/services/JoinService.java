@@ -5,7 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
-import org.choongang.member.mapper.MemberMapper;
+import org.choongang.member.mappers.MemberMapper;
 import org.choongang.member.validators.JoinValidator;
 
 @Service

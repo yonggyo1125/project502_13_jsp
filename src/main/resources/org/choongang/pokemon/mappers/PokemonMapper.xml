@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.choongang.pokemon.mappers.PokemonMapper">
+    <resultMap id="pokemonMap" type="org.choongang.pokemon.entities.PokemonDetail">
+        <result column="SEQ" property="seq" />
+        <result column="NAME" property="name" />
+        <result column="WEIGHT" property="weight" />
+        <result column="HEIGHT" property="height" />
+        <result column="BASE_EXPERIENCE" property="baseExperience" />
+        <result column="FRONT_IMAGE" property="frontImage" />
+        <result column="BACK_IMAGE" property="backImage" />
+        <result column="RAW_DATA" property="rawData" />
+    </resultMap>
+
+    <insert id="register">
+        INSERT INTO POKEMON VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData})
+    </insert>
+
+    <select id="get" resultMap="pokemonMap">
+        SELECT * FROM POKEMON WHERE seq=#{seq}
+    </select>
+</mapper>
