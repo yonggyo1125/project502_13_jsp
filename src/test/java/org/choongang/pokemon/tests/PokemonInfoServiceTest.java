@@ -2,6 +2,7 @@ package org.choongang.pokemon.tests;
 
 import org.choongang.global.services.ApiRequestService;
 import org.choongang.global.services.ObjectMapperService;
+import org.choongang.pokemon.controllers.PokemonSearch;
 import org.choongang.pokemon.services.PokemonInfoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,6 +28,17 @@ public class PokemonInfoServiceTest {
         assertDoesNotThrow(() -> {
             Map<String, String> items = service.getApiList();
             System.out.println(items);
+        });
+    }
+
+    @Test
+    @DisplayName("포켓몬 목록 API 조회 테스트")
+    void getListTest() {
+        assertDoesNotThrow(() -> {
+            PokemonSearch search = new PokemonSearch();
+            search.setPage(1);
+            search.setLimit(20);
+            service.getList(search);
         });
     }
 }

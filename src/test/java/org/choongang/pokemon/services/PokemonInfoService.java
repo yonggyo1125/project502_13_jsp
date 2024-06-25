@@ -55,7 +55,9 @@ public class PokemonInfoService {
         int limit = search.getLimit() < 1 ? 20 : search.getLimit();
         int offset = (page - 1) * limit;
 
-        String url = apiUrl + "/pokemon";
+        String url = String.format(apiUrl + "/pokemon?offset=%d&limit=%d", offset, limit);
+
+
 
     }
 }
