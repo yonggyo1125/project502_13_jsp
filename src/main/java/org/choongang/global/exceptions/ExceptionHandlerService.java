@@ -14,6 +14,7 @@ import org.choongang.global.config.annotations.RestControllerAdvice;
 import org.choongang.global.config.annotations.Service;
 
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,14 +28,19 @@ public class ExceptionHandlerService {
     private final HttpSession session;
     private final HandlerControllerAdvice handlerAdvice;
 
-    public void handle(Exception e, Object controller) {
+    public void handle(Throwable e, Object controller) {
+        if (e instanceof InvocationTargetException invocationTargetException) {
+            e = invocationTargetException.getTargetException();
+        }
+
         Class clazz = e.getClass();
+
         Method method = null;
         Object obj = controller;
         boolean isRest = false;
         // 컨트롤러 내부 에러 처리 메서드 조회 S
         for (Method m : controller.getClass().getDeclaredMethods()) {
-           ExceptionHandler handler = m.getDeclaredAnnotation(ExceptionHandler.class);
+            ExceptionHandler handler = m.getDeclaredAnnotation(ExceptionHandler.class);
             if (handler != null && Arrays.stream(handler.value()).anyMatch(c -> isSuperClass(c, clazz))) {
                 method = m;
                 break;
