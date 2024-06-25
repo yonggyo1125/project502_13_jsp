@@ -50,6 +50,15 @@
                 </div>
             </div>
         </section>
+        <nav>
+            <div class="layout-width inner">
+                <a href="#">메뉴1</a>
+                <a href="#">메뉴2</a>
+                <a href="#">메뉴3</a>
+                <a href="#">메뉴4</a>
+                <a href="#">메뉴5</a>
+            </div>
+        </nav>
     </jsp:attribute>
     <jsp:attribute name="footer">
         <h1>메인 레이아웃 하단 영역!</h1>

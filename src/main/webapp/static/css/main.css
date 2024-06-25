@@ -1,0 +1,21 @@
+/* 메인 레이아웃 공통 */
+.layout-width {
+    min-width: 1100px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* 사이트 헤더 영역 S */
+header .site-top {
+    background: #f8f8f8;
+    border-bottom: 1px solid #ccc;
+}
+
+header .site-top > .inner {
+    display: flex;
+    justify-content: space-between;
+    height: 35px;
+    align-items: center;
+}
+
+/* 사이트 헤더 영역 E */
