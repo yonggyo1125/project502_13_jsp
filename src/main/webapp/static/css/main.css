@@ -1,0 +1,120 @@
+/* 메인 레이아웃 공통 */
+.layout-width {
+    min-width: 1100px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.content-box {
+    min-width: 550px;
+    max-width: 700px;
+    min-height: 650px;
+    margin: 50px auto;
+    box-shadow: 2px 2px 10px #414141;
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.content-box h1 {
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0 10px 15px;
+    margin 0 0 20px;
+    border-bottom: 2px solid #000;
+}
+
+/* 사이트 헤더 영역 S */
+header .site-top {
+    background: #f8f8f8;
+    border-bottom: 1px solid #ccc;
+}
+
+header .site-top > .inner {
+    display: flex;
+    justify-content: space-between;
+    height: 35px;
+    align-items: center;
+}
+
+header .site-top i {
+    font-size: 1.3rem;
+    vertical-align: middle;
+}
+
+header .site-top a {
+    line-height: 1;
+}
+
+header .site-top a:hover {
+    text-decoration: underline;
+}
+
+header .site-top .right a {
+    margin-left: 10px;
+}
+
+header .logo-search {
+    padding: 50px 0;
+}
+
+header .logo-search > .inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .search-box {
+    display: flex;
+    width: 300px;
+    height: 45px;
+}
+
+header .search-box input[type='text'] {
+    flex-grow: 1;
+    height: 45px;
+    border: 3px solid #000;
+    border-right: 0;
+    border-radius: 0;
+}
+
+header .search-box button {
+    width: 45px;
+    background: #000;
+    border: 0;
+    cursor: pointer;
+}
+
+header .search-box button i {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+nav {
+    background: #000;
+}
+
+nav > .inner {
+    display: flex;
+    height: 45px;
+}
+
+nav > .inner a {
+    font-size: 1.35rem;
+    color: #fff;
+    padding: 0 25px;
+    line-height: 45px;
+}
+
+nav > .inner a:hover {
+    background: #414141;
+}
+/* 사이트 헤더 영역 E */
+
+/* 사이트 푸터 영역 S */
+footer {
+    margin-top: 100px;
+    min-height: 250px;
+    background: #f8f8f8;
+    border-top: 1px solid #ccc;
+}
+/* 사이트 푸터 영역 E */
