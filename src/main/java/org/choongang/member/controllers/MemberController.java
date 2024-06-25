@@ -1,13 +1,18 @@
 package org.choongang.member.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Controller;
 import org.choongang.global.config.annotations.GetMapping;
 import org.choongang.global.config.annotations.PostMapping;
 import org.choongang.global.config.annotations.RequestMapping;
+import org.choongang.member.services.JoinService;
 
 @Controller
 @RequestMapping("/member")
+@RequiredArgsConstructor
 public class MemberController {
+
+    private final JoinService joinService;
 
     // 회원 가입 양식
     @GetMapping("/join")
@@ -19,7 +24,9 @@ public class MemberController {
     // 회원 가입 처리
     @PostMapping("/join")
     public String joinPs(RequestJoin form) {
-        System.out.println(form);
+
+        joinService.process(form);
+
         return "member/join";
     }
 
