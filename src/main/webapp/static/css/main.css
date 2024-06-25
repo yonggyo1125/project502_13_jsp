@@ -18,4 +18,36 @@ header .site-top > .inner {
     align-items: center;
 }
 
+header .logo-search {
+    padding: 50px 0;
+}
+
+header .logo-search > .inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header .search-box {
+    display: flex;
+    width: 300px;
+    height: 45px;
+}
+
+header .search-box input[type='text'] {
+    flex-grow: 1;
+    height: 45px;
+    border: 3px solid #000;
+    border-right: 0;
+}
+
+header .search-box button {
+    width: 45px;
+    background: #000;
+}
+
+header .search-box button i {
+    color: #fff;
+    font-size: 1.5rem;
+}
 /* 사이트 헤더 영역 E */
