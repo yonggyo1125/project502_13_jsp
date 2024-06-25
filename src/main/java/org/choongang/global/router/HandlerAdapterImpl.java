@@ -35,7 +35,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
     }
 
     @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) {
+    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) throws Exception {
 
         Object controller = data.get(0); // 컨트롤러 객체
         Method method = (Method)data.get(1); // 찾은 요청 메서드
@@ -187,7 +187,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
             rd.forward(request, response);
 
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            throw e;
         }
         /* 요청 메서드 호출 E */
     }
