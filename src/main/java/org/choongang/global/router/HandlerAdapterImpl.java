@@ -35,7 +35,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
     }
 
     @Override
-    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) {
+    public void execute(HttpServletRequest request, HttpServletResponse response, List<Object> data) throws Exception {
 
         Object controller = data.get(0); // 컨트롤러 객체
         Method method = (Method)data.get(1); // 찾은 요청 메서드
@@ -161,34 +161,30 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         /* 메서드 매개변수 의존성 주입 처리 E */
 
         /* 요청 메서드 호출 S */
-        try {
-            // controller 적용 범위  Advice 처리
-            handlerControllerAdvice.handle(controller);
 
-            Object result = method.invoke(controller, args.toArray());
+        // controller 적용 범위  Advice 처리
+        handlerControllerAdvice.handle(controller);
 
-            /**
-             *  컨트롤러 타입이 @Controller이면 템플릿 출력,
-             * @RestController이면 JSON 문자열로 출력, 응답 헤더를 application/json; charset=UTF-8로 고정
-             */
-           boolean isRest = Arrays.stream(controller.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof RestController);
-           // Rest 컨트롤러인 경우
-           if (isRest) {
-               response.setContentType("application/json; charset=UTF-8");
-               String json = om.writeValueAsString(result);
-               PrintWriter out = response.getWriter();
-               out.print(json);
-               return;
-           }
+        Object result = method.invoke(controller, args.toArray());
 
-            // 일반 컨트롤러인 경우 문자열 반환값을 템플릿 경로로 사용
-            String tpl = "/WEB-INF/templates/" + result + ".jsp";
-            RequestDispatcher rd = request.getRequestDispatcher(tpl);
-            rd.forward(request, response);
-
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        /**
+         *  컨트롤러 타입이 @Controller이면 템플릿 출력,
+         * @RestController이면 JSON 문자열로 출력, 응답 헤더를 application/json; charset=UTF-8로 고정
+         */
+        boolean isRest = Arrays.stream(controller.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof RestController);
+        // Rest 컨트롤러인 경우
+        if (isRest) {
+            response.setContentType("application/json; charset=UTF-8");
+            String json = om.writeValueAsString(result);
+            PrintWriter out = response.getWriter();
+            out.print(json);
+            return;
         }
+
+        // 일반 컨트롤러인 경우 문자열 반환값을 템플릿 경로로 사용
+        String tpl = "/WEB-INF/templates/" + result + ".jsp";
+        RequestDispatcher rd = request.getRequestDispatcher(tpl);
+        rd.forward(request, response);
         /* 요청 메서드 호출 E */
     }
 
@@ -238,24 +234,24 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 /* 기본 자료형 및 Wrapper 클래스 자료형 처리 E */
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 S
             } else if (clz == LocalDateTime.class || clz == LocalDate.class || clz == LocalTime.class) {
-               Field field = paramObj.getClass().getDeclaredField(fieldNm);
-               for (Annotation a : field.getDeclaredAnnotations()) {
-                   if (a instanceof DateTimeFormat dateTimeFormat) {
-                       String pattern = dateTimeFormat.value();
-                       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-                       if (clz == LocalTime.class) {
-                           method.invoke(paramObj, LocalTime.parse(value, formatter));
-                       } else if (clz == LocalDate.class) {
-                           method.invoke(paramObj, LocalDate.parse(value, formatter));
-                       } else {
-                           method.invoke(paramObj, LocalDateTime.parse(value, formatter));
-                       }
-                       break;
-                   } // endif
-               } // endfor
+                Field field = paramObj.getClass().getDeclaredField(fieldNm);
+                for (Annotation a : field.getDeclaredAnnotations()) {
+                    if (a instanceof DateTimeFormat dateTimeFormat) {
+                        String pattern = dateTimeFormat.value();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                        if (clz == LocalTime.class) {
+                            method.invoke(paramObj, LocalTime.parse(value, formatter));
+                        } else if (clz == LocalDate.class) {
+                            method.invoke(paramObj, LocalDate.parse(value, formatter));
+                        } else {
+                            method.invoke(paramObj, LocalDateTime.parse(value, formatter));
+                        }
+                        break;
+                    } // endif
+                } // endfor
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
             }
-            
+
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
