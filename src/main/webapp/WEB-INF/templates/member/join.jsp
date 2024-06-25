@@ -9,7 +9,7 @@
 <layout:main title="${pageTitle}">
     <section class="content-box">
         <h1>${pageTitle}</h1>
-        <form name="frmJoin" method="POST" action="${actionUrl}" autocomplete="off">
+        <form name="frmJoin" method="POST" action="${actionUrl}" autocomplete="off" target="ifrmProcess">
             <dl>
                 <dt>
                     <fmt:message key="이메일" />

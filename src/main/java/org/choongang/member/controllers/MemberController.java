@@ -18,9 +18,9 @@ public class MemberController {
 
     // 회원 가입 처리
     @PostMapping("/join")
-    public String joinPs() {
-
-        return null;
+    public String joinPs(RequestJoin form) {
+        System.out.println(form);
+        return "member/join";
     }
 
     // 로그인 양식
@@ -32,7 +32,7 @@ public class MemberController {
 
     // 로그인 처리
     @PostMapping("/login")
-    public String loginPs() {
+    public String loginPs(RequestLogin form) {
 
         return null;
     }

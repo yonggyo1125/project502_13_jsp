@@ -7,7 +7,7 @@
         <result column="USER_NO" property="userNo" />
         <result column="EMAIL" property="email" />
         <result column="PASSWORD" property="password" />
-        <result column="USER_TYPE" property="userType" javaType="org.choongang.member.entities.Member"/>
+        <result column="USER_TYPE" property="userType" />
         <result column="USER_NAME" property="userName" />
         <result column="REG_DT" property="regDt" />
         <result column="MOD_DT" property="modDt" />
