@@ -12,6 +12,9 @@
         <property name="prodUsername" value="PROJECT3" />
         <property name="prodPassword" value="oracle" />
     </properties>
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.member.constants.UserType" />
+    </typeHandlers>
     <environments default="dev">
         <environment id="dev">
             <transactionManager type="JDBC"/>
