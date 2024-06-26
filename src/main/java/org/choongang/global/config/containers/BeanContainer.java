@@ -10,6 +10,7 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,7 +214,7 @@ public class BeanContainer {
      *
      * @param bean
      */
-    private void updateObject(Object bean) {
+    private void updateObject(Object bean) throws Exception {
         // 인터페이스인 경우 갱신 배제
         if (bean.getClass().isInterface()) {
             return;
@@ -235,6 +236,10 @@ public class BeanContainer {
                 // 그외 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession)이라면 갱신
                 if (clz == HttpServletRequest.class || clz == HttpServletResponse.class || clz == HttpSession.class || mapper != null) {
                     field.setAccessible(true);
+                    if (clz.toString().contains("final")) {
+                        Field modifiers = Field.class.getDeclaredField("modifiers");
+                        modifiers.set(field, field.getModifiers() & ~Modifier.FINAL);
+                    }
                 }
 
                 if (clz == HttpServletRequest.class) {

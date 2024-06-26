@@ -115,7 +115,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 } else if (cls == HttpServletResponse.class) {
                     args.add(response);
                 } else if (cls == HttpSession.class) {
-                    args.add(BeanContainer.getInstance().getBean(HttpSession.class));
+                    args.add(request.getSession());
                 } else if (cls == int.class) {
                     args.add(Integer.parseInt(paramValue));
                 } else if (cls == Integer.class) {
