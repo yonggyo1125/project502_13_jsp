@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.exceptions.AlertException;
+import org.choongang.member.constants.UserType;
 import org.choongang.member.controllers.RequestJoin;
 import org.choongang.member.entities.Member;
 import org.choongang.member.mappers.MemberMapper;
@@ -28,6 +29,7 @@ public class JoinService {
                 .email(form.getEmail())
                 .password(hash)
                 .userName(form.getUserName())
+                .userType(UserType.USER)
                 .build();
 
         int result = mapper.register(member);
