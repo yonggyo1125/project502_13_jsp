@@ -5,6 +5,7 @@ header {
     height: 75px;
     background: #fff;
     align-items: center;
+    padding: 10px 30px;
 }
 
 /* 내용 배치 */
@@ -39,7 +40,19 @@ main > .side-menu a:hover {
 
 /* 사이드 주 메뉴 E */
 
+/* 내용 영역 S */
 main > .main-content {
     flex-grow: 1;
     background: #f8f8f8;
+    padding: 50px;
 }
+
+main > .main-content h1 {
+    line-height: 1;
+    font-size: 2rem;
+    margin: 0 0 30px;
+    padding: 0 10px 15px;
+    border-bottom: 3px solid #000;
+}
+
+/* 내용 영역 E */

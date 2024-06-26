@@ -31,11 +31,12 @@
     <jsp:body>
         <!-- 주 메뉴 -->
         <aside class="side-menu">
-            <a href="${homeUrl}member">회원관리</a>
-            <a href="${homeUrl}board">게시판 관리</a>
+            <a href="${homeUrl}/member">회원관리</a>
+            <a href="${homeUrl}/board">게시판 관리</a>
         </aside>
         <!-- 내용 영역 -->
         <section class="main-content">
+            ${menuCode}
             <jsp:doBody />
         </section>
     </jsp:body>
