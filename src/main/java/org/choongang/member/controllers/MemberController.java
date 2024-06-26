@@ -7,6 +7,7 @@ import org.choongang.global.config.annotations.GetMapping;
 import org.choongang.global.config.annotations.PostMapping;
 import org.choongang.global.config.annotations.RequestMapping;
 import org.choongang.member.services.JoinService;
+import org.choongang.member.services.LoginService;
 
 @Controller
 @RequestMapping("/member")
@@ -14,6 +15,7 @@ import org.choongang.member.services.JoinService;
 public class MemberController {
 
     private final JoinService joinService;
+    private final LoginService loginService;
 
     // 회원 가입 양식
     @GetMapping("/join")
@@ -47,6 +49,8 @@ public class MemberController {
     @PostMapping("/login")
     public String loginPs(RequestLogin form) {
 
-        return null;
+        loginService.process(form);
+
+        return "commons/execute_script";
     }
 }
