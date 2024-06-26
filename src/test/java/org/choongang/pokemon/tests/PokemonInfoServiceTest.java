@@ -4,6 +4,7 @@ import org.choongang.global.config.DBConn;
 import org.choongang.global.services.ApiRequestService;
 import org.choongang.global.services.ObjectMapperService;
 import org.choongang.pokemon.controllers.PokemonSearch;
+import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.entities.api.Item;
 import org.choongang.pokemon.mappers.PokemonMapper;
 import org.choongang.pokemon.services.PokemonInfoService;
@@ -69,8 +70,16 @@ public class PokemonInfoServiceTest {
     void getListDbTest() {
         PokemonSearch search = new PokemonSearch();
         search.setPage(1);
-        search.setLimit(1);
+        search.setLimit(5);
 
         service.getList(search);
+    }
+
+    @Test
+    @DisplayName("get 메서드 테스트")
+    void getDbTest() {
+        PokemonDetail data = service.get(1L).orElse(null);
+        System.out.println(data);
+
     }
 }

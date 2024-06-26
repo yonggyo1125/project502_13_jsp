@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.ListData;
+import org.choongang.global.Pagination;
 import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.services.ApiRequestService;
@@ -160,12 +161,24 @@ public class PokemonInfoService {
         search.setEndRows(endRows);
 
         List<PokemonDetail> items = mapper.getList(search);
-        items.forEach(System.out::println);
-
-        ListData<PokemonDetail> listData = new ListData<>();
 
 
+        Pagination pagination = new Pagination();
 
-        return listData;
+
+        return new ListData<>(items, pagination);
+    }
+
+    public Optional<PokemonDetail> get(long seq) {
+        PokemonDetail data = mapper.get(seq);
+        if (data != null) {
+            String rawData = data.getRawData();
+            try {
+                Pokemon pokemon = om.readValue(rawData, Pokemon.class);
+                data.setPokemon(pokemon); // 원 데이터 변환
+            } catch (JsonProcessingException e) {}
+        }
+
+        return Optional.ofNullable(data);
     }
 }
