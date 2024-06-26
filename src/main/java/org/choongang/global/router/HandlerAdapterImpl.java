@@ -91,7 +91,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         /* 메서드 매개변수 의존성 주입 처리 S */
         List<Object> args = new ArrayList<>();
         for (Parameter param : method.getParameters()) {
-            try {
                 Class cls = param.getType();
                 String paramValue = null;
                 for (Annotation pa : param.getDeclaredAnnotations()) {
@@ -154,9 +153,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     }
                     args.add(paramObj);
                 } // endif
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
         }
         /* 메서드 매개변수 의존성 주입 처리 E */
 
