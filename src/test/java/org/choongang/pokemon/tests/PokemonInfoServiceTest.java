@@ -26,7 +26,7 @@ public class PokemonInfoServiceTest {
     void init() {
         PokemonMapper mapper = DBConn.getSession().getMapper(PokemonMapper.class);
         PokemonSaveService saveService = new PokemonSaveService(mapper);
-        service = new PokemonInfoService(new ApiRequestService(), new ObjectMapperService(), saveService);
+        service = new PokemonInfoService(new ApiRequestService(), new ObjectMapperService(), saveService, mapper);
     }
 
     @Test
@@ -62,5 +62,15 @@ public class PokemonInfoServiceTest {
     @DisplayName("포켓몬 데이터 일괄 업데이트 테스트")
     void updateAllTest() {
         service.updateAll();
+    }
+
+    @Test
+    @DisplayName("getList 메서드 테스트")
+    void getListDbTest() {
+        PokemonSearch search = new PokemonSearch();
+        search.setPage(1);
+        search.setLimit(1);
+
+        service.getList(search);
     }
 }

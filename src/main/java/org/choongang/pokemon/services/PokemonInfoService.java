@@ -4,14 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.choongang.global.ListData;
 import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.services.ApiRequestService;
 import org.choongang.global.services.ObjectMapperService;
 import org.choongang.pokemon.controllers.PokemonSearch;
+import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.entities.api.ApiResult;
 import org.choongang.pokemon.entities.api.Item;
 import org.choongang.pokemon.entities.api.Pokemon;
+import org.choongang.pokemon.mappers.PokemonMapper;
 
 import java.net.http.HttpResponse;
 import java.util.Collections;
@@ -31,6 +34,7 @@ public class PokemonInfoService {
     private final ApiRequestService service;
     private final ObjectMapperService om;
     private final PokemonSaveService saveService;
+    private final PokemonMapper mapper;
 
     // 포켓몬 API URL
     private String apiUrl = AppConfig.get("pokemon.api.url");
@@ -143,5 +147,25 @@ public class PokemonInfoService {
 
         //th.setDaemon(true);
         //th.start();
+    }
+
+    public ListData<PokemonDetail> getList(PokemonSearch search) {
+
+        int page = search.getPage();
+        int limit = search.getLimit();
+        int offset = (page - 1) * limit; // 레코드 검색 시작 위치
+        int endRows = offset + limit; // 레코드 검색 종료 위치
+
+        search.setOffset(offset);
+        search.setEndRows(endRows);
+
+        List<PokemonDetail> items = mapper.getList(search);
+        items.forEach(System.out::println);
+
+        ListData<PokemonDetail> listData = new ListData<>();
+
+
+
+        return listData;
     }
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 @Builder
 public class PokemonDetail {
     private long seq;
+    private long rowNum;
     private String name;
     private int weight;
     private int height;

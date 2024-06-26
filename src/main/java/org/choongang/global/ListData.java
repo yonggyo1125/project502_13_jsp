@@ -10,7 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListData<T> {
-    private long total;
     private List<T> items;
     private Pagination pagination;
 }
