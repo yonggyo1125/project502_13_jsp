@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.choongang.global.advices.HandlerControllerAdvice;
 import org.choongang.global.config.annotations.*;
 import org.choongang.global.config.containers.BeanContainer;
@@ -113,6 +114,8 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     args.add(request);
                 } else if (cls == HttpServletResponse.class) {
                     args.add(response);
+                } else if (cls == HttpSession.class) {
+                    args.add(request.getSession());
                 } else if (cls == int.class) {
                     args.add(Integer.parseInt(paramValue));
                 } else if (cls == Integer.class) {
