@@ -1,14 +1,24 @@
 package org.choongang.admin.advices;
 
+import lombok.RequiredArgsConstructor;
+import org.choongang.global.Interceptor;
 import org.choongang.global.config.annotations.ControllerAdvice;
-import org.choongang.global.config.annotations.ModelAttribute;
+import org.choongang.global.exceptions.UnAuthorizedException;
+import org.choongang.member.MemberUtil;
 
+@RequiredArgsConstructor
 @ControllerAdvice("org.choongang.admin")
-public class AdminControllerAdvice {
+public class AdminControllerAdvice implements Interceptor {
 
-    @ModelAttribute
-    public String testValue() {
-        System.out.println("testValue!!");
-        return "test";
+    private final MemberUtil memberUtil;
+
+    @Override
+    public boolean preHandle() {
+
+        if (!memberUtil.isAdmin()) {
+            throw new UnAuthorizedException();
+        }
+
+        return true;
     }
 }
