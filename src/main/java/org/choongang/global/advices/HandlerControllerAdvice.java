@@ -8,6 +8,7 @@ import org.choongang.global.config.containers.BeanContainer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,45 +24,48 @@ public class HandlerControllerAdvice {
 
         boolean isRest = Arrays.stream(clazz.getAnnotations()).anyMatch(a -> a instanceof RestController);
         List<Object> advices = getControllerAdvices(isRest);
-        Object matchedAdvice = null;
+        List<Object> matchedAdvices = new ArrayList<>();
         first: for (Object advice : advices) {
             Annotation[] annotations = advice.getClass().getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation instanceof ControllerAdvice anno) {
                     boolean isMatched = Arrays.stream(anno.value()).anyMatch(pkName::startsWith);
                     if (isMatched) {
-                        matchedAdvice = advice;
-                        break first;
+                        matchedAdvices.add(advice);
+
                     }
                 }
             }
         }
 
         boolean isContinue = true;
-        // 매칭된
-        if (matchedAdvice != null) {
-
-            // 인터셉터 체크
-            if (matchedAdvice instanceof Interceptor interceptor) {
-                isContinue = interceptor.preHandle();
-            }
-
-            Method[] methods = matchedAdvice.getClass().getDeclaredMethods();
-            for(Method method : methods) {
-                for (Annotation anno : method.getDeclaredAnnotations()) {
-                    // 공통 유지할 속성 처리 S
-                    if (anno instanceof ModelAttribute ma) {
-                        try {
-                            String name = ma.value().isBlank() ? method.getName() : ma.value().trim();
-                            Object value = method.invoke(matchedAdvice);
-                            request.setAttribute(name, value);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+        // 매칭된 어드바이스가 있다면
+        if (!matchedAdvices.isEmpty()) {
+            for (Object matchedAdvice : matchedAdvices) {
+                // 인터셉터 체크
+                if (matchedAdvice instanceof Interceptor interceptor) {
+                    if(!interceptor.preHandle()) {
+                        isContinue = false;
                     }
-                    // 공통 유지할 속성 처리 E
+                }
+
+                Method[] methods = matchedAdvice.getClass().getDeclaredMethods();
+                for (Method method : methods) {
+                    for (Annotation anno : method.getDeclaredAnnotations()) {
+                        // 공통 유지할 속성 처리 S
+                        if (anno instanceof ModelAttribute ma) {
+                            try {
+                                String name = ma.value().isBlank() ? method.getName() : ma.value().trim();
+                                Object value = method.invoke(matchedAdvice);
+                                request.setAttribute(name, value);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        // 공통 유지할 속성 처리 E
+                    } // endfor
                 } // endfor
-            } // endfor
+            }
         }
 
         return isContinue;
