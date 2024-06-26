@@ -31,15 +31,17 @@
     <jsp:body>
         <!-- 주 메뉴 -->
         <aside class="side-menu">
-            <a href="${homeUrl}/member">회원관리</a>
-            <a href="${homeUrl}/board">게시판 관리</a>
+            <a href="${homeUrl}/member" class="menu${menuCode == 'member' ? ' on':''}">회원관리</a>
+            <a href="${homeUrl}/board" class="menu${menuCode == 'board' ? ' on':''}">게시판 관리</a>
         </aside>
         <!-- 내용 영역 -->
         <section class="main-content">
             <c:if test="${subMenus != null && !subMenus.isEmpty()}">
             <nav class="sub-menu">
                 <c:forEach var="menu" items="${subMenus}">
-
+                    <a href="<c:url value='${menu[1]}' />">
+                        ${menu[0]}
+                    </a>
                 </c:forEach>
             </nav>
             </c:if>

@@ -34,7 +34,8 @@ main > .side-menu a + a {
     border-top: 3px solid #444;
 }
 
-main > .side-menu a:hover {
+main > .side-menu a:hover,
+main > .side-menu a.on {
     background: #333;
 }
 
@@ -56,3 +57,25 @@ main > .main-content h1 {
 }
 
 /* 내용 영역 E */
+
+/* 서브 메뉴 S */
+nav.sub-menu {
+    background: #fff;
+    display: flex;
+    height: 50px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px #333;
+    margin-bottom: 50px;
+}
+
+nav.sub-menu a {
+    line-height: 50px;
+    padding: 0 30px;
+    font-size: 1.35rem;
+}
+
+nav.sub-menu a:hover {
+    background: #333;
+    color: #fff;
+}
+/* 서브 메뉴 E */
