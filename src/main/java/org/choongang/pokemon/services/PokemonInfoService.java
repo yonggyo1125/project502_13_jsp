@@ -120,7 +120,7 @@ public class PokemonInfoService {
      *
      */
     public void updateAll() {
-        Thread th = new Thread(() -> {
+        //Thread th = new Thread(() -> {
             PokemonSearch search = new PokemonSearch();
             search.setPage(1);
             search.setLimit(2000);
@@ -139,9 +139,9 @@ public class PokemonInfoService {
                 }
 
             });
-        });
+        //});
 
-        th.setDaemon(true);
-        th.start();
+        //th.setDaemon(true);
+        //th.start();
     }
 }
