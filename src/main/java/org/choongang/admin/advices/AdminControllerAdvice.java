@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.choongang.global.Interceptor;
 import org.choongang.global.config.annotations.ControllerAdvice;
 import org.choongang.global.config.annotations.ModelAttribute;
+import org.choongang.global.exceptions.UnAuthorizedException;
 import org.choongang.member.MemberUtil;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class AdminControllerAdvice implements Interceptor {
     public boolean preHandle() {
 
         if (!memberUtil.isAdmin()) {
-            //throw new UnAuthorizedException();
+            throw new UnAuthorizedException();
         }
 
         return true;

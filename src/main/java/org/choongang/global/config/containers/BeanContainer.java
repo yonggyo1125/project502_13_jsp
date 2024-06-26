@@ -10,7 +10,6 @@ import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -130,6 +129,7 @@ public class BeanContainer {
     private List<Object> resolveDependencies(String key, Constructor con) throws Exception {
         List<Object> dependencies = new ArrayList<>();
         if (beans.containsKey(key)) {
+            updateObject(beans.get(key));
             dependencies.add(beans.get(key));
             return dependencies;
         }
@@ -236,10 +236,14 @@ public class BeanContainer {
                 // 그외 서블릿 기본 객체(HttpServletRequest, HttpServletResponse, HttpSession)이라면 갱신
                 if (clz == HttpServletRequest.class || clz == HttpServletResponse.class || clz == HttpSession.class || mapper != null) {
                     field.setAccessible(true);
-                    if (clz.toString().contains("final")) {
+                    /*
+                    if (field.toString().contains("final")) {
+
                         Field modifiers = Field.class.getDeclaredField("modifiers");
                         modifiers.set(field, field.getModifiers() & ~Modifier.FINAL);
                     }
+
+                     */
                 }
 
                 if (clz == HttpServletRequest.class) {
