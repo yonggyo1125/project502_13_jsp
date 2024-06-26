@@ -36,7 +36,14 @@
         </aside>
         <!-- 내용 영역 -->
         <section class="main-content">
-            ${menuCode}
+            <c:if test="${subMenus != null && !subMenus.isEmpty()}">
+            <nav class="sub-menu">
+                <c:forEach var="menu" items="${subMenus}">
+
+                </c:forEach>
+            </nav>
+            </c:if>
+
             <jsp:doBody />
         </section>
     </jsp:body>
