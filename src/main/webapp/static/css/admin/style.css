@@ -1,0 +1,40 @@
+/* 사이트 헤더 */
+header {
+    display: flex;
+    justify-content: space-between;
+    height: 75px;
+    background: #fff;
+    align-items: center;
+}
+
+/* 내용 배치 */
+main {
+    display: flex;
+    min-height: 750px;
+}
+
+/* 사이드 주 메뉴 S */
+main > .side-menu {
+    width: 210px;
+    background: #222;
+}
+
+main > .side-menu a {
+    display: block;
+    height: 65px;
+    font-size: 1.35rem;
+    color: #fff;
+    padding: 0 30px;
+    line-height: 62px;
+}
+
+main > .side-menu a + a {
+    border-top: 3px solid #555;
+}
+
+/* 사이드 주 메뉴 E */
+
+main > .main-content {
+    flex-grow: 1;
+    background: #f8f8f8;
+}
