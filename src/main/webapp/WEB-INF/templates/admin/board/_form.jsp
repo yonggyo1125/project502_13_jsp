@@ -21,13 +21,50 @@
         </td>
     </tr>
     <tr>
-        <th>사용 여부</th>
+        <th>사용여부</th>
         <td>
             <input type="radio" name="active" value="true" id="active_true">
             <label for="active_true">사용</label>
 
             <input type="radio" name="active" value="false" id="active_false">
             <label for="active_false">미사용</label>
+        </td>
+    </tr>
+</table>
+
+<h2>분류 설정</h2>
+<table class="table-cols">
+    <tr>
+        <th>사용여부</th>
+        <td>
+            <input type="radio" name="activeCategory" value="true" id="activeCategory_true">
+            <label for="activeCategory_true">사용</label>
+
+            <input type="radio" name="activeCategory" value="false" id="activeCategory_false">
+            <label for="activeCategory_false">미사용</label>
+        </td>
+    </tr>
+</table>
+
+<h2>권한 설정</h2>
+<table class="table-cols">
+    <tr>
+        <th width='150'>글쓰기/글수정</th>
+        <td>
+            <input type="radio" name="authority" value="ALL" id="authority_ALL">
+            <label for="authority_ALL">
+                비회원 + 회원 + 관리자
+            </label>
+
+            <input type="radio" name="authority" value="USER" id="authority_USER">
+            <label for="authority_USER">
+                회원 + 관리자
+            </label>
+
+            <input type="radio" name="authority" value="ADMIN" id="authority_ADMIN">
+            <label for="authority_ADMIN">
+                관리자
+            </label>
         </td>
     </tr>
 </table>
