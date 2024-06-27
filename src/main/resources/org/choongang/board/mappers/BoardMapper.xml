@@ -44,4 +44,8 @@
     <select id="getList" resultMap="boardMap">
         SELECT * FROM BOARD ORDER BY BID
     </select>
+
+    <select id="exists" resultType="int">
+        SELECT COUNT(*) FROM BOARD WHERE BID=#{bId}
+    </select>
 </mapper>

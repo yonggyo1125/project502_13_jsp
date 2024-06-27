@@ -10,4 +10,5 @@ public interface BoardMapper {
     int delete(String bId);
     Board get(String bId);
     List<Board> getList();
+    int exists(String bId);
 }
