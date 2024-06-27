@@ -109,7 +109,7 @@ public class PokemonInfoService {
                 pokemon.setRawData(response.body());
 
                 /* 포켓몬 한글 이름, 한글 설명 추출 S */
-                HttpResponse<String> res = service.request("https://pokeapi.co/api/v2/pokemon-species/1/");
+                HttpResponse<String> res = service.request("https://pokeapi.co/api/v2/pokemon-species/" + seq);
                 String body = res.body();
 
                 // 이름 추출 S
