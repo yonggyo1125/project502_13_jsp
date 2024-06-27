@@ -2,11 +2,13 @@ package org.choongang.global.advices;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.choongang.global.Interceptor;
 import org.choongang.global.config.annotations.*;
 import org.choongang.global.config.containers.BeanContainer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,45 +18,56 @@ public class HandlerControllerAdvice {
 
     private final HttpServletRequest request;
 
-    public void handle(Object controller) {
+    public boolean handle(Object controller) {
         Class clazz = controller.getClass();
         String pkName = clazz.getPackageName();
 
         boolean isRest = Arrays.stream(clazz.getAnnotations()).anyMatch(a -> a instanceof RestController);
         List<Object> advices = getControllerAdvices(isRest);
-        Object matchedAdvice = null;
-        first: for (Object advice : advices) {
+        List<Object> matchedAdvices = new ArrayList<>();
+        for (Object advice : advices) {
             Annotation[] annotations = advice.getClass().getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation instanceof ControllerAdvice anno) {
                     boolean isMatched = Arrays.stream(anno.value()).anyMatch(pkName::startsWith);
                     if (isMatched) {
-                        matchedAdvice = advice;
-                        break first;
+                        matchedAdvices.add(advice);
                     }
                 }
             }
         }
 
-        // 매칭된
-        if (matchedAdvice != null) {
-            Method[] methods = matchedAdvice.getClass().getDeclaredMethods();
-            for(Method method : methods) {
-                for (Annotation anno : method.getDeclaredAnnotations()) {
-                    // 공통 유지할 속성 처리 S
-                    if (anno instanceof ModelAttribute ma) {
-                        try {
-                            String name = ma.value().isBlank() ? method.getName() : ma.value().trim();
-                            Object value = method.invoke(matchedAdvice);
-                            request.setAttribute(name, value);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+        boolean isContinue = true;
+        // 매칭된 어드바이스가 있다면
+        if (!matchedAdvices.isEmpty()) {
+            for (Object matchedAdvice : matchedAdvices) {
+                // 인터셉터 체크
+                if (matchedAdvice instanceof Interceptor interceptor) {
+                    if(!interceptor.preHandle()) {
+                        isContinue = false;
                     }
-                    // 공통 유지할 속성 처리 E
+                }
+
+                Method[] methods = matchedAdvice.getClass().getDeclaredMethods();
+                for (Method method : methods) {
+                    for (Annotation anno : method.getDeclaredAnnotations()) {
+                        // 공통 유지할 속성 처리 S
+                        if (anno instanceof ModelAttribute ma) {
+                            try {
+                                String name = ma.value().isBlank() ? method.getName() : ma.value().trim();
+                                Object value = method.invoke(matchedAdvice);
+                                request.setAttribute(name, value);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        // 공통 유지할 속성 처리 E
+                    } // endfor
                 } // endfor
-            } // endfor
+            }
         }
+
+        return isContinue;
     }
 
     public List<Object> getControllerAdvices(boolean isRest) {

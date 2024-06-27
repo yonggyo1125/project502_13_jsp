@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 @MapperScan({
         "org.choongang.member.mappers",
-        "org.choongang.pokemon.mappers",
+        "org.choongang.board.mappers"
 })
 public class MapperProvider {
 
@@ -23,6 +23,9 @@ public class MapperProvider {
     }
 
     public <T> T getMapper(Class clz) {
+        if (!clz.isInterface()) {
+            return null;
+        }
 
         MapperScan mapperScan = getClass().getAnnotation(MapperScan.class);
         boolean isMapper = Arrays.stream(mapperScan.value()).anyMatch(s -> s.startsWith(clz.getPackageName()));

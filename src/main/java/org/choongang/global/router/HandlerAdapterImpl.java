@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.choongang.global.advices.HandlerControllerAdvice;
 import org.choongang.global.config.annotations.*;
 import org.choongang.global.config.containers.BeanContainer;
@@ -91,7 +92,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         /* 메서드 매개변수 의존성 주입 처리 S */
         List<Object> args = new ArrayList<>();
         for (Parameter param : method.getParameters()) {
-            try {
                 Class cls = param.getType();
                 String paramValue = null;
                 for (Annotation pa : param.getDeclaredAnnotations()) {
@@ -114,6 +114,8 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     args.add(request);
                 } else if (cls == HttpServletResponse.class) {
                     args.add(response);
+                } else if (cls == HttpSession.class) {
+                    args.add(BeanContainer.getInstance().getBean(HttpSession.class));
                 } else if (cls == int.class) {
                     args.add(Integer.parseInt(paramValue));
                 } else if (cls == Integer.class) {
@@ -154,16 +156,16 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                     }
                     args.add(paramObj);
                 } // endif
-            } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
-            }
         }
         /* 메서드 매개변수 의존성 주입 처리 E */
 
         /* 요청 메서드 호출 S */
 
         // controller 적용 범위  Advice 처리
-        handlerControllerAdvice.handle(controller);
+        boolean isContinue = handlerControllerAdvice.handle(controller);
+        if (!isContinue) { // 컨트롤러 메서드 실행 X
+            return;
+        }
 
         Object result = method.invoke(controller, args.toArray());
 
@@ -178,6 +180,14 @@ public class HandlerAdapterImpl implements HandlerAdapter {
             String json = om.writeValueAsString(result);
             PrintWriter out = response.getWriter();
             out.print(json);
+            return;
+        }
+
+        // 일반 컨트롤러인 경우 문자열이 redirect:로 시작하면 페이지 이동
+        String returnValue = (String)result;
+        if (returnValue.startsWith("redirect:")) {
+            String redirectUrl = returnValue.replace("redirect:", request.getContextPath());
+            response.sendRedirect(redirectUrl);
             return;
         }
 
@@ -234,24 +244,24 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 /* 기본 자료형 및 Wrapper 클래스 자료형 처리 E */
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 S
             } else if (clz == LocalDateTime.class || clz == LocalDate.class || clz == LocalTime.class) {
-                Field field = paramObj.getClass().getDeclaredField(fieldNm);
-                for (Annotation a : field.getDeclaredAnnotations()) {
-                    if (a instanceof DateTimeFormat dateTimeFormat) {
-                        String pattern = dateTimeFormat.value();
-                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-                        if (clz == LocalTime.class) {
-                            method.invoke(paramObj, LocalTime.parse(value, formatter));
-                        } else if (clz == LocalDate.class) {
-                            method.invoke(paramObj, LocalDate.parse(value, formatter));
-                        } else {
-                            method.invoke(paramObj, LocalDateTime.parse(value, formatter));
-                        }
-                        break;
-                    } // endif
-                } // endfor
+               Field field = paramObj.getClass().getDeclaredField(fieldNm);
+               for (Annotation a : field.getDeclaredAnnotations()) {
+                   if (a instanceof DateTimeFormat dateTimeFormat) {
+                       String pattern = dateTimeFormat.value();
+                       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                       if (clz == LocalTime.class) {
+                           method.invoke(paramObj, LocalTime.parse(value, formatter));
+                       } else if (clz == LocalDate.class) {
+                           method.invoke(paramObj, LocalDate.parse(value, formatter));
+                       } else {
+                           method.invoke(paramObj, LocalDateTime.parse(value, formatter));
+                       }
+                       break;
+                   } // endif
+               } // endfor
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
             }
-
+            
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
