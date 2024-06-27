@@ -108,6 +108,43 @@ public class PokemonInfoService {
                 pokemon = om.readValue(response.body(), Pokemon.class);
                 pokemon.setRawData(response.body());
 
+                /* 포켓몬 한글 이름, 한글 설명 추출 S */
+                HttpResponse<String> res = service.request("https://pokeapi.co/api/v2/pokemon-species/1/");
+                String body = res.body();
+
+                // 이름 추출 S
+                String text = body;
+                text = text.split("names")[1];
+                text = text.split("\"name\":\"ko\"")[1];
+                text = text.split("\"language\"")[0];
+                text = text.split("\"name\":")[1];
+
+
+                Pattern p = Pattern.compile("\"([^\"]+)\"");
+                Matcher matcher = p.matcher(text);
+                if (matcher.find()) {
+                    pokemon.setNameKr(matcher.group(1));
+                }
+                // 이름 추출 E
+
+                // 설명 추출 S
+                text = body;
+                text = text.split("flavor_text_entries")[1];
+                text = text.split("\"name\":\"ko\"")[0];
+                Pattern p2 = Pattern.compile("([ㄱ-ㅎ|ㅏ-ㅣ|가-힣]+)");
+                Matcher matcher2 = p2.matcher(text);
+                if (matcher2.find()) {
+                    String key = matcher2.group(1);
+                    text = text.split(key)[1];
+                    text = text.split("\",\"language\"")[0];
+                    String description = key + " " + text;
+                    pokemon.setDescription(description);
+                }
+                // 설명 추출 E
+
+                /* 포켓몬 한글 이름, 한글 설명 추출 E */
+
+
                 saveService.save(pokemon);
 
             } catch (JsonProcessingException e) {

@@ -13,11 +13,13 @@
         <result column="FRONT_IMAGE" property="frontImage" />
         <result column="BACK_IMAGE" property="backImage" />
         <result column="RAW_DATA" property="rawData" />
+        <result column="NAME_KR" property="nameKr" />
+        <result column="DESCRIPTION" property="description" />
     </resultMap>
 
     <insert id="register">
         INSERT INTO POKEMON
-            VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData})
+            VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData}, #{nameKr}, #{description})
     </insert>
 
     <select id="get" resultMap="pokemonMap">
