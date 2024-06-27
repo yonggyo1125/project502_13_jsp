@@ -20,4 +20,14 @@
             <input type="number" name="rowsPerPage" min="1">
         </td>
     </tr>
+    <tr>
+        <th>사용 여부</th>
+        <td>
+            <input type="radio" name="active" value="true" id="active_true">
+            <label for="active_true">사용</label>
+
+            <input type="radio" name="active" value="false" id="active_false">
+            <label for="active_false">미사용</label>
+        </td>
+    </tr>
 </table>
