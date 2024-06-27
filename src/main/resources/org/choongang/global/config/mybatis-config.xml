@@ -14,6 +14,7 @@
     </properties>
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.member.constants.UserType" />
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.board.constants.Authority" />
     </typeHandlers>
     <environments default="dev">
         <environment id="dev">
