@@ -25,7 +25,7 @@ public class HandlerControllerAdvice {
         boolean isRest = Arrays.stream(clazz.getAnnotations()).anyMatch(a -> a instanceof RestController);
         List<Object> advices = getControllerAdvices(isRest);
         List<Object> matchedAdvices = new ArrayList<>();
-        first: for (Object advice : advices) {
+        for (Object advice : advices) {
             Annotation[] annotations = advice.getClass().getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation instanceof ControllerAdvice anno) {
