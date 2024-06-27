@@ -35,7 +35,7 @@
 <h2>분류 설정</h2>
 <table class="table-cols">
     <tr>
-        <th>사용여부</th>
+        <th width="150">사용여부</th>
         <td>
             <input type="radio" name="activeCategory" value="true" id="activeCategory_true">
             <label for="activeCategory_true">사용</label>

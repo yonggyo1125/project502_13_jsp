@@ -79,3 +79,29 @@ nav.sub-menu a:hover {
     color: #fff;
 }
 /* 서브 메뉴 E */
+
+/* 테이블 공통 S */
+.table-cols {
+    border-spacing: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table-cols th {
+    background: #f8f8f8;
+}
+
+.table-cols td {
+    background: #fff;
+}
+
+.table-cols th,
+.table-cols td {
+    border-bottom: 1px solid #ccc;
+}
+
+.table-cols tr:first-of-type th,
+.table-cols tr:first-of-type td {
+    border-top: 1px solid #ccc;
+}
+/* 테이블 공통 E */
