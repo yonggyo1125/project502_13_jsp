@@ -88,7 +88,8 @@ nav.sub-menu a:hover {
 }
 
 .table-cols th {
-    background: #f8f8f8;
+    background: #333;
+    color: #fff;
 }
 
 .table-cols td {
@@ -97,11 +98,26 @@ nav.sub-menu a:hover {
 
 .table-cols th,
 .table-cols td {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #555;
+    padding: 10px;
 }
 
 .table-cols tr:first-of-type th,
 .table-cols tr:first-of-type td {
-    border-top: 1px solid #ccc;
+    border-top: 1px solid #555;
 }
+
+.table-cols textarea {
+    width: 100%;
+}
+
 /* 테이블 공통 E */
+
+/* 메세지 박스 */
+.message {
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 7px 15px;
+    box-shadow: 2px 2px 5px #333;
+    border-radius: 3px;
+}

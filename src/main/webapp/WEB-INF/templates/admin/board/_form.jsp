@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<h2>기본 설정<h2>
+<h2>기본 설정</h2>
 <table class="table-cols">
     <tr>
         <th width='150'>게시판 ID</th>

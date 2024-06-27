@@ -5,6 +5,7 @@
     box-sizing: border-box;
     font-family: "Nanum Gothic", sans-serif;
     color: #000;
+    outline: none;
 }
 
 html {
