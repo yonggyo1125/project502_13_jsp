@@ -27,6 +27,8 @@ public class BoardController {
     @GetMapping("/register")
     public String register() {
 
+        request.setAttribute("data", new RequestBoard());
+
         return "admin/board/register";
     }
 
