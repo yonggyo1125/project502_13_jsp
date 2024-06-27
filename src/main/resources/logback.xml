@@ -13,4 +13,5 @@
     </root>
 
     <logger name="org.choongang.member.mappers" level="DEBUG" />
+    <logger name="org.choongang.board.mappers" level="DEBUG" />
 </configuration>

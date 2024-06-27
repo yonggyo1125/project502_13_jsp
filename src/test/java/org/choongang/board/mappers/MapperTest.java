@@ -1,6 +1,7 @@
 package org.choongang.board.mappers;
 
 import org.apache.ibatis.session.SqlSession;
+import org.choongang.board.constants.Authority;
 import org.choongang.board.entities.Board;
 import org.choongang.global.config.DBConn;
 import org.junit.jupiter.api.AfterEach;
@@ -28,8 +29,10 @@ public class MapperTest {
                 .active(1)
                 .activeCategory(1)
                 .rowsPerPage(20)
+                .authority(Authority.USER)
                 .build();
-
+        int result = mapper.register(board);
+        System.out.println(result);
 
     }
 
