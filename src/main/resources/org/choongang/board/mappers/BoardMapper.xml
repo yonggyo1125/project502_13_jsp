@@ -9,13 +9,14 @@
         <result column="ROWS_PER_PAGE" property="rowsPerPage" />
         <result column="ACTIVE" property="active" />
         <result column="ACTIVE_CATEGORY" property="activeCategory" />
+        <result column="CATEGORY" property="category" />
         <result column="AUTHORITY" property="authority" />
     </resultMap>
 
     <insert id="register">
         INSERT INTO BOARD
-        (BID, BNAME, ROWS_PER_PAGE, ACTIVE, ACTIVE_CATEGORY, AUTHORITY)
-        VALUES (#{bId}, #{bName}, #{rowsPerPage}, #{active}, #{activeCategory}, #{authority})
+        (BID, BNAME, ROWS_PER_PAGE, ACTIVE, ACTIVE_CATEGORY, CATEGORY, AUTHORITY)
+        VALUES (#{bId}, #{bName}, #{rowsPerPage}, #{active}, #{activeCategory}, #{category}, #{authority})
     </insert>
 
     <update id="modify">
@@ -30,8 +31,12 @@
             <if test="authority != null">
                 AUTHORITY=#{authority},
             </if>
+            <if test="category != null">
+                CATEGORY=#{category},
+            </if>
             ACTIVE=#{active},
             ACTIVE_CATEGORY=#{activeCategory}
+
         </set>
         WHERE BID=#{bId}
     </update>

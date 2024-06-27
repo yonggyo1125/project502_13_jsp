@@ -12,6 +12,6 @@ public class Board {
     private int rowsPerPage; // 1페이지 행 수
     private int active; // 사용 여부
     private int activeCategory; // 분류 사용 여부
-    //private String category; // 분류
+    private String category; // 분류
     private Authority authority;
 }

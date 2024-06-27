@@ -31,7 +31,7 @@ public class BoardConfigInfoService {
         form.setRowsPerPage(board.getRowsPerPage());
         form.setActive(board.getActive() == 1);
         form.setActiveCategory(board.getActiveCategory() == 1);
-        //form.setCategory(board.getCategory());
+        form.setCategory(board.getCategory());
         form.setAuthority(board.getAuthority().name());
 
         return form;
