@@ -33,7 +33,27 @@ public class MapperTest {
                 .build();
         int result = mapper.register(board);
         System.out.println(result);
+    }
 
+    @Test
+    void modifyTest() {
+        Board board = Board.builder()
+                .bId(bId)
+                .bName("자유게시판")
+                .active(1)
+                .activeCategory(1)
+                .rowsPerPage(20)
+                .authority(Authority.USER)
+                .build();
+        int result = mapper.register(board);
+        System.out.println(result);
+
+        board.setBName("(수정)자유게시판");
+        int result2 = mapper.modify(board);
+        System.out.println(result2);
+
+        Board board2 = mapper.get(board.getBId());
+        System.out.println(board2);
     }
 
     @AfterEach
