@@ -74,7 +74,7 @@
                 회원 + 관리자
             </label>
 
-            <input type="radio" name="authority" value="ADMIN" id="authority_ADMIN">
+            <input type="radio" name="authority" value="ADMIN" id="authority_ADMIN"${data.authority == 'ADMIN' ? ' checked':''}>
             <label for="authority_ADMIN">
                 관리자
             </label>
