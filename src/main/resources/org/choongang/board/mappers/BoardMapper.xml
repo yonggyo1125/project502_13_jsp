@@ -27,6 +27,9 @@
             <if test="rowsPerPage > 0">
                 ROWS_PER_PAGE=#{rowsPerPage},
             </if>
+            <if test="authority != null">
+                AUTHORITY=#{authority},
+            </if>
             ACTIVE=#{active},
             ACTIVE_CATEGORY=#{activeCategory}
         </set>

@@ -6,8 +6,8 @@
         <th width='150'>게시판 ID</th>
         <td>
             <c:if test="${data.mode == 'update'}">
-                ${data.bId}
-                <input type="hidden" name="bId" value="${data.bId}">
+                ${data.BId}
+                <input type="hidden" name="bId" value="${data.BId}">
             </c:if>
             <c:if test="${data.mode != 'update'}">
                 <input type="text" name="bId">
