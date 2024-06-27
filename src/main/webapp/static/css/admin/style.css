@@ -1,0 +1,151 @@
+/* 사이트 헤더 */
+header {
+    display: flex;
+    justify-content: space-between;
+    height: 75px;
+    background: #fff;
+    align-items: center;
+    padding: 10px 30px;
+}
+
+/* 내용 배치 */
+main {
+    display: flex;
+    min-height: 750px;
+}
+
+/* 사이드 주 메뉴 S */
+main > .side-menu {
+    width: 210px;
+    background: #222;
+}
+
+main > .side-menu a {
+    display: block;
+    height: 65px;
+    font-size: 1.35rem;
+    color: #fff;
+    padding: 0 30px;
+    line-height: 62px;
+    text-align: center;
+}
+
+main > .side-menu a + a {
+    border-top: 3px solid #444;
+}
+
+main > .side-menu a:hover,
+main > .side-menu a.on {
+    background: #333;
+}
+
+/* 사이드 주 메뉴 E */
+
+/* 내용 영역 S */
+main > .main-content {
+    flex-grow: 1;
+    background: #f8f8f8;
+    padding: 50px;
+}
+
+main > .main-content h1 {
+    line-height: 1;
+    font-size: 2rem;
+    margin: 0 0 30px;
+    padding: 0 10px 15px;
+    border-bottom: 3px solid #000;
+}
+
+/* 내용 영역 E */
+
+/* 서브 메뉴 S */
+nav.sub-menu {
+    background: #fff;
+    display: flex;
+    height: 50px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px #333;
+    margin-bottom: 50px;
+}
+
+nav.sub-menu a {
+    line-height: 50px;
+    padding: 0 30px;
+    font-size: 1.35rem;
+}
+
+nav.sub-menu a:hover {
+    background: #333;
+    color: #fff;
+}
+/* 서브 메뉴 E */
+
+/* 테이블 공통 S */
+.table-cols {
+    border-spacing: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table-cols th {
+    background: #333;
+    color: #fff;
+}
+
+.table-cols td {
+    background: #fff;
+}
+
+.table-cols th,
+.table-cols td {
+    border-bottom: 1px solid #555;
+    padding: 10px;
+}
+
+.table-cols tr:first-of-type th,
+.table-cols tr:first-of-type td {
+    border-top: 1px solid #555;
+}
+
+.table-cols textarea {
+    width: 100%;
+}
+
+.table-rows {
+    border-spacing: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table-rows thead th {
+    background: #333;
+    color: #fff;
+    height: 45px;
+    font-weight: normal;
+    font-size: 1.2rem;
+}
+
+.table-rows thead th + th {
+    border-left: 1px solid #fff;
+}
+
+.table-rows tbody td {
+    padding: 15px 10px;
+    background: #fff;
+    border-bottom: 1px solid #333;
+}
+
+.table-rows a:hover {
+    text-decoration: underline;
+}
+
+/* 테이블 공통 E */
+
+/* 메세지 박스 */
+.message {
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 7px 15px;
+    box-shadow: 2px 2px 5px #333;
+    border-radius: 3px;
+}
