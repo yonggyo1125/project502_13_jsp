@@ -1,6 +1,7 @@
 package org.choongang.board.services.config;
 
 import lombok.RequiredArgsConstructor;
+import org.choongang.admin.board.controllers.RequestBoard;
 import org.choongang.board.mappers.BoardMapper;
 import org.choongang.global.config.annotations.Service;
 
@@ -9,7 +10,7 @@ import org.choongang.global.config.annotations.Service;
 public class BoardConfigSaveService {
     private final BoardMapper mapper;
 
-    public void process() {
+    public void process(RequestBoard form) {
 
     }
 }
