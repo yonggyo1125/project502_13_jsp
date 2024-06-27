@@ -73,7 +73,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 for (String rUrl : rootUrls) {
                     String _url = request.getContextPath() + rUrl + url;
                     for (String s : matched) {
-                        _url = _url.replace("{" + s + "}", "(\\w*)");
+                        _url = _url.replace("{" + s + "}", "([^/]+)/?");
                     }
 
                     Pattern p2 = Pattern.compile("^" + _url+"$");
@@ -92,70 +92,70 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         /* 메서드 매개변수 의존성 주입 처리 S */
         List<Object> args = new ArrayList<>();
         for (Parameter param : method.getParameters()) {
-                Class cls = param.getType();
-                String paramValue = null;
-                for (Annotation pa : param.getDeclaredAnnotations()) {
-                    if (pa instanceof RequestParam requestParam) { // 요청 데이터 매칭
-                        String paramName = requestParam.value();
-                        paramValue = request.getParameter(paramName);
-                        break;
-                    } else if (pa instanceof PathVariable pathVariable) { // 경로 변수 매칭
-                        String pathName = pathVariable.value();
-                        paramValue = pathVariables.get(pathName);
-                        break;
-                    }
+            Class cls = param.getType();
+            String paramValue = null;
+            for (Annotation pa : param.getDeclaredAnnotations()) {
+                if (pa instanceof RequestParam requestParam) { // 요청 데이터 매칭
+                    String paramName = requestParam.value();
+                    paramValue = request.getParameter(paramName);
+                    break;
+                } else if (pa instanceof PathVariable pathVariable) { // 경로 변수 매칭
+                    String pathName = pathVariable.value();
+                    paramValue = pathVariables.get(pathName);
+                    break;
                 }
+            }
 
-                if (cls == int.class || cls == Integer.class || cls == long.class || cls == Long.class || cls == double.class || cls == Double.class ||  cls == float.class || cls == Float.class) {
-                    paramValue = paramValue == null || paramValue.isBlank()?"0":paramValue;
+            if (cls == int.class || cls == Integer.class || cls == long.class || cls == Long.class || cls == double.class || cls == Double.class ||  cls == float.class || cls == Float.class) {
+                paramValue = paramValue == null || paramValue.isBlank()?"0":paramValue;
+            }
+
+            if (cls == HttpServletRequest.class) {
+                args.add(request);
+            } else if (cls == HttpServletResponse.class) {
+                args.add(response);
+            } else if (cls == HttpSession.class) {
+                args.add(BeanContainer.getInstance().getBean(HttpSession.class));
+            } else if (cls == int.class) {
+                args.add(Integer.parseInt(paramValue));
+            } else if (cls == Integer.class) {
+                args.add(Integer.valueOf(paramValue));
+            } else if (cls == long.class) {
+                args.add(Long.parseLong(paramValue));
+            } else if (cls == Long.class) {
+                args.add(Long.valueOf(paramValue));
+            } else if (cls == float.class) {
+                args.add(Float.parseFloat(paramValue));
+            } else if (cls == Float.class) {
+                args.add(Float.valueOf(paramValue));
+            } else if (cls == double.class) {
+                args.add(Double.parseDouble(paramValue));
+            } else if (cls == Double.class) {
+                args.add(Double.valueOf(paramValue));
+            } else if (cls == String.class) {
+                // 문자열인 경우
+                args.add(paramValue);
+            } else {
+                // 기타는 setter를 체크해 보고 요청 데이터를 주입
+                // 동적 객체 생성
+                Object paramObj = cls.getDeclaredConstructors()[0].newInstance();
+                for (Method _method : cls.getDeclaredMethods()) {
+                    String name = _method.getName();
+                    if (!name.startsWith("set")) continue;
+
+                    char[] chars = name.replace("set", "").toCharArray();
+                    chars[0] = Character.toLowerCase(chars[0]);
+                    name = String.valueOf(chars);
+                    String value = request.getParameter(name);
+                    if (value == null) continue;
+
+
+                    Class clz = _method.getParameterTypes()[0];
+                    // 자료형 변환 후 메서드 호출 처리
+                    invokeMethod(paramObj,_method, value, clz, name);
                 }
-
-                if (cls == HttpServletRequest.class) {
-                    args.add(request);
-                } else if (cls == HttpServletResponse.class) {
-                    args.add(response);
-                } else if (cls == HttpSession.class) {
-                    args.add(BeanContainer.getInstance().getBean(HttpSession.class));
-                } else if (cls == int.class) {
-                    args.add(Integer.parseInt(paramValue));
-                } else if (cls == Integer.class) {
-                    args.add(Integer.valueOf(paramValue));
-                } else if (cls == long.class) {
-                    args.add(Long.parseLong(paramValue));
-                } else if (cls == Long.class) {
-                    args.add(Long.valueOf(paramValue));
-                } else if (cls == float.class) {
-                    args.add(Float.parseFloat(paramValue));
-                } else if (cls == Float.class) {
-                    args.add(Float.valueOf(paramValue));
-                } else if (cls == double.class) {
-                    args.add(Double.parseDouble(paramValue));
-                } else if (cls == Double.class) {
-                    args.add(Double.valueOf(paramValue));
-                } else if (cls == String.class) {
-                    // 문자열인 경우
-                    args.add(paramValue);
-                } else {
-                    // 기타는 setter를 체크해 보고 요청 데이터를 주입
-                    // 동적 객체 생성
-                    Object paramObj = cls.getDeclaredConstructors()[0].newInstance();
-                    for (Method _method : cls.getDeclaredMethods()) {
-                        String name = _method.getName();
-                        if (!name.startsWith("set")) continue;
-
-                        char[] chars = name.replace("set", "").toCharArray();
-                        chars[0] = Character.toLowerCase(chars[0]);
-                        name = String.valueOf(chars);
-                        String value = request.getParameter(name);
-                        if (value == null) continue;
-
-
-                        Class clz = _method.getParameterTypes()[0];
-                        // 자료형 변환 후 메서드 호출 처리
-                        invokeMethod(paramObj,_method, value, clz, name);
-                    }
-                    args.add(paramObj);
-                } // endif
+                args.add(paramObj);
+            } // endif
         }
         /* 메서드 매개변수 의존성 주입 처리 E */
 
@@ -244,24 +244,24 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 /* 기본 자료형 및 Wrapper 클래스 자료형 처리 E */
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 S
             } else if (clz == LocalDateTime.class || clz == LocalDate.class || clz == LocalTime.class) {
-               Field field = paramObj.getClass().getDeclaredField(fieldNm);
-               for (Annotation a : field.getDeclaredAnnotations()) {
-                   if (a instanceof DateTimeFormat dateTimeFormat) {
-                       String pattern = dateTimeFormat.value();
-                       DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-                       if (clz == LocalTime.class) {
-                           method.invoke(paramObj, LocalTime.parse(value, formatter));
-                       } else if (clz == LocalDate.class) {
-                           method.invoke(paramObj, LocalDate.parse(value, formatter));
-                       } else {
-                           method.invoke(paramObj, LocalDateTime.parse(value, formatter));
-                       }
-                       break;
-                   } // endif
-               } // endfor
+                Field field = paramObj.getClass().getDeclaredField(fieldNm);
+                for (Annotation a : field.getDeclaredAnnotations()) {
+                    if (a instanceof DateTimeFormat dateTimeFormat) {
+                        String pattern = dateTimeFormat.value();
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                        if (clz == LocalTime.class) {
+                            method.invoke(paramObj, LocalTime.parse(value, formatter));
+                        } else if (clz == LocalDate.class) {
+                            method.invoke(paramObj, LocalDate.parse(value, formatter));
+                        } else {
+                            method.invoke(paramObj, LocalDateTime.parse(value, formatter));
+                        }
+                        break;
+                    } // endif
+                } // endfor
                 // LocalDate, LocalTime, LocalDateTime 자료형 처리 E
             }
-            
+
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -299,6 +299,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
             return mapping.value();
         }
 
-        return null;
+        return new String[] {""};
     }
 }

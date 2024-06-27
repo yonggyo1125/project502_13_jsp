@@ -93,8 +93,8 @@ public class HandlerMappingImpl implements HandlerMapping{
                     String addUrl = prefixUrl == null ? "" : prefixUrl;
                     // 메서드인 경우 *와 {경로변수} 고려하여 처리
                     for(String mapping : mappings) {
-                        String pattern = mapping.replace("/*", "/\\w*")
-                                .replaceAll("/\\{\\w+\\}", "/(\\\\w*)");
+                        String pattern = mapping.replace("/*", "/[^/]+/?")
+                                .replaceAll("/\\{\\w+\\}", "/([^/]+)/?");
 
                         Pattern p = Pattern.compile("^" + request.getContextPath() + addUrl + pattern + "$");
                         Matcher matcher = p.matcher(uri);
@@ -121,9 +121,9 @@ public class HandlerMappingImpl implements HandlerMapping{
      * @return
      */
     private List<Object> getControllers() {
-       return BeanContainer.getInstance().getBeans().entrySet()
-                    .stream()
-                    .map(s -> s.getValue())
+        return BeanContainer.getInstance().getBeans().entrySet()
+                .stream()
+                .map(s -> s.getValue())
                 .filter(b -> Arrays.stream(b.getClass().getDeclaredAnnotations()).anyMatch(a -> a instanceof Controller || a instanceof RestController))
                 .toList();
     }
