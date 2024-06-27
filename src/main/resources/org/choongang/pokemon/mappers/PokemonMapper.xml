@@ -20,7 +20,7 @@
     </insert>
 
     <select id="get" resultMap="pokemonMap">
-        SELECT ROWNUM NUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
+        SELECT ROWNUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
     </select>
 
     <select id="getList" resultMap="pokemonMap">
