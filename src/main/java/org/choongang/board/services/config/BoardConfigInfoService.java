@@ -7,6 +7,7 @@ import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.mappers.BoardMapper;
 import org.choongang.global.config.annotations.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,5 +35,10 @@ public class BoardConfigInfoService {
         form.setAuthority(board.getAuthority().name());
 
         return form;
+    }
+
+    public List<Board> getList() {
+
+        return mapper.getList();
     }
 }
