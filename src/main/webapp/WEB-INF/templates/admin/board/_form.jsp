@@ -17,7 +17,7 @@
     <tr>
         <th>게시판 이름</th>
         <td>
-            <input type="text" name="bName" value="${data.bName}">
+            <input type="text" name="bName" value="${data.BName}">
         </td>
     </tr>
     <tr>

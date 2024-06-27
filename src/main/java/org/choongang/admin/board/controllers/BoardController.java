@@ -3,10 +3,7 @@ package org.choongang.admin.board.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.services.config.BoardConfigSaveService;
-import org.choongang.global.config.annotations.Controller;
-import org.choongang.global.config.annotations.GetMapping;
-import org.choongang.global.config.annotations.PostMapping;
-import org.choongang.global.config.annotations.RequestMapping;
+import org.choongang.global.config.annotations.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -30,6 +27,13 @@ public class BoardController {
         request.setAttribute("data", new RequestBoard());
 
         return "admin/board/register";
+    }
+
+    // 게시판 수정
+    @GetMapping("/update/{bId}")
+    public String update(@PathVariable("bId") String bId) {
+
+        return "admin/board/update";
     }
 
     @PostMapping("/save")
