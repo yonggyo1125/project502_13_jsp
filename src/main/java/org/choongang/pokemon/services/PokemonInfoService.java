@@ -68,13 +68,13 @@ public class PokemonInfoService {
     public List<Item> getApiList(PokemonSearch search) {
         int page = search.getPage() < 1 ? 1 : search.getPage();
         int limit = search.getLimit() < 1 ? 20 : search.getLimit();
-        int offset = (page - 1) * limit + 1;
+        int offset = (page - 1) * limit;
 
 
         List<Item> items = null;
 
         String url = String.format(apiUrl + "/pokemon?offset=%d&limit=%d", offset, limit);
-        System.out.println(url);
+
         HttpResponse<String> response = service.request(url);
         if (response.statusCode() == HttpServletResponse.SC_OK) {
 
@@ -191,7 +191,7 @@ public class PokemonInfoService {
 
         int page = search.getPage();
         int limit = search.getLimit();
-        int offset = (page - 1) * limit; // 레코드 검색 시작 위치
+        int offset = (page - 1) * limit + 1; // 레코드 검색 시작 위치
         int endRows = offset + limit; // 레코드 검색 종료 위치
 
         search.setOffset(offset);
