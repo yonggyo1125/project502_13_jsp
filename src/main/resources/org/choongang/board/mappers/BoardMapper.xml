@@ -11,4 +11,36 @@
         <result column="ACTIVE_CATEGORY" property="activeCategory" />
         <result column="AUTHORITY" property="authority" />
     </resultMap>
+
+    <insert id="register">
+        INSERT INTO BOARD
+        VALUES (#{bId}, #{bName}, #{rowsPerPage}, #{active}, #{activeCategory}, #{authority})
+    </insert>
+
+    <update id="modify">
+        UPDATE BOARD
+        <set>
+            <if test="bName != null">
+                BNAME=#{bName},
+            </if>
+            <if test="rowsPerPage > 0">
+                ROWS_PER_PAGE=#{rowsPerPage},
+            </if>
+            ACTIVE=#{active},
+            ACTIVE_CATEGORY=#{activeCategory}
+        </set>
+        WHERE BID=#{bId}
+    </update>
+
+    <delete>
+
+    </delete>
+
+    <select>
+
+    </select>
+
+    <select>
+
+    </select>
 </mapper>
