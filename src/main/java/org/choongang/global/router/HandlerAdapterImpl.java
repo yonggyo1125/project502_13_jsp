@@ -73,7 +73,7 @@ public class HandlerAdapterImpl implements HandlerAdapter {
                 for (String rUrl : rootUrls) {
                     String _url = request.getContextPath() + rUrl + url;
                     for (String s : matched) {
-                        _url = _url.replace("{" + s + "}", "(\\w*)");
+                        _url = _url.replace("{" + s + "}", "([^/]+)/?");
                     }
 
                     Pattern p2 = Pattern.compile("^" + _url+"$");
@@ -299,6 +299,6 @@ public class HandlerAdapterImpl implements HandlerAdapter {
             return mapping.value();
         }
 
-        return null;
+        return new String[] {""};
     }
 }
