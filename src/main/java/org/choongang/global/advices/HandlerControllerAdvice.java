@@ -32,7 +32,6 @@ public class HandlerControllerAdvice {
                     boolean isMatched = Arrays.stream(anno.value()).anyMatch(pkName::startsWith);
                     if (isMatched) {
                         matchedAdvices.add(advice);
-
                     }
                 }
             }
