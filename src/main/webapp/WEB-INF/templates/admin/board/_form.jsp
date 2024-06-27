@@ -44,6 +44,13 @@
             <label for="activeCategory_false">미사용</label>
         </td>
     </tr>
+    <tr>
+        <th>분류</th>
+        <td>
+            <textarea name="category"></textarea>
+            <div class="message">분류가 여러개이면 줄개행을 통해 입력</div>
+        </td>
+    </tr>
 </table>
 
 <h2>권한 설정</h2>
