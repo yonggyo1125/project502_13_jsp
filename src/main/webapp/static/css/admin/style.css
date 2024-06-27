@@ -111,6 +111,34 @@ nav.sub-menu a:hover {
     width: 100%;
 }
 
+.table-rows {
+    border-spacing: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.table-rows thead th {
+    background: #333;
+    color: #fff;
+    height: 45px;
+    font-weight: normal;
+    font-size: 1.2rem;
+}
+
+.table-rows thead th + th {
+    border-left: 1px solid #fff;
+}
+
+.table-rows tbody td {
+    padding: 15px 10px;
+    background: #fff;
+    border-bottom: 1px solid #333;
+}
+
+.table-rows a:hover {
+    text-decoration: underline;
+}
+
 /* 테이블 공통 E */
 
 /* 메세지 박스 */
