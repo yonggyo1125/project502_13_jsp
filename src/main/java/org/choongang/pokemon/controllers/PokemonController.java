@@ -27,6 +27,7 @@ public class PokemonController {
         ListData<PokemonDetail> listData = infoService.getList(search);
         List<PokemonDetail> items = listData.getItems();
         Pagination pagination = listData.getPagination();
+        items.forEach(System.out::println);
 
         request.setAttribute("items", items);
         request.setAttribute("pagination", pagination);
