@@ -3,10 +3,9 @@ package org.choongang.member.controllers;
 import lombok.Data;
 
 @Data
-public class RequestJoin {
+public class RequestLogin {
     private String email;
     private String password;
-    private String confirmPassword;
-    private String userName;
-    private boolean termsAgree;
+    private boolean saveEmail;
+    private String redirectUrl;
 }
