@@ -32,15 +32,15 @@
         WHERE BID=#{bId}
     </update>
 
-    <delete>
-
+    <delete id="delete">
+        DELETE FROM BOARD WHERE BID=#{bId}
     </delete>
 
-    <select>
-
+    <select id="get" resultMap="boardMap">
+        SELECT * FROM BOARD WHERE BID=#{bId}
     </select>
 
-    <select>
-
+    <select id="getList" resultMap="boardMap">
+        SELECT * FROM BOARD ORDER BY BID
     </select>
 </mapper>
