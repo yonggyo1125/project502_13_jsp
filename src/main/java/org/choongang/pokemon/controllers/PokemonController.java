@@ -6,8 +6,10 @@ import org.choongang.global.ListData;
 import org.choongang.global.Pagination;
 import org.choongang.global.config.annotations.Controller;
 import org.choongang.global.config.annotations.GetMapping;
+import org.choongang.global.config.annotations.PathVariable;
 import org.choongang.global.config.annotations.RequestMapping;
 import org.choongang.pokemon.entities.PokemonDetail;
+import org.choongang.pokemon.exceptions.PokemonNotFoundException;
 import org.choongang.pokemon.services.PokemonInfoService;
 
 import java.util.List;
@@ -32,6 +34,17 @@ public class PokemonController {
         request.setAttribute("pagination", pagination);
 
         return "pokemon/index";
+    }
+
+    @GetMapping("/{seq}")
+    public String view(@PathVariable("seq") long seq) {
+        commonProcess();
+
+        PokemonDetail data = infoService.get(seq).orElseThrow(PokemonNotFoundException::new);
+
+        request.setAttribute("data", data);
+
+        return "pokemon/view";
     }
 
     private void commonProcess() {
