@@ -6,6 +6,7 @@ import org.choongang.global.services.ObjectMapperService;
 import org.choongang.pokemon.controllers.PokemonSearch;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.entities.api.Item;
+import org.choongang.pokemon.entities.api.Pokemon;
 import org.choongang.pokemon.mappers.PokemonMapper;
 import org.choongang.pokemon.services.PokemonInfoService;
 import org.choongang.pokemon.services.PokemonSaveService;
@@ -79,7 +80,9 @@ public class PokemonInfoServiceTest {
     @DisplayName("get 메서드 테스트")
     void getDbTest() {
         PokemonDetail data = service.get(1L).orElse(null);
-        System.out.println(data);
+        //System.out.println(data);
+        Pokemon pokemon = data.getPokemon();
+        System.out.println(pokemon);
 
     }
 }

@@ -5,7 +5,7 @@
 <mapper namespace="org.choongang.pokemon.mappers.PokemonMapper">
     <resultMap id="pokemonMap" type="org.choongang.pokemon.entities.PokemonDetail">
         <result column="SEQ" property="seq" />
-        <result column="NUM" property="rowNum" />
+        <result column="NUM" property="num" />
         <result column="NAME" property="name" />
         <result column="WEIGHT" property="weight" />
         <result column="HEIGHT" property="height" />
@@ -16,11 +16,12 @@
     </resultMap>
 
     <insert id="register">
-        INSERT INTO POKEMON VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData})
+        INSERT INTO POKEMON
+            VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData})
     </insert>
 
     <select id="get" resultMap="pokemonMap">
-        SELECT ROWNUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
+        SELECT ROWNUM NUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
     </select>
 
     <select id="getList" resultMap="pokemonMap">
