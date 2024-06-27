@@ -30,7 +30,7 @@ public class BoardConfigValidator implements Validator<RequestBoard>, RequiredVa
         String mode = form.getMode();
         mode = mode == null || mode.isBlank() ? "register" : mode;
         if (mode.equals("register")) {
-            checkTrue(mapper.exists(bId) > 0, new AlertException("이미 등록된 게시판 아이디 입니다.", status));
+            checkTrue(mapper.exists(bId) == 0, new AlertException("이미 등록된 게시판 아이디 입니다.", status));
         }
     }
 }
