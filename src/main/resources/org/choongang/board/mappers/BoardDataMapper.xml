@@ -42,7 +42,7 @@
                     POSTER=#{poster},
                 </if>
                 <if test="guestPassword != null">
-                    GUEST_PASSWORD=#{GUEST_PASSWORD},
+                    GUEST_PASSWORD=#{guestPassword},
                 </if>
                 <if test="category != null">
                     CATEGORY=#{category},
@@ -58,4 +58,15 @@
             </set>
         WHERE SEQ=#{seq}
     </update>
+
+    <delete id="delete">
+        DELETE FROM BOARD_DATA WHERE SEQ=#{seq}
+    </delete>
+
+    <select id="get" resultMap="boardDataMap">
+        SELECT B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
+            LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
+            WHERE B.SEQ = #{seq}
+    </select>
+
 </mapper>
