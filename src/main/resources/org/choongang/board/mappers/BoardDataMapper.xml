@@ -69,4 +69,29 @@
             WHERE B.SEQ = #{seq}
     </select>
 
+    <select id="getList" resultMap="boardDataMap">
+        <if test="skey != null and !skey.equals('')">
+            <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+        </if>
+        SELECT B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
+        LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
+        <where>
+            <if test="sopt != null and sopt.equals('ALL')">
+                B.SUBJECT || B.CONTENT || B.POSTER || M.EMAIL || M.USER_NAME
+                LIKE #{keyword} AND
+            </if>
+            <if test="sopt != null and sopt.equals('SUBJECT_CONTENT')">
+                B.SUBJECT || B.CONTENT LIKE #{keyword} AND
+            </if>
+            <if test="sopt != null and sopt.equals('SUBJECT')">
+                B.SUBJECT LIKE #{keyword} AND
+            </if>
+            <if test="sopt != null and sopt.equals('CONTENT')">
+                B.CONTENT LIKE #{keyword} AND
+            </if>
+            <if test="sopt != null and sopt.equals('NAME')">
+                B.POSTER || M.EMAIL || M.USER_NAME LIKE #{keyword} AND
+            </if>
+        </where>
+    </select>
 </mapper>
