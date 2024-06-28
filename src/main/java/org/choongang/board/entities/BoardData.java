@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class BoardData {
+    private long num;
     private long seq;
     private String bId;
     private String gId;
