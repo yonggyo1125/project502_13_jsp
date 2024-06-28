@@ -73,7 +73,8 @@
         <if test="skey != null and !skey.equals('')">
             <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
         </if>
-        SELECT B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
+        SELECT * FROM (
+        SELECT ROWNUM NUM, B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
         LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
         <where>
             <if test="sopt != null and sopt.equals('ALL')">
@@ -93,5 +94,11 @@
                 B.POSTER || M.EMAIL || M.USER_NAME LIKE #{keyword} AND
             </if>
         </where>
+        ORDER BY B.SEQ DESC
+        ) D
+        WHERE
+        <![CDATA[
+        D.NUM >= #{offset} AND D.NUM < #{endRows}
+        ]]>
     </select>
 </mapper>
