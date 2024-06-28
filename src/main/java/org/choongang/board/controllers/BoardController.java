@@ -20,4 +20,16 @@ public class BoardController {
 
         return "board/view";
     }
+
+    @GetMapping("/write/{bId}")
+    public String write(@PathVariable("bId") String bId) {
+
+        return "board/write";
+    }
+
+    @GetMapping("/update/{seq}")
+    public String update(@PathVariable("seq") long seq) {
+
+        return "board/update";
+    }
 }
