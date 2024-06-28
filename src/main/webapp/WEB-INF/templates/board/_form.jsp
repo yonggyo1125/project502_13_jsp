@@ -6,7 +6,10 @@
     <dl>
         <dt>분류 선택</dt>
         <dd>
-
+            <c:forEach var="category" items="${board.categories}" varStatus="status">
+                <input type="radio" name="category" value="${category}" id="category-${status.index}">
+                <label for="category-${status.index}">${category}</label>
+            </c:forEach>
         </dd>
     </dl>
 </c:if>
