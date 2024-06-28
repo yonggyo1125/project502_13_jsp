@@ -35,11 +35,11 @@
                 AND P.NAME || P.NAME_KR || P.DESCRIPTION LIKE #{keyword}
             </if>
         </where>
-        ORDER BY P.seq
+        ORDER BY P.SEQ
         ) P2
         WHERE
         <![CDATA[
-            P2.NUM >= #{offset} AND P2.NUM < #{endRows}
+            P2.SEQ >= #{offset} AND P2.SEQ < #{endRows}
         ]]>
     </select>
 
