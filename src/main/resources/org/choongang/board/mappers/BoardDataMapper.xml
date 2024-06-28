@@ -21,4 +21,41 @@
         <result column="EMAIL" property="email" />
         <result column="USER_NAME" property="userName" />
     </resultMap>
+
+    <insert id="register">
+        <selectKey keyProperty="seq" order="BEFORE" resultType="long">
+            SELECT SEQ_BOARD_DATA.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO BOARD_DATA
+            (SEQ, BID, GID, POSTER, MEMBER_SEQ,
+                GUEST_PASSWORD, CATEGORY, NOTICE, SUBJECT, CONTENT, UA, IP)
+            VALUES
+            (#{seq},#{bId}, #{gId}, #{poster}, #{memberSeq}, #{guestPassword},#{category},
+             #{notice}, #{subject}, #{content}, #{ua}, #{ip})
+    </insert>
+
+    <update id="modify">
+        UPDATE BOARD_DATA
+            <set>
+                <if test="poster != null">
+                    POSTER=#{poster},
+                </if>
+                <if test="guestPassword != null">
+                    GUEST_PASSWORD=#{GUEST_PASSWORD},
+                </if>
+                <if test="category != null">
+                    CATEGORY=#{category},
+                </if>
+                <if test="subject != null">
+                    SUBJECT=#{subject},
+                </if>
+                <if test="content != null">
+                    CONTENT=#{content},
+                </if>
+                NOTICE=#{notice},
+                MOD_DT=SYSDATE
+            </set>
+        WHERE SEQ=#{seq}
+    </update>
 </mapper>
