@@ -34,7 +34,7 @@
         <jsp:invoke fragment="commonJs" />
         <c:if test="${addScript != null}">
             <c:forEach var="jsFile" items="${addScript}">
-                <script${fn:contains(jsFile, "ckeditor")? " type='module'":""} src="${jsUrl}${jsFile}.js"></script>
+                <script src="${jsUrl}${jsFile}.js"></script>
             </c:forEach>
         </c:if>
     </head>

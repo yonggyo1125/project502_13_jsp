@@ -1,0 +1,4 @@
+/* 에디터 높이 */
+.ck-editor__editable {
+    min-height: 350px;
+}

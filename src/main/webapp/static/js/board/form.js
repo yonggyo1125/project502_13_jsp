@@ -1,6 +1,9 @@
 window.addEventListener("DOMContentLoaded", function() {
-    ClassicEditor.create(document.getElementById("content"))
+
+    ClassicEditor.create(document.getElementById("content"), {
+            height: 350
+        })
         .then((editor) => {
-            console.log(editor);
+            window.editor = editor;
         });
 });
