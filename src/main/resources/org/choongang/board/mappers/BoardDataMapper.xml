@@ -66,7 +66,7 @@
 
     <select id="get" resultMap="boardDataMap">
         SELECT ROWNUM NUM, B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
-            LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
+            LEFT JOIN MEMBER M ON M.USER_NO = B.MEMBER_SEQ
             WHERE B.SEQ = #{seq}
     </select>
 
@@ -75,26 +75,29 @@
 
         SELECT * FROM (
         SELECT ROWNUM NUM, B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
-        LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
+        LEFT JOIN MEMBER M ON M.USER_NO = B.MEMBER_SEQ
         <where>
+            <if test="bId != null and !bId.equals('')">
+                AND B.BID = #{bId}
+            </if>
             <if test="skey != null and !skey.equals('')">
                 <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
 
                 <if test="sopt != null and sopt.equals('ALL')">
-                    B.SUBJECT || B.CONTENT || B.POSTER || M.EMAIL || M.USER_NAME
-                    LIKE #{keyword} AND
+                    AND B.SUBJECT || B.CONTENT || B.POSTER || M.EMAIL || M.USER_NAME
+                    LIKE #{keyword}
                 </if>
                 <if test="sopt != null and sopt.equals('SUBJECT_CONTENT')">
-                    B.SUBJECT || B.CONTENT LIKE #{keyword} AND
+                    AND B.SUBJECT || B.CONTENT LIKE #{keyword}
                 </if>
                 <if test="sopt != null and sopt.equals('SUBJECT')">
-                    B.SUBJECT LIKE #{keyword} AND
+                    AND B.SUBJECT LIKE #{keyword}
                 </if>
                 <if test="sopt != null and sopt.equals('CONTENT')">
-                    B.CONTENT LIKE #{keyword} AND
+                    AND B.CONTENT LIKE #{keyword}
                 </if>
                 <if test="sopt != null and sopt.equals('NAME')">
-                    B.POSTER || M.EMAIL || M.USER_NAME LIKE #{keyword} AND
+                    AND B.POSTER || M.EMAIL || M.USER_NAME LIKE #{keyword}
                 </if>
             </if>
         </where>
