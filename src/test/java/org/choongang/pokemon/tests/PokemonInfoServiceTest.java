@@ -124,4 +124,11 @@ public class PokemonInfoServiceTest {
             System.out.println(description);
         }
     }
+    
+    @Test
+    @DisplayName("랜덤 조회 테스트")
+    void getRandomTest() {
+        PokemonDetail data = service.getRandom().orElse(null);
+        System.out.printf("seq=%d, name=%s, name_kr=%s", data.getSeq(), data.getName(), data.getNameKr());
+    }
 }

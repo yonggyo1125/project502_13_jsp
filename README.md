@@ -275,3 +275,37 @@ CREATE TABLE POKEMON (
 
 
 
+# 회원 프로필 - 마이포켓몬 등록 기능 가이드 
+
+- SQL에 다음 항목 추가
+
+```sql
+ALTER TABLE MEMBER ADD MY_POKEMON_SEQ NUMBER(11);
+```
+
+## org/choongang/member/entities/Member
+
+> private long myPokemonSeq; 추가 
+
+```java
+package org.choongang.member.entities;
+
+import lombok.Builder;
+import lombok.Data;
+import org.choongang.member.constants.UserType;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+public class Member {
+    private long userNo;
+    private String email;
+    private String password;
+    private String userName;
+    private UserType userType = UserType.USER;
+    private long myPokemonSeq;
+    private LocalDateTime regDt;
+    private LocalDateTime modDt;
+}
+```

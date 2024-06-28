@@ -42,4 +42,11 @@
             P2.NUM >= #{offset} AND P2.NUM < #{endRows}
         ]]>
     </select>
+
+    <!-- 포켓몬 랜덤 조회 -->
+    <select id="getRandom" resultMap="pokemonMap">
+        <![CDATA[
+        SELECT * FROM (SELECT ROWNUM NUM, P.* FROM POKEMON P ORDER BY DBMS_RANDOM.VALUE(0, 2000)) WHERE ROWNUM = 1
+        ]]>
+    </select>
 </mapper>

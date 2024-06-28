@@ -208,6 +208,12 @@ public class PokemonInfoService {
 
     public Optional<PokemonDetail> get(long seq) {
         PokemonDetail data = mapper.get(seq);
+        convertRawData(data);
+
+        return Optional.ofNullable(data);
+    }
+
+    public void convertRawData(PokemonDetail data) {
         if (data != null) {
             String rawData = data.getRawData();
             try {
@@ -215,6 +221,16 @@ public class PokemonInfoService {
                 data.setPokemon(pokemon); // 원 데이터 변환
             } catch (JsonProcessingException e) {}
         }
+    }
+
+    /**
+     * 랜덤하게 포켓몬 조회 하기
+     *
+     * @return
+     */
+    public Optional<PokemonDetail> getRandom() {
+        PokemonDetail data = mapper.getRandom();
+        convertRawData(data);
 
         return Optional.ofNullable(data);
     }
