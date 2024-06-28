@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
 
-<c:if test="${board.activeCategory}">
+<c:if test="${board.activeCategory == 1}">
     <dl>
         <dt>분류 선택</dt>
         <dd>
