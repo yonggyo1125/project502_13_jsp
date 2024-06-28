@@ -4,6 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.choongang.board.mappers.BoardDataMapper">
     <resultMap id="boardDataMap" type="org.choongang.board.entities.BoardData">
+        <result column="NUM" property="num" />
         <result column="SEQ" property="seq" />
         <result column="BID" property="bId" />
         <result column="GID" property="gId" />
@@ -64,7 +65,7 @@
     </delete>
 
     <select id="get" resultMap="boardDataMap">
-        SELECT B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
+        SELECT ROWNUM NUM, B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
             LEFT JOIN MEMBER M ON M.SEQ = B.MEMBER_SEQ
             WHERE B.SEQ = #{seq}
     </select>
