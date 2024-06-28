@@ -2,6 +2,7 @@
 <%@ tag pageEncoding="UTF-8" trimDirectiveWhitespaces="true" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <%@ attribute name="header" fragment="true" %>
 <%@ attribute name="footer" fragment="true" %>
 <%@ attribute name="commonCss" fragment="true" %>
@@ -33,7 +34,7 @@
         <jsp:invoke fragment="commonJs" />
         <c:if test="${addScript != null}">
             <c:forEach var="jsFile" items="${addScript}">
-                <script src="${jsUrl}${jsFile}.js"></script>
+                <script${fn:contains(jsFile, "ckeditor")? " type='module'":""} src="${jsUrl}${jsFile}.js"></script>
             </c:forEach>
         </c:if>
     </head>
