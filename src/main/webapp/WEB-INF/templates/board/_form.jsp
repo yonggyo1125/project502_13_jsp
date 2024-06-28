@@ -31,5 +31,29 @@
     </dd>
 </dl>
 </util:guestOnly>
+<dl>
+    <dt>제목</dt>
+    <dd>
+        <input type="text" name="subject">
+    </dd>
+</dl>
+<dl>
+    <dt>내용</dt>
+    <dd>
+        <textarea name="content" id="content"></textarea>
+    </dd>
+</dl>
+<dl>
+    <dt>이미지 첨부</dt>
+    <dd>
+        <button type='button'>이미지 선택</button>
+    </dd>
+</dl>
+<dl>
+    <dt>파일 첨부</dt>
+    <dd>
+        <button type='button'>파일 선택</button>
+    </dd>
+</dl>
 
 
