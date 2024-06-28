@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <layout:main title="${board.BName}">
-    <h1>${board.BName}</h1>
-
+<section class="layout-width">
+    <jsp:include page="_header.jsp" />
+</section>
 </layout:main>
