@@ -118,3 +118,20 @@ footer {
     border-top: 1px solid #ccc;
 }
 /* 사이트 푸터 영역 E */
+
+/* 페이징 공통 S */
+.pagination {
+    text-align: center;
+    margin: 20px 0;
+}
+.pagination a {
+    border: 1px solid #333;
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+.pagination a.on {
+    background: #333;
+    color: #fff;
+}
+/* 페이징 공통 E */

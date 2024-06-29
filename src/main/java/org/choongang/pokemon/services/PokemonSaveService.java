@@ -26,6 +26,7 @@ public class PokemonSaveService {
                 .description(data.getDescription())
                 .build();
         int result = mapper.register(detail);
+
         return result > 0;
     }
 }

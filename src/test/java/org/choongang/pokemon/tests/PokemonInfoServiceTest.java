@@ -85,7 +85,7 @@ public class PokemonInfoServiceTest {
         PokemonDetail data = service.get(1L).orElse(null);
         //System.out.println(data);
         Pokemon pokemon = data.getPokemon();
-        System.out.println(pokemon);
+
 
     }
 

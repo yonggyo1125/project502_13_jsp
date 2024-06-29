@@ -9,12 +9,12 @@ public class PokemonDetail extends AbstractPokemonDetail {
     private long seq;
     private long num;
     private String name;
+    private String nameKr;
     private int weight;
     private int height;
     private int baseExperience;
     private String frontImage;
     private String backImage;
     private String rawData;
-    private String nameKr;
     private String description;
 }

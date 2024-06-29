@@ -2,12 +2,14 @@ package org.choongang.pokemon.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.ListData;
 import org.choongang.global.Pagination;
 import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.global.services.ApiRequestService;
 import org.choongang.global.services.ObjectMapperService;
 import org.choongang.pokemon.controllers.PokemonSearch;
@@ -176,6 +178,7 @@ public class PokemonInfoService {
                     try {
                         update(seq);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         // 이미 추가된 포켓몬은 seq 번호 중복으로 무결성 제약조건 발생, 해당 건은 건너 뛴다.
                     }
                 }
@@ -191,6 +194,7 @@ public class PokemonInfoService {
 
         int page = search.getPage();
         int limit = search.getLimit();
+
         int offset = (page - 1) * limit + 1; // 레코드 검색 시작 위치
         int endRows = offset + limit; // 레코드 검색 종료 위치
 
@@ -199,10 +203,11 @@ public class PokemonInfoService {
 
         List<PokemonDetail> items = mapper.getList(search);
 
+        /* 페이징 처리 S */
+        int total = mapper.getTotal(search);
 
-        Pagination pagination = new Pagination();
-
-
+        Pagination pagination = new Pagination(page, total, 10, limit, BeanContainer.getInstance().getBean(HttpServletRequest.class));
+        /* 페이징 처리 E */
         return new ListData<>(items, pagination);
     }
 
