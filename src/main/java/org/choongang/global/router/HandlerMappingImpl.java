@@ -110,8 +110,6 @@ public class HandlerMappingImpl implements HandlerMapping{
                     List<String> matches = Arrays.stream(mappings)
                             .filter(s -> uri.startsWith(request.getContextPath() + s)).toList();
 
-                    System.out.println(uri);
-                    System.out.println(matches);
                     if (!matches.isEmpty()) {
                         matchUrl = matches.get(0);
                         if (matchUrl != null && !matchUrl.isBlank()) {
