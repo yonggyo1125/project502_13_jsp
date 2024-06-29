@@ -30,7 +30,7 @@ public class RouterService {
         List<Object> data = null;
         try {
             data = handlerMapping.search(req);
-
+            System.out.println(data);
             // 요청 주소
             String requestUrl = req.getRequestURI();
             requestUrl = req.getQueryString() == null || req.getQueryString().isBlank() ? requestUrl : requestUrl + "?" + req.getQueryString();

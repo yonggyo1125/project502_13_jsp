@@ -18,6 +18,13 @@ public class MemberController {
     private final JoinService joinService;
     private final LoginService loginService;
 
+
+    @GetMapping
+    public String index() {
+
+        return "member/join";
+    }
+
     // 회원 가입 양식
     @GetMapping("/join")
     public String join() {
