@@ -9,6 +9,7 @@
         <result column="PASSWORD" property="password" />
         <result column="USER_TYPE" property="userType" />
         <result column="USER_NAME" property="userName" />
+        <result column="MY_POKEMON_SEQ" property="myPokemonSeq" />
         <result column="REG_DT" property="regDt" />
         <result column="MOD_DT" property="modDt" />
     </resultMap>

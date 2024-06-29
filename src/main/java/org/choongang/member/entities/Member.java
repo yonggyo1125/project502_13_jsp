@@ -14,6 +14,7 @@ public class Member {
     private String password;
     private String userName;
     private UserType userType = UserType.USER;
+    private long myPokemonSeq;
     private LocalDateTime regDt;
     private LocalDateTime modDt;
 }
