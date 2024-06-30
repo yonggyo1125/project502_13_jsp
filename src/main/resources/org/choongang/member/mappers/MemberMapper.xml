@@ -7,15 +7,15 @@
         <result column="USER_NO" property="userNo" />
         <result column="EMAIL" property="email" />
         <result column="PASSWORD" property="password" />
-        <result column="USER_TYPE" property="userType" />
         <result column="USER_NAME" property="userName" />
+        <result column="USER_TYPE" property="userType" />
         <result column="MY_POKEMON_SEQ" property="myPokemonSeq" />
         <result column="REG_DT" property="regDt" />
         <result column="MOD_DT" property="modDt" />
     </resultMap>
 
     <select id="get" resultMap="memberMap">
-        SELECT * FROM MEMBER WHERE EMAIL=#{email}
+        SELECT USER_NO, EMAIL, PASSWORD, USER_NAME, USER_TYPE, MY_POKEMON_SEQ, REG_DT, MOD_DT  FROM MEMBER WHERE EMAIL=#{email}
     </select>
 
     <select id="exists" resultType="int">
