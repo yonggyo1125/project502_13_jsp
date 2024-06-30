@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.entities.api.Pokemon;
+import org.choongang.pokemon.entities.api.Type;
 import org.choongang.pokemon.mappers.PokemonMapper;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -12,9 +15,9 @@ public class PokemonSaveService {
     private final PokemonMapper mapper;
 
     public boolean save(Pokemon data) {
-
-        String type1 = data.getTypes().get(0) != null ? data.getTypes().get(0).getType().getName() : "";
-        String type2 = data.getTypes().get(1) != null ? data.getTypes().get(1).getType().getName() : "";
+        List<Type> types = data.getTypes();
+        String type1 = types.size() > 0 && types.get(0) != null ? types.get(0).getType().getName() : "";
+        String type2 = types.size() > 1 && types.get(1) != null ? types.get(1).getType().getName() : "";
         PokemonDetail detail = PokemonDetail.builder()
                 .seq(data.getId())
                 .name(data.getName())
