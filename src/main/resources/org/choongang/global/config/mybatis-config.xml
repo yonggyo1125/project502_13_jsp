@@ -5,7 +5,7 @@
 <configuration>
     <properties>
         <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
-        <property name="url" value="jdbc:oracle:thin:@localhost:1521:ORCL" />
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:XE" />
         <property name="username" value="PROJECT3" />
         <property name="password" value="oracle" />
         <property name="prodUrl" value="jdbc:oracle:thin:@localhost:1521:XE" />

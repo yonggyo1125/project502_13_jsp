@@ -23,12 +23,12 @@
     </insert>
 
     <select id="get" resultMap="pokemonMap">
-        SELECT ROWNUM NUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
+        SELECT P.SEQ, ROWNUM NUM, P.NAME, P.NAME_KR, P.WEIGHT, P.HEIGHT, P.BASE_EXPERIENCE, P.FRONT_IMAGE, P.BACK_IMAGE, P.RAW_DATA, P.DESCRIPTION FROM POKEMON P WHERE P.seq=#{seq}
     </select>
 
     <select id="getList" resultMap="pokemonMap">
 
-        SELECT * FROM (SELECT ROWNUM NUM, P.* FROM POKEMON P
+        SELECT * FROM (SELECT P.SEQ, ROWNUM NUM, P.NAME, P.NAME_KR, P.WEIGHT, P.HEIGHT, P.BASE_EXPERIENCE, P.FRONT_IMAGE, P.BACK_IMAGE, P.RAW_DATA, P.DESCRIPTION FROM POKEMON P
         <where>
             <if test="skey != null and !skey.equals('')">
                 <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
