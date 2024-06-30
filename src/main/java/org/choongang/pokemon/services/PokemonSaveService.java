@@ -13,6 +13,8 @@ public class PokemonSaveService {
 
     public boolean save(Pokemon data) {
 
+        String type1 = data.getTypes().get(0) != null ? data.getTypes().get(0).getType().getName() : "";
+        String type2 = data.getTypes().get(1) != null ? data.getTypes().get(1).getType().getName() : "";
         PokemonDetail detail = PokemonDetail.builder()
                 .seq(data.getId())
                 .name(data.getName())
@@ -24,6 +26,8 @@ public class PokemonSaveService {
                 .rawData(data.getRawData())
                 .nameKr(data.getNameKr())
                 .description(data.getDescription())
+                .type1(type1)
+                .type2(type2)
                 .build();
         int result = mapper.register(detail);
 
