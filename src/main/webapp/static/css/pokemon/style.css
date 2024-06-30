@@ -1,0 +1,30 @@
+.pokemon-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pokemon-list > li {
+    width: calc(100% / 5);
+
+    padding: 0 10px 10px;
+
+}
+
+.pokemon-list > li a {
+    display: block;
+    box-shadow: 2px 2px 10px #333;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.pokemon-list > li img {
+    width: 100%;
+    display: block;
+}
+
+.pokemon-list > li .p-name {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.25rem;
+    font-weight: bold;
+}

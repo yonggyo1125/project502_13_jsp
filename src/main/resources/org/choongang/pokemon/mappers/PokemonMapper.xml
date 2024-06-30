@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.choongang.pokemon.mappers.PokemonMapper">
+    <resultMap id="pokemonMap" type="org.choongang.pokemon.entities.PokemonDetail">
+        <result column="SEQ" property="seq" />
+        <result column="NUM" property="num" />
+        <result column="NAME" property="name" />
+        <result column="NAME_KR" property="nameKr" />
+        <result column="WEIGHT" property="weight" />
+        <result column="HEIGHT" property="height" />
+        <result column="BASE_EXPERIENCE" property="baseExperience" />
+        <result column="FRONT_IMAGE" property="frontImage" />
+        <result column="BACK_IMAGE" property="backImage" />
+        <result column="RAW_DATA" property="rawData" />
+        <result column="DESCRIPTION" property="description" />
+    </resultMap>
+
+    <insert id="register">
+        INSERT INTO POKEMON (SEQ, NAME, WEIGHT, HEIGHT, BASE_EXPERIENCE, FRONT_IMAGE, BACK_IMAGE, RAW_DATA, NAME_KR, DESCRIPTION)
+            VALUES (#{seq}, #{name}, #{weight}, #{height}, #{baseExperience}, #{frontImage}, #{backImage}, #{rawData}, #{nameKr}, #{description})
+    </insert>
+
+    <select id="get" resultMap="pokemonMap">
+        SELECT ROWNUM NUM, P.* FROM POKEMON P WHERE P.seq=#{seq}
+    </select>
+
+    <select id="getList" resultMap="pokemonMap">
+
+        SELECT * FROM (SELECT ROWNUM NUM, P.* FROM POKEMON P
+        <where>
+            <if test="skey != null and !skey.equals('')">
+                <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+                AND P.NAME || P.NAME_KR || P.DESCRIPTION LIKE #{keyword}
+            </if>
+        </where>
+        ORDER BY P.SEQ
+        ) P2
+        WHERE
+        <![CDATA[
+            P2.SEQ >= #{offset} AND P2.SEQ < #{endRows}
+        ]]>
+    </select>
+
+    <select id="getTotal" resultType="int">
+      SELECT COUNT(*) FROM POKEMON
+        <where>
+            <if test="skey != null and !skey.equals('')">
+                <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+                AND NAME || NAME_KR || DESCRIPTION LIKE #{keyword}
+            </if>
+        </where>
+    </select>
+
+    <!-- 포켓몬 랜덤 조회 -->
+    <select id="getRandom" resultMap="pokemonMap">
+        <![CDATA[
+        SELECT * FROM (SELECT ROWNUM NUM, P.* FROM POKEMON P ORDER BY DBMS_RANDOM.VALUE(0, 2000)) WHERE ROWNUM = 1
+        ]]>
+    </select>
+</mapper>
