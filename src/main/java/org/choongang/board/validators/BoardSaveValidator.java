@@ -2,13 +2,18 @@ package org.choongang.board.validators;
 
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.controllers.RequestBoardData;
+import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.global.config.annotations.Component;
 import org.choongang.global.validators.RequiredValidator;
 import org.choongang.global.validators.Validator;
+import org.choongang.member.MemberUtil;
 
 @Component
 @RequiredArgsConstructor
 public class BoardSaveValidator implements Validator<RequestBoardData>, RequiredValidator {
+
+    private final MemberUtil memberUtil;
+    private final BoardDataMapper mapper;
 
     @Override
     public void check(RequestBoardData form) {
