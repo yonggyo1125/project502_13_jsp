@@ -42,6 +42,7 @@ public class BoardInfoService {
 
     public RequestBoardData getForm(BoardData data) {
         RequestBoardData form = new ModelMapper().map(data, RequestBoardData.class);
+        form.setMode("update");
 
         return form;
     }
