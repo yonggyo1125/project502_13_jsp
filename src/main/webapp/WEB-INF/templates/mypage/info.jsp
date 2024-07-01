@@ -28,6 +28,14 @@
                     <input type="password" name="confirmPassword">
                 </dd>
             </dl>
+            <dl>
+                <dt>프로필 이미지</dt>
+                <dd>
+                    <button type='button' id="generate-profile-image">
+                    랜덤 프로필 이미지
+                    </button>
+                </dd>
+            </dl>
             <div class='button-group'>
                 <button type="reset">다시입력</button>
                 <button type="submit">수정하기</button>
