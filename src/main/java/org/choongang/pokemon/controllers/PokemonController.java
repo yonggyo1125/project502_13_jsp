@@ -47,6 +47,16 @@ public class PokemonController {
         return "pokemon/view";
     }
 
+    @GetMapping("/popup/{seq}")
+    public String popup(@PathVariable("seq") long seq) {
+
+        PokemonDetail data = infoService.get(seq).orElseThrow(PokemonNotFoundException::new);
+
+        request.setAttribute("data", data);
+
+        return "pokemon/popup";
+    }
+
     private void commonProcess() {
         request.setAttribute("addCss", new String[] {"pokemon/style"});
         request.setAttribute("addScript", List.of("pokemon/wishlist"));
