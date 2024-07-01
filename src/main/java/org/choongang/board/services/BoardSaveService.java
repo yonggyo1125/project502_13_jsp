@@ -14,6 +14,8 @@ import org.choongang.member.MemberUtil;
 import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 
+import java.util.Optional;
+
 /**
  * 게시글 추가, 수정
  *
@@ -25,8 +27,9 @@ public class BoardSaveService {
     private final BoardDataMapper mapper;
     private final BoardSaveValidator validator;
     private final MemberUtil memberUtil;
+    private final BoardInfoService infoService;
 
-    public BoardData save(RequestBoardData form) {
+    public Optional<BoardData> save(RequestBoardData form) {
 
         validator.check(form);
 
@@ -65,6 +68,6 @@ public class BoardSaveService {
             }
         }
 
-        return null;
+        return infoService.get(data.getSeq());
     }
 }
