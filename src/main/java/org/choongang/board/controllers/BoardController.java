@@ -10,6 +10,7 @@ import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.services.BoardInfoService;
 import org.choongang.board.services.BoardSaveService;
 import org.choongang.board.services.config.BoardConfigInfoService;
+import org.choongang.global.ListData;
 import org.choongang.global.config.annotations.*;
 import org.choongang.global.exceptions.AlertException;
 
@@ -32,8 +33,12 @@ public class BoardController {
 
 
     @GetMapping("/list/{bId}")
-    public String list(@PathVariable("bId") String bId) {
+    public String list(@PathVariable("bId") String bId, BoardSearch search) {
         commonProcess(bId, "list");
+
+        ListData<BoardData> data = infoService.getList(bId, search);
+        request.setAttribute("items", data.getItems());
+        request.setAttribute("pagination", data.getPagination());
 
         return "board/list";
     }

@@ -4,5 +4,6 @@
 <layout:main title="${board.BName}">
 <section class="layout-width">
     <jsp:include page="_header.jsp" />
+    <jsp:include page="_list.jsp" />
 </section>
 </layout:main>
