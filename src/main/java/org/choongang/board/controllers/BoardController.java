@@ -1,14 +1,15 @@
 package org.choongang.board.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.entities.Board;
+import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardConfigNotFoundException;
+import org.choongang.board.services.BoardSaveService;
 import org.choongang.board.services.config.BoardConfigInfoService;
-import org.choongang.global.config.annotations.Controller;
-import org.choongang.global.config.annotations.GetMapping;
-import org.choongang.global.config.annotations.PathVariable;
-import org.choongang.global.config.annotations.RequestMapping;
+import org.choongang.global.config.annotations.*;
+import org.choongang.global.exceptions.AlertException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,8 @@ import java.util.Objects;
 public class BoardController {
 
     private final BoardConfigInfoService configInfoService;
+    private final BoardSaveService saveService;
+
     private final HttpServletRequest request;
 
     @GetMapping("/list/{bId}")
@@ -51,6 +54,22 @@ public class BoardController {
     public String update(@PathVariable("seq") long seq) {
 
         return "board/update";
+    }
+
+    @PostMapping("/save")
+    public String save(RequestBoardData form) {
+        String mode = form.getMode();
+        String modeStr = mode.equals("update") ? "수정":"등록";
+        String message = "게시글 " + modeStr + "에 실패하였습니다";
+
+        BoardData data = saveService.save(form).orElseThrow(() -> new AlertException(message, HttpServletResponse.SC_BAD_REQUEST));
+
+        // 게시글 등록, 수정이 완료 되면 - 게시글 보기로 이동
+        String url = request.getContextPath() + "/board/view/" + data.getSeq();
+        String script = String.format("parent.location.replace('%s');", url);
+        request.setAttribute("script", script);
+
+        return "commons/execute_script";
     }
 
     /**
