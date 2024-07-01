@@ -40,6 +40,7 @@ public class BoardController {
 
     @GetMapping("/view/{seq}")
     public String view(@PathVariable("seq") long seq) {
+        commonProcess(seq, "view");
 
         return "board/view";
     }
@@ -58,6 +59,10 @@ public class BoardController {
 
     @GetMapping("/update/{seq}")
     public String update(@PathVariable("seq") long seq) {
+        commonProcess(seq, "update");
+
+        RequestBoardData data = infoService.getForm(boardData);
+        request.setAttribute("data", data);
 
         return "board/update";
     }
