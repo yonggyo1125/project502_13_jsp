@@ -71,8 +71,6 @@
     </select>
 
     <select id="getList" resultMap="boardDataMap">
-
-
         SELECT * FROM (
         SELECT ROWNUM NUM, B.*, M.EMAIL, M.USER_NAME FROM BOARD_DATA B
         LEFT JOIN MEMBER M ON M.USER_NO = B.MEMBER_SEQ
