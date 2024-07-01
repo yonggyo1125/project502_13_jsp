@@ -1,5 +1,6 @@
 package org.choongang.board.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.controllers.BoardSearch;
 import org.choongang.board.controllers.RequestBoardData;
@@ -7,9 +8,12 @@ import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.global.ListData;
+import org.choongang.global.Pagination;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.BeanContainer;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,9 +51,30 @@ public class BoardInfoService {
         return form;
     }
 
+    /**
+     * 게시글 목록
+     *
+     * @param search
+     * @return - 조회된 목록 + 페이징
+     */
     public ListData<BoardData> getList(BoardSearch search) {
+        int page = Math.max(search.getPage(), 1);
+        int limit = search.getLimit();
+        limit = limit < 1 ? 20 : limit;
 
-        return null;
+        int offset = (page - 1) * limit + 1;
+        int endRows = offset + limit;
+        search.setOffset(offset);
+        search.setEndRows(endRows);
+
+        List<BoardData> items = mapper.getList(search);
+
+        // 페이징 처리
+        int total = mapper.getTotal(search);
+        HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
+        Pagination pagination = new Pagination(page, total, 10, limit, request);
+
+        return new ListData<>(items, pagination);
     }
 
     public ListData<BoardData> getList(String bId, BoardSearch search) {

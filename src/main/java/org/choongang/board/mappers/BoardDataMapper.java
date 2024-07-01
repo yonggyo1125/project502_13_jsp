@@ -12,4 +12,5 @@ public interface BoardDataMapper {
     BoardData get(long seq);
     List<BoardData> getList(BoardSearch search);
     int exists(long seq);
+    int getTotal(BoardSearch search);
 }
