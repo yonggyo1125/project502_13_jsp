@@ -83,4 +83,7 @@ public class BoardInfoService {
         return getList(search);
     }
 
+    public ListData<BoardData> getList(String bId) {
+        return getList(bId, new BoardSearch());
+    }
 }

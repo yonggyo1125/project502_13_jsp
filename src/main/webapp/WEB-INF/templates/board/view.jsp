@@ -4,6 +4,8 @@
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
 <layout:main>
     <section class="layout-width">
+        <jsp:include page="_header.jsp" />
+
         <div class='subject'>
             <c:if test="${! empty data.category}">
                 [${data.category}]
@@ -30,4 +32,10 @@
             <a href="<c:url value='/board/delete/${data.seq}' />" onclick="return alert('정말 삭제하시겠습니까?');">글삭제</a>
         </div>
     </section>
+
+    <c:if test="${items != null && !items.isEmpty()}">
+        <section class="layout-width">
+            <jsp:include page="_list.jsp" />
+        </section>
+    </c:if>
 </layout:main>

@@ -47,6 +47,11 @@ public class BoardController {
     public String view(@PathVariable("seq") long seq) {
         commonProcess(seq, "view");
 
+        String bId = boardData.getBId();
+        ListData<BoardData> data = infoService.getList(bId);
+        request.setAttribute("items", data.getItems());
+        request.setAttribute("pagination", data.getPagination());
+
         return "board/view";
     }
 
