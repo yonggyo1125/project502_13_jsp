@@ -1,7 +1,9 @@
 package org.choongang.mypage.services;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.member.MemberUtil;
 import org.choongang.member.entities.Member;
 import org.choongang.member.mappers.MemberMapper;
@@ -30,6 +32,12 @@ public class ProfileService {
             member.setPassword(hash);
         }
 
+        // 회원 정보 수정 처리
+        mapper.modify(member);
 
+        // 세션 데이터 업데이트
+        HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
+        Member _member = mapper.get(member.getEmail());
+        session.setAttribute("member", _member);
     }
 }
