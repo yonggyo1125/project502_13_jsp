@@ -5,6 +5,9 @@
 <layout:main>
     <section class="layout-width">
         <div class='subject'>
+            <c:if test="${! empty data.category}">
+                [${data.category}]
+            </c:if>
             ${data.subject}
         </div>
         <div class='post-info'>
@@ -19,6 +22,12 @@
         </div>
         <div class='content'>
             ${data.content}
+        </div>
+        <div class='links'>
+            <a href="<c:url value='/board/list/${data.BId}' />">글목록</a>
+            <a href="<c:url value='/board/write/${data.BId}' />">글쓰기</a>
+            <a href="<c:url value='/board/update/${data.seq}' />">글수정</a>
+            <a href="<c:url value='/board/delete/${data.seq}' />" onclick="return alert('정말 삭제하시겠습니까?');">글삭제</a>
         </div>
     </section>
 </layout:main>

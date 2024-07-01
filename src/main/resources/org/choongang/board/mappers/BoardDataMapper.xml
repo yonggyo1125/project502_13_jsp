@@ -78,6 +78,9 @@
             <if test="bId != null and !bId.equals('')">
                 AND B.BID = #{bId}
             </if>
+            <if test="category != null and !category.equals('')">
+                AND B.CATEGORY = #{category}
+            </if>
             <if test="skey != null and !skey.equals('')">
                 <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
 
@@ -105,6 +108,39 @@
         <![CDATA[
         D.NUM >= #{offset} AND D.NUM < #{endRows}
         ]]>
+    </select>
+
+    <select id="getTotal">
+        SELECT COUNT(*) FROM BOARD_DATA B
+            LEFT JOIN MEMBER M ON B.MEMBER_SEQ = M.USER_NO
+        <where>
+            <if test="bId != null and !bId.equals('')">
+                AND B.BID = #{bId}
+            </if>
+            <if test="category != null and !category.equals('')">
+                AND B.CATEGORY = #{category}
+            </if>
+            <if test="skey != null and !skey.equals('')">
+                <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+
+                <if test="sopt != null and sopt.equals('ALL')">
+                    AND B.SUBJECT || B.CONTENT || B.POSTER || M.EMAIL || M.USER_NAME
+                    LIKE #{keyword}
+                </if>
+                <if test="sopt != null and sopt.equals('SUBJECT_CONTENT')">
+                    AND B.SUBJECT || B.CONTENT LIKE #{keyword}
+                </if>
+                <if test="sopt != null and sopt.equals('SUBJECT')">
+                    AND B.SUBJECT LIKE #{keyword}
+                </if>
+                <if test="sopt != null and sopt.equals('CONTENT')">
+                    AND B.CONTENT LIKE #{keyword}
+                </if>
+                <if test="sopt != null and sopt.equals('NAME')">
+                    AND B.POSTER || M.EMAIL || M.USER_NAME LIKE #{keyword}
+                </if>
+            </if>
+        </where>
     </select>
 
     <select id="exists" resultType="int">
