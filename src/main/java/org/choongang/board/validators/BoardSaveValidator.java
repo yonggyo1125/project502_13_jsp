@@ -3,6 +3,7 @@ package org.choongang.board.validators;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.controllers.RequestBoardData;
+import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.global.config.annotations.Component;
 import org.choongang.global.exceptions.AlertException;
@@ -50,7 +51,7 @@ public class BoardSaveValidator implements Validator<RequestBoardData>, Required
         // 등록, 수정 구분 항목 체크
         if (mode.equals("update")) { // 수정
             checkTrue(seq > 0L, new AlertException("잘못된 접근입니다.", status));
-
+            checkTrue(mapper.exists(seq) > 0L, new BoardNotFoundException());
 
         } else { // 추가
             checkRequired(bId, new AlertException("잘못된 접근입니다.", status));
