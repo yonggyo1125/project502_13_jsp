@@ -26,4 +26,19 @@
         INSERT INTO MEMBER (USER_NO, EMAIL, PASSWORD, USER_TYPE, USER_NAME)
             VALUES (SEQ_MEMBER.NEXTVAL, #{email}, #{password}, #{userType}, #{userName})
     </insert>
+
+    <update id="modify">
+        UPDATE MEMBER
+        <set>
+            <if test="userName != null and !userName.equals('')">
+                USER_NAME=#{userName},
+            </if>
+            <if test="password != null and !password.equals('')">
+                PASSWORD=#{password},
+            </if>
+            MY_POKEMON_SEQ=#{myPokemonSeq},
+            MOD_DT = SYSDATE
+        </set>
+        WHERE email=#{email}
+    </update>
 </mapper>

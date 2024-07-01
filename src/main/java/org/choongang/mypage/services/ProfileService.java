@@ -22,11 +22,14 @@ public class ProfileService {
         String userName = form.getUserName();
         String password = form.getPassword();
 
-        Member member = memberUtil.getMember();
+        Member member = memberUtil.getMember(); // 로그인한 회원 정보
+
         member.setUserName(userName);
         if (password != null && !password.isBlank()) {
             String hash = BCrypt.hashpw(password, BCrypt.gensalt(12));
-
+            member.setPassword(hash);
         }
+
+
     }
 }
