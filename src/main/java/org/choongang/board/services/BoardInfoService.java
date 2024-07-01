@@ -2,10 +2,13 @@ package org.choongang.board.services;
 
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.controllers.BoardSearch;
+import org.choongang.board.controllers.RequestBoardData;
 import org.choongang.board.entities.BoardData;
+import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.global.ListData;
 import org.choongang.global.config.annotations.Service;
+import org.modelmapper.ModelMapper;
 
 import java.util.Optional;
 
@@ -28,6 +31,15 @@ public class BoardInfoService {
 
 
         return Optional.ofNullable(data);
+    }
+
+
+    public RequestBoardData getForm(long seq) {
+        BoardData data = get(seq).orElseThrow(BoardNotFoundException::new);
+
+        RequestBoardData form = new ModelMapper().map(data, RequestBoardData.class);
+
+        return form;
     }
 
     public ListData<BoardData> getList(BoardSearch search) {
