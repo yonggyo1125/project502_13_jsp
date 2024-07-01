@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.choongang.board.entities.Board;
 import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardConfigNotFoundException;
+import org.choongang.board.exceptions.BoardNotFoundException;
+import org.choongang.board.services.BoardInfoService;
 import org.choongang.board.services.BoardSaveService;
 import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.config.annotations.*;
@@ -22,8 +24,12 @@ public class BoardController {
 
     private final BoardConfigInfoService configInfoService;
     private final BoardSaveService saveService;
+    private final BoardInfoService infoService;
 
     private final HttpServletRequest request;
+
+    private BoardData boardData;
+
 
     @GetMapping("/list/{bId}")
     public String list(@PathVariable("bId") String bId) {
@@ -105,5 +111,22 @@ public class BoardController {
         request.setAttribute("board", board);
         request.setAttribute("addCss", addCss);
         request.setAttribute("addScript", addScript);
+    }
+
+    /**
+     * 게시글 번호가 있는 페이지 URL
+     *  - 게시글 보기, 게시글 수정
+     *
+     * @param seq
+     * @param mode
+     */
+    private void commonProcess(long seq, String mode) {
+        boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
+        String bId = boardData.getBId();
+
+        commonProcess(bId, mode);
+
+        request.setAttribute("data", boardData);
+
     }
 }
