@@ -1,6 +1,7 @@
 package org.choongang.board.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.controllers.RequestBoardData;
 import org.choongang.board.entities.BoardData;
@@ -8,7 +9,9 @@ import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.board.validators.BoardSaveValidator;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.config.containers.BeanContainer;
+import org.choongang.global.exceptions.AlertException;
 import org.choongang.member.MemberUtil;
+import org.mindrot.jbcrypt.BCrypt;
 import org.modelmapper.ModelMapper;
 
 /**
@@ -23,7 +26,7 @@ public class BoardSaveService {
     private final BoardSaveValidator validator;
     private final MemberUtil memberUtil;
 
-    public void save(RequestBoardData form) {
+    public BoardData save(RequestBoardData form) {
 
         validator.check(form);
 
@@ -32,9 +35,7 @@ public class BoardSaveService {
 
         BoardData data = new ModelMapper().map(form, BoardData.class);
 
-        if (mode.equals("update")) { // 수정
-
-        } else { // 등록
+        if (mode.equals("write")) { // 등록
             // 현재 로그인한 회원 번호
             if (memberUtil.isLogin()) {
                 data.setMemberSeq(memberUtil.getMember().getUserNo());
@@ -48,6 +49,22 @@ public class BoardSaveService {
             data.setIp(ip);
         }
 
+        // 비회원 비밀번호 해시화
+        if (!memberUtil.isLogin()) {
+            String hash = BCrypt.hashpw(form.getGuestPassword(), BCrypt.gensalt(12));
+            data.setGuestPassword(hash);
+        }
 
+
+        if (mode.equals("update")) {
+            mapper.modify(data);
+        } else {
+            int result = mapper.register(data);
+            if (result < 1) {
+                throw new AlertException("게시글 등록에 실패하였습니다.", HttpServletResponse.SC_BAD_REQUEST);
+            }
+        }
+
+        return null;
     }
 }
