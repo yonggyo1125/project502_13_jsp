@@ -15,6 +15,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="rootUrl" content="<c:url value='/' />">
         <title>
          <c:if test="${!empty title}">
          ${title} -

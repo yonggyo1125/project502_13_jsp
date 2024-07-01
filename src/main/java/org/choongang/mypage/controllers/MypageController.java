@@ -39,6 +39,8 @@ public class MypageController {
     @GetMapping("/info")
     public String info() {
 
+        request.setAttribute("addScript", List.of("mypage/profile", "mypage/info"));
+
         return "mypage/info";
     }
 
