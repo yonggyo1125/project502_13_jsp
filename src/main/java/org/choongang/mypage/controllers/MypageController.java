@@ -46,7 +46,7 @@ public class MypageController {
         profileService.update(form);
 
         String url = request.getContextPath() + "/mypage";
-        String script = String.format("script", "parent.location.replace('%s');", url);
+        String script = String.format("parent.location.replace('%s');", url);
 
         request.setAttribute("script", script);
 
