@@ -34,6 +34,9 @@
                         </a>
                     </util:guestOnly>
                     <util:memberOnly>
+                        <c:if test="${myProfile != null}">
+                            <img src="${myProfile.frontImage}" width="50">
+                        </c:if>
                         <fmt:message key="LOGIN_MSG">
                             <fmt:param>${loggedMember.userName}</fmt:param>
                             <fmt:param>${loggedMember.email}</fmt:param>

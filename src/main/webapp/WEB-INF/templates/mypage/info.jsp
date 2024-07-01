@@ -31,6 +31,12 @@
             <dl>
                 <dt>프로필 이미지</dt>
                 <dd>
+                    <c:if test="${myProfile != null}">
+                       <div class='profile'>
+                            <img src="${myProfile.frontImage}" alt="${myProfile.nameKr}">
+                            <div>${myProfile.nameKr}</div>
+                       </div>
+                    </c:if>
                     <button type='button' id="generate-profile-image">
                     랜덤 프로필 이미지
                     </button>

@@ -8,7 +8,6 @@ import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.board.validators.BoardSaveValidator;
 import org.choongang.global.config.DBConn;
 import org.choongang.global.config.containers.BeanContainer;
-import org.choongang.member.MemberUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,12 +33,12 @@ public class BoardSaveServiceTest {
         bc.addBean(HttpSession.class.getName(), session);
         bc.addBean(HttpServletRequest.class.getName(), request);
 
-        MemberUtil memberUtil = new MemberUtil();
+        //MemberUtil memberUtil = new MemberUtil();
 
         BoardDataMapper mapper = DBConn.getSession().getMapper(BoardDataMapper.class);
         BoardInfoService infoService = new BoardInfoService(mapper);
-        BoardSaveValidator validator = new BoardSaveValidator(memberUtil, mapper);
-        saveService = new BoardSaveService(mapper, validator, memberUtil, infoService);
+        BoardSaveValidator validator = new BoardSaveValidator(null, mapper);
+        saveService = new BoardSaveService(mapper, validator, null, infoService);
     }
 
     @Test
