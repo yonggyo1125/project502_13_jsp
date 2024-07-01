@@ -46,10 +46,15 @@ public class BoardSaveService {
 
             // 작성자 환경 정보
             HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
-            String ua = request.getHeader("User-Agent"); // 작성자 브라우저 정보
-            String ip = request.getRemoteAddr(); // 작성자 IP 정보
-            data.setUa(ua);
-            data.setIp(ip);
+            if (request != null) {
+                String ua = request.getHeader("User-Agent"); // 작성자 브라우저 정보
+                String ip = request.getRemoteAddr(); // 작성자 IP 정보
+                data.setUa(ua);
+                data.setIp(ip);
+            } else {
+                data.setUa("");
+                data.setIp("");
+            }
         }
 
         // 비회원 비밀번호 해시화
