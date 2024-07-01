@@ -28,6 +28,7 @@ public class BoardSaveValidator implements Validator<RequestBoardData>, Required
          *          - 게시글 수정시 게시글이 조회 되는지
          *
          *      미로그인 시 필수 - guestPassword - 비회원 비밀번호
+         *                                    - 비밀번호 자리수 4자리 이상
          */
 
         String mode = form.getMode();
@@ -58,5 +59,10 @@ public class BoardSaveValidator implements Validator<RequestBoardData>, Required
             checkRequired(gId, new AlertException("잘못된 접근입니다.", status));
         }
 
+        // 미로그인시 체크 항목
+        if (!memberUtil.isLogin()) {
+            checkRequired(guestPassword, new AlertException("글 수정, 삭제 비밀번호를 입력하세요.", status));
+            checkTrue(guestPassword.length() >= 4, new AlertException("비밀번호는 4자리 이상 입력하세요.", status));
+        }
     }
 }
