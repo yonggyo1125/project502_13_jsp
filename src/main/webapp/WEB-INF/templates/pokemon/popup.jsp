@@ -4,7 +4,7 @@
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <layout:popup>
     <section class="popup-view">
-    <form method="post" action="<c:url value='/pokemon/popup' />" autocomplete="off">
+    <form method="post" action="<c:url value='/pokemon/popup' />" autocomplete="off" target="ifrmProcess">
         <input type="hidden" name="seq" value="${data.seq}">
         <img src="${data.frontImage}" alt="${data.nameKr}">
         <div>${data.nameKr}</div>

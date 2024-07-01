@@ -4,10 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.ListData;
 import org.choongang.global.Pagination;
-import org.choongang.global.config.annotations.Controller;
-import org.choongang.global.config.annotations.GetMapping;
-import org.choongang.global.config.annotations.PathVariable;
-import org.choongang.global.config.annotations.RequestMapping;
+import org.choongang.global.config.annotations.*;
+import org.choongang.mypage.services.ProfileService;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.exceptions.PokemonNotFoundException;
 import org.choongang.pokemon.services.PokemonInfoService;
@@ -20,6 +18,7 @@ import java.util.List;
 public class PokemonController {
 
     private final PokemonInfoService infoService;
+    private final ProfileService profileService;
     private final HttpServletRequest request;
 
     @GetMapping
@@ -55,6 +54,11 @@ public class PokemonController {
         request.setAttribute("data", data);
 
         return "pokemon/popup";
+    }
+
+    @PostMapping("/popup")
+    public String popupPs(@RequestParam("seq") long seq) {
+
     }
 
     private void commonProcess() {
