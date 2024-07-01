@@ -9,9 +9,9 @@
     <dl>
         <dt>분류 선택</dt>
         <dd>
-            ${data}
             <c:forEach var="category" items="${board.categories}" varStatus="status">
-                <input type="radio" name="category" value="${category}" id="category-${status.index}"${data.category == category ? ' checked':''}>
+
+                <input type="radio" name="category" value="${category}" id="category-${status.index}"${data.category != null && category.trim().equals(data.category) ? ' checked':''}>
                 <label for="category-${status.index}">${category}</label>
             </c:forEach>
         </dd>

@@ -25,6 +25,7 @@ public class Board {
 
             List<String> categories = Arrays.stream(category.trim().split("\\n"))
                     .map(s -> s.replace("\\r", ""))
+                    .map(s -> s.replace("\\n", ""))
                     .toList();
 
             return categories;
