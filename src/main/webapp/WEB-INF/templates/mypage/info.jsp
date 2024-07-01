@@ -28,6 +28,10 @@
                     <input type="password" name="confirmPassword">
                 </dd>
             </dl>
+            <div class='button-group'>
+                <button type="reset">다시입력</button>
+                <button type="submit">수정하기</button>
+            </div>
         </form>
     </section>
 </layout:main>
