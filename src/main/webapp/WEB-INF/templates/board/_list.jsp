@@ -21,6 +21,9 @@
 <c:forEach var="item" items="${items}">
     <li>
         <a href="<c:url value='/board/view/${item.seq}' />" class='subject'>
+            <c:if test="${! empty item.category }">
+                [${item.category}]
+            </c:if>
             ${item.subject}
         </a>
         <div class='post-info'>

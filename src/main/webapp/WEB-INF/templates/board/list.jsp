@@ -13,6 +13,9 @@
 
     <div class="search-box">
         <form name='frmSearch' method='get' autocomplate='off'>
+            <c:if test="${! empty param.category}">
+                <input type="hidden" name="category" value="${param.category}">
+            </c:if>
             <select name='sopt'>
                 <option value='ALL'${param.sopt == 'ALL' || empty param.sopt ? ' selected':''}>통합검색</option>
                 <option value='SUBJECT'${param.sopt == 'SUBJECT' ? ' selected':''}>제목</option>
