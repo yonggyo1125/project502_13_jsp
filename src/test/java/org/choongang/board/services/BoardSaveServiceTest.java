@@ -38,7 +38,7 @@ public class BoardSaveServiceTest {
         BoardDataMapper mapper = DBConn.getSession().getMapper(BoardDataMapper.class);
         BoardInfoService infoService = new BoardInfoService(mapper, null);
         BoardSaveValidator validator = new BoardSaveValidator(null, mapper);
-        saveService = new BoardSaveService(mapper, validator, null, infoService);
+        saveService = new BoardSaveService(mapper, validator, null, infoService, null);
     }
 
     @Test

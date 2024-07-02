@@ -7,6 +7,7 @@ import org.choongang.board.entities.Board;
 import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.exceptions.BoardNotFoundException;
+import org.choongang.board.services.BoardAuthService;
 import org.choongang.board.services.BoardDeleteService;
 import org.choongang.board.services.BoardInfoService;
 import org.choongang.board.services.BoardSaveService;
@@ -28,6 +29,7 @@ public class BoardController {
     private final BoardSaveService saveService;
     private final BoardInfoService infoService;
     private final BoardDeleteService deleteService;
+    private final BoardAuthService authService;
 
     private final HttpServletRequest request;
 
@@ -113,6 +115,10 @@ public class BoardController {
     private void commonProcess(String bId, String mode) {
         board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
         infoService.setBoard(board);
+
+        // 권한 체크
+        long seq = boardData == null ? 0L : boardData.getSeq();
+        authService.check(bId, seq, mode);
 
         // mode가 null이면 write로 기본값 설정
         mode = Objects.requireNonNullElse(mode, "write");

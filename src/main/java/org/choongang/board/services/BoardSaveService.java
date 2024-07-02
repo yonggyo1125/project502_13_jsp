@@ -29,6 +29,7 @@ public class BoardSaveService {
     private final BoardSaveValidator validator;
     private final MemberUtil memberUtil;
     private final BoardInfoService infoService;
+    private final BoardAuthService authService;
 
     public Optional<BoardData> save(RequestBoardData form) {
 
@@ -36,6 +37,9 @@ public class BoardSaveService {
 
         String mode = form.getMode();
         mode = mode == null || mode.isBlank() ? "write" : mode;
+
+        // 글 쓰기, 글 수정 권한 체크
+        authService.check(form.getBId(), form.getSeq(), mode);
 
         BoardData data = new ModelMapper().map(form, BoardData.class);
 
