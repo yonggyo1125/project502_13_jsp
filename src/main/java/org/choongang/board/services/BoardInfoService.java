@@ -1,12 +1,17 @@
 package org.choongang.board.services;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.choongang.board.controllers.BoardSearch;
 import org.choongang.board.controllers.RequestBoardData;
+import org.choongang.board.entities.Board;
 import org.choongang.board.entities.BoardData;
+import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
+import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.ListData;
 import org.choongang.global.Pagination;
 import org.choongang.global.config.annotations.Service;
@@ -17,9 +22,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Getter @Setter
 @RequiredArgsConstructor
 public class BoardInfoService {
     private final BoardDataMapper mapper;
+    private final BoardConfigInfoService configInfoService;
+
+    private Board board;
 
     /**
      * 게시글 번호로 게시글 조회
@@ -58,9 +67,13 @@ public class BoardInfoService {
      * @return - 조회된 목록 + 페이징
      */
     public ListData<BoardData> getList(BoardSearch search) {
+        if (board == null) {
+            board = configInfoService.get(search.getBId()).orElseThrow(BoardConfigNotFoundException::new);
+        }
+
         int page = Math.max(search.getPage(), 1);
         int limit = search.getLimit();
-        limit = limit < 1 ? 20 : limit;
+        limit = limit < 1 ? Math.max(board.getRowsPerPage(), 1) : limit;
 
         int offset = (page - 1) * limit + 1;
         int endRows = offset + limit;
