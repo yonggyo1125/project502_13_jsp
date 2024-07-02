@@ -20,14 +20,18 @@ public class PokemonGameService {
      * @return boolean - true : 사용자 승리
      *                   false : 컴퓨터 승리
      */
-    public GameResult play(long seq) {
+    public GameResult play(PokemonDetail user, long seq, PokemonDetail computer) {
 
         // 사용자가 선택한 포켓몬
-        PokemonDetail user = infoService.get(seq).orElseThrow(PokemonNotFoundException::new);
+        if (user != null) {
+            user = infoService.get(seq).orElseThrow(PokemonNotFoundException::new);
+        }
         int userPoint = user.getHeight() * user.getWeight() * user.getBaseExperience();
 
         // 컴퓨터가 선택한 포켓몬
-        PokemonDetail computer = infoService.getRandom().orElseThrow(PokemonNotFoundException::new);
+        if (computer == null) {
+            computer = infoService.getRandom().orElseThrow(PokemonNotFoundException::new);
+        }
         int computerPoint = computer.getHeight() * computer.getWeight() * computer.getBaseExperience();
 
         GameResult result = DRAW; // 무승부
@@ -40,5 +44,13 @@ public class PokemonGameService {
         // 기록
 
         return result;
+    }
+
+    public GameResult play(long seq) {
+        return play(null, seq, null);
+    }
+
+    public GameResult play(PokemonDetail user, PokemonDetail computer) {
+        return play(user, user.getSeq(), computer);
     }
 }
