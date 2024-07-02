@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
+
 <layout:main title="포켓몬 카드 선택">
     <div class='content-box'>
         <h1>포켓몬 카드 선택</h1>
@@ -13,6 +15,9 @@
                         <label for="seq_${item.seq}">
                             <img src="${item.frontImage}" alt="${item.nameKr}">
                             <div class="p-name">${item.nameKr}</div>
+                            <div class="p-point">
+                                <fmt:formatNumber value="${item.weight * item.height * item.baseExperience}" />점
+                            </div>
                         </label>
                     </li>
                 </c:forEach>
