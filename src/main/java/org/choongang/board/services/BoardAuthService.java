@@ -1,5 +1,6 @@
 package org.choongang.board.services;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -10,8 +11,12 @@ import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.config.annotations.Service;
-import org.choongang.global.exceptions.AlertException;
+import org.choongang.global.config.containers.BeanContainer;
+import org.choongang.global.exceptions.AlertBackException;
+import org.choongang.global.exceptions.AlertRedirectException;
 import org.choongang.member.MemberUtil;
+
+import java.util.Objects;
 
 @Service
 @Setter
@@ -32,6 +37,9 @@ public class BoardAuthService {
      * @param mode : view, list, write, update, delete
      */
     public void check(String bId, long seq, String mode) {
+        mode = Objects.requireNonNullElse(mode, "");
+        HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
+
         if (board == null) { // 게시판 설정이 없는 경우 조회
             board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
         }
@@ -42,13 +50,19 @@ public class BoardAuthService {
 
         // 게시판 설정 - 사용 여부 체크, 관리자는 접근 가능
         if (board.getActive() == 0 && !memberUtil.isAdmin()) {
-            throw new AlertException("접근이 불가한 게시판입니다.", HttpServletResponse.SC_UNAUTHORIZED);
+            throw new AlertBackException("접근이 불가한 게시판 입니다.", HttpServletResponse.SC_UNAUTHORIZED);
         }
 
         // 게시판 설정 - 글쓰기 권한 체크
+        String redirectUrl = String.format(request.getContextPath() + "/member/login?redirectUrl=/board/write/%s", board.getBId());
+
         Authority authority = board.getAuthority();
         if (mode.equals("write") && !memberUtil.isLogin() && authority == Authority.USER) { // 회원 전용 게시판
+            throw new AlertRedirectException("회원전용 게시판 입니다.", redirectUrl, HttpServletResponse.SC_UNAUTHORIZED);
+        }
 
+        if (mode.equals("write") && !memberUtil.isAdmin() && authority == Authority.ADMIN) { // 관리자 전용 게시판
+            throw new AlertRedirectException("관리자 전용 게시판 입니다.", redirectUrl, HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 }
