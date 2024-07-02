@@ -1,7 +1,9 @@
 package org.choongang.board.services;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.choongang.board.constants.Authority;
@@ -45,6 +47,7 @@ public class BoardAuthService {
 
         mode = Objects.requireNonNullElse(mode, "");
         HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
+        HttpServletResponse response = BeanContainer.getInstance().getBean(HttpServletResponse.class);
 
          // 게시판 설정이 없는 경우 조회
         board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
@@ -80,6 +83,18 @@ public class BoardAuthService {
         if (List.of("update", "delete").contains(mode) && !isEditable) {
             String strMode = mode.equals("update") ? "수정" : "삭제";
             throw new AlertBackException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        // 비회원 게시글 수정, 삭제 권한 체크
+        HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
+        if (List.of("update", "delete").contains(mode) && boardData.getMemberSeq() == 0L) {
+            String authKey = "board_" + boardData.getSeq();
+            if(session.getAttribute(authKey) == null) { // 비회원 인증 X
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/board/password.jsp");
+                try {
+                    rd.forward(request, response);
+                } catch (Exception e) {}
+            }
         }
     }
 
