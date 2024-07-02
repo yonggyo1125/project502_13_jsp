@@ -2,6 +2,16 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
 
+<c:if test="${board.activeCategory == 1 && board.categories != null && !board.categories.isEmpty()}">
+<div class='tab-category'>
+    <c:forEach var="category" items="${board.categories}">
+        <a href="<c:url value='/board/list/${board.BId}?category=${category}' />">
+            ${category}
+        </a>
+    </c:forEach>
+</div>
+</c:if>
+
 <ul class="list-items">
 <c:if test="${items == null || items.isEmpty()}">
     <li class='no-data'>조회된 게시글이 없습니다.</li>

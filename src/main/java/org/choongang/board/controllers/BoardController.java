@@ -112,6 +112,7 @@ public class BoardController {
      */
     private void commonProcess(String bId, String mode) {
         board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
+        infoService.setBoard(board);
 
         // mode가 null이면 write로 기본값 설정
         mode = Objects.requireNonNullElse(mode, "write");
