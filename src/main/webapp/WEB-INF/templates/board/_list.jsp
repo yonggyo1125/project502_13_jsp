@@ -5,7 +5,7 @@
 <c:if test="${board.activeCategory == 1 && board.categories != null && !board.categories.isEmpty()}">
 <div class='tab-category'>
     <c:forEach var="category" items="${board.categories}">
-        <a href="<c:url value='/board/list/${board.BId}?category=${category}' />">
+        <a href="<c:url value='/board/list/${board.BId}?category=${category}' />" class="tab${param.category == category ? ' on':''}">
             ${category}
         </a>
     </c:forEach>
