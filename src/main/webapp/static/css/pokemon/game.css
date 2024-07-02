@@ -7,18 +7,28 @@
     width: calc(100% / 3);
 }
 
-.cart-items label {
+.card-items label {
     margin: 5px;
     padding: 15px;
     box-shadow: 2px 2px 5px #333;
     background: #fff;
+    display: block;
+    border-radius: 15px;
+    border: 5px solid transparent;
+    transition: all 0.5s;
+    cursor: pointer;
 }
 
-.cart-items label img {
+.card-items label img {
     width: 100%;
     display: block;
 }
 
-.cart-items input[type='radio'] {
+.card-items input[type='radio'] {
     display: none;
+}
+
+.card-items input[type='radio']:checked + label,
+.card-items label:hover {
+    border-color: #333;
 }
