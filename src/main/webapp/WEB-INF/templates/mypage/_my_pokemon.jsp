@@ -5,9 +5,11 @@
 <ul>
 <c:forEach var="item" items="${items}">
     <li>
-        <input type="radio" name="seq" value="${item.seq}">
-        <img src="${item.frontImage}" alt="${item.nameKr}">
-        <div>${item.nameKr}</div>
+        <label>
+            <input type="radio" name="seq" value="${item.seq}">
+            <img src="${item.frontImage}" alt="${item.nameKr}">
+            <div>${item.nameKr}</div>
+        </label>
     </li>
 </c:forEach>
 </ul>
