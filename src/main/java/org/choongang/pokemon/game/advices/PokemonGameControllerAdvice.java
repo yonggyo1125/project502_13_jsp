@@ -39,7 +39,7 @@ public class PokemonGameControllerAdvice implements Interceptor {
         return true;
     }
 
-    @ModelAttribute
+    @ModelAttribute("items")
     public List<PokemonDetail> myPokemons() {
         return pokemonService.getList();
     }
