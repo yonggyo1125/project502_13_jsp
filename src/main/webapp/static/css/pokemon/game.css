@@ -1,0 +1,24 @@
+.card-items {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card-items li {
+    width: calc(100% / 3);
+}
+
+.cart-items label {
+    margin: 5px;
+    padding: 15px;
+    box-shadow: 2px 2px 5px #333;
+    background: #fff;
+}
+
+.cart-items label img {
+    width: 100%;
+    display: block;
+}
+
+.cart-items input[type='radio'] {
+    display: none;
+}
