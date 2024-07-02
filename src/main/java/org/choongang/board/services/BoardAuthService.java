@@ -44,7 +44,7 @@ public class BoardAuthService {
             board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
         }
 
-        if (boardData == null) { // 게시글이 없는 경우 조회
+        if (boardData == null && seq > 0L) { // 게시글이 없는 경우 조회
             boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
         }
 
@@ -64,5 +64,29 @@ public class BoardAuthService {
         if (mode.equals("write") && !memberUtil.isAdmin() && authority == Authority.ADMIN) { // 관리자 전용 게시판
             throw new AlertRedirectException("관리자 전용 게시판 입니다.", redirectUrl, HttpServletResponse.SC_UNAUTHORIZED);
         }
+    }
+
+    /**
+     * 게시글 목록, 게시글 쓰기
+     *
+     * @param bId
+     * @param mode - list, write
+     */
+    public void check(String bId, String mode) {
+        check(bId, 0L, mode);
+    }
+
+    /**
+     * 게시글 보기, 게시글 수정
+     *
+     * @param seq
+     * @param mode - view, update
+     */
+    public void check(long seq, String mode) {
+        if (boardData == null) {
+            boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
+        }
+
+        check(boardData.getBId(), seq, mode);
     }
 }
