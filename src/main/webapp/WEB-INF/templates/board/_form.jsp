@@ -25,10 +25,10 @@
             <input type="text" name="poster" value="${data.poster}">
         </c:if>
         <c:if test="${data.mode != 'update'}">
-            <input type="text" name="poster" value="${isLogin ? loggedMember.userName : ''}">
+            <input type="text" name="poster" value="${loggedMember != null ? loggedMember.userName : ''}">
         </c:if>
         <c:if test="${isAdmin}">
-            <input type="checkbox" name="notice" value="true" id="notice"${data.notice == 1 ? ' checked':''}>
+            <input type="checkbox" name="notice" value="true" id="notice"${data.notice ? ' checked':''}>
             <label for="notice">
                 공지글
             </label>

@@ -13,7 +13,6 @@ import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.global.exceptions.AlertBackException;
-import org.choongang.global.exceptions.AlertException;
 import org.choongang.global.exceptions.AlertRedirectException;
 import org.choongang.member.MemberUtil;
 
@@ -39,6 +38,11 @@ public class BoardAuthService {
      * @param mode : view, list, write, update, delete
      */
     public void check(String bId, long seq, String mode) {
+
+        if (memberUtil.isAdmin()) {
+            return;
+        }
+
         mode = Objects.requireNonNullElse(mode, "");
         HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
 
@@ -75,7 +79,7 @@ public class BoardAuthService {
 
         if (List.of("update", "delete").contains(mode) && !isEditable) {
             String strMode = mode.equals("update") ? "수정" : "삭제";
-            throw new AlertException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
+            throw new AlertBackException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 
