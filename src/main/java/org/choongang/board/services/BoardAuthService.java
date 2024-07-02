@@ -17,6 +17,7 @@ import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.global.exceptions.AlertBackException;
 import org.choongang.global.exceptions.AlertRedirectException;
 import org.choongang.member.MemberUtil;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.List;
 import java.util.Objects;
@@ -90,6 +91,7 @@ public class BoardAuthService {
             HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
             if (boardData.getMemberSeq() == 0L) {
                 String authKey = "board_" + boardData.getSeq();
+                System.out.println("유입!");
                 if (session.getAttribute(authKey) == null) { // 비회원 인증 X
                     RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/board/password.jsp");
                     try {
@@ -123,5 +125,25 @@ public class BoardAuthService {
         }
 
         check(boardData.getBId(), seq, mode);
+    }
+
+    /**
+     * 비회원 게시글 비밀번호 체크
+     *
+     * @param seq
+     * @param password
+     */
+    public boolean passwordCheck(long seq, String password) {
+        if (boardData == null) {
+            boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
+        }
+
+        if (boardData.getMemberSeq() == 0L) { // 비회원 게시글 체크
+            String guestPassword = boardData.getGuestPassword();
+
+            return BCrypt.checkpw(password, guestPassword);
+        }
+
+        return false;
     }
 }
