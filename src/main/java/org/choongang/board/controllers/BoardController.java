@@ -109,6 +109,11 @@ public class BoardController {
 
     @PostMapping("/password")
     public String password(@RequestParam("seq") long seq, @RequestParam("password") String password, HttpSession session) {
+
+        if (password == null || password.isBlank()) {
+            throw new AlertException("비밀번호를 입력하세요.", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
         if (!authService.passwordCheck(seq, password)) { // 비회원 비밀번호가 일치하지 않는 경우
             throw new AlertException("비밀번호가 일치하지 않습니다.", HttpServletResponse.SC_BAD_REQUEST);
         }

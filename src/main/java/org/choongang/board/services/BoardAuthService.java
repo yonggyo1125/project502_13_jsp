@@ -1,6 +1,5 @@
 package org.choongang.board.services;
 
-import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -11,6 +10,7 @@ import org.choongang.board.entities.Board;
 import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.exceptions.BoardNotFoundException;
+import org.choongang.board.exceptions.GuestPasswordCheckException;
 import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.config.containers.BeanContainer;
@@ -91,13 +91,10 @@ public class BoardAuthService {
             HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
             if (boardData.getMemberSeq() == 0L) {
                 String authKey = "board_" + boardData.getSeq();
-                System.out.println("유입!");
+
                 if (session.getAttribute(authKey) == null) { // 비회원 인증 X
-                    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/board/password.jsp");
-                    try {
-                        rd.forward(request, response);
-                    } catch (Exception e) {
-                    }
+                    request.setAttribute("seq", boardData.getSeq());
+                    throw new GuestPasswordCheckException();
                 }
             }
         }

@@ -29,7 +29,7 @@
             <a href="<c:url value='/board/list/${data.BId}' />">글목록</a>
             <a href="<c:url value='/board/write/${data.BId}' />">글쓰기</a>
             <a href="<c:url value='/board/update/${data.seq}' />">글수정</a>
-            <a href="<c:url value='/board/delete/${data.seq}' />" onclick="return alert('정말 삭제하시겠습니까?');">글삭제</a>
+            <a href="<c:url value='/board/delete/${data.seq}' />" onclick="return confirm('정말 삭제하시겠습니까?');">글삭제</a>
         </div>
     </section>
 
