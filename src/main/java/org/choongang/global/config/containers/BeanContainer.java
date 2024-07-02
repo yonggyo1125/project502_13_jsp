@@ -22,20 +22,20 @@ public class BeanContainer {
 
     private MapperProvider mapperProvider; // 마이바티스 매퍼 조회
 
-    private boolean loaded = false;
+   private boolean loaded;
 
     public BeanContainer() {
         beans = new HashMap<>();
         mapperProvider = MapperProvider.getInstance();
     }
 
-    public void setLoaded(boolean loaded) {
+   public void setLoaded(boolean loaded) {
         this.loaded = loaded;
-    }
+   }
 
-    public boolean isLoaded() {
+   public boolean isLoaded() {
         return loaded;
-    }
+   }
 
     public void loadBeans() {
         // 패키지 경로 기준으로 스캔 파일 경로 조회
