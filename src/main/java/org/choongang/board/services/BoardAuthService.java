@@ -54,7 +54,7 @@ public class BoardAuthService {
         board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
 
 
-        if (seq > 0L) { // 게시글이 없는 경우 조회
+        if (List.of("update", "delete").contains(mode) && seq > 0L) { // 게시글이 없는 경우 조회
             boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
         }
 
