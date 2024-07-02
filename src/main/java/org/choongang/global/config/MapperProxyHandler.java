@@ -1,6 +1,6 @@
 package org.choongang.global.config;
 
-import org.choongang.global.config.containers.BeanContainer;
+import org.apache.ibatis.session.SqlSession;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -12,16 +12,16 @@ public class MapperProxyHandler implements InvocationHandler {
         this.clz = clz;
     }
     private Object obj;
-
+    private SqlSession session = DBConn.getSession();
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
+        session.clearCache();
 
-        BeanContainer bc = BeanContainer.getInstance();
-
-        //if (!bc.isLoaded() || obj == null) { // 매 요청 1번만 객체 갱신
-            obj = DBConn.getSession().getMapper(clz);
-        //}
+        // 매 요청 1번만 객체 갱신
+        if (obj == null) {
+            obj = session.getMapper(clz);
+        }
 
         Object result = method.invoke(obj, args);
 

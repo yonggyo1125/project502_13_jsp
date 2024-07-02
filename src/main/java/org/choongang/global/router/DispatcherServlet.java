@@ -21,20 +21,12 @@ public class DispatcherServlet extends HttpServlet  {
         BeanContainer bc = BeanContainer.getInstance();
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
-        bc.setLoaded(true);
-        if (check(request)) {
-            bc.setLoaded(false);
-        }
 
         bc.addBean(HttpServletRequest.class.getName(), request);
         bc.addBean(HttpServletResponse.class.getName(), response);
         bc.addBean(HttpSession.class.getName(), request.getSession());
 
         bc.loadBeans();
-
-        if (check(request)) {
-            bc.setLoaded(true);
-        }
 
         RouterService service = bc.getBean(RouterService.class);
         service.route(request, response);
