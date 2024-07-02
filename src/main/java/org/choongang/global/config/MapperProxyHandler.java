@@ -18,6 +18,7 @@ public class MapperProxyHandler implements InvocationHandler {
 
 
         BeanContainer bc = BeanContainer.getInstance();
+        System.out.println("check:" + bc.isLoaded());
         if (!bc.isLoaded() || obj == null) { // 매 요청 1번만 객체 갱신
             obj = DBConn.getSession().getMapper(clz);
         }

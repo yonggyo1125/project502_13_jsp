@@ -24,6 +24,8 @@ public class DispatcherServlet extends HttpServlet  {
 
         if (check(request)) {
             bc.setLoaded(false);
+        } else {
+            bc.setLoaded(true);
         }
 
         bc.addBean(HttpServletRequest.class.getName(), request);
