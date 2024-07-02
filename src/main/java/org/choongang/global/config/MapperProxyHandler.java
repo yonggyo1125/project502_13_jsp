@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 public class MapperProxyHandler implements InvocationHandler {
 
     private final Class clz;
-
     public MapperProxyHandler(Class clz) {
         this.clz = clz;
     }

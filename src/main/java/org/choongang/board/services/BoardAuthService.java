@@ -13,9 +13,11 @@ import org.choongang.board.services.config.BoardConfigInfoService;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.global.exceptions.AlertBackException;
+import org.choongang.global.exceptions.AlertException;
 import org.choongang.global.exceptions.AlertRedirectException;
 import org.choongang.member.MemberUtil;
 
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -40,11 +42,11 @@ public class BoardAuthService {
         mode = Objects.requireNonNullElse(mode, "");
         HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
 
-        if (board == null) { // 게시판 설정이 없는 경우 조회
-            board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
-        }
+         // 게시판 설정이 없는 경우 조회
+        board = configInfoService.get(bId).orElseThrow(BoardConfigNotFoundException::new);
 
-        if (boardData == null && seq > 0L) { // 게시글이 없는 경우 조회
+
+        if (seq > 0L) { // 게시글이 없는 경우 조회
             boardData = infoService.get(seq).orElseThrow(BoardNotFoundException::new);
         }
 
@@ -63,6 +65,17 @@ public class BoardAuthService {
 
         if (mode.equals("write") && !memberUtil.isAdmin() && authority == Authority.ADMIN) { // 관리자 전용 게시판
             throw new AlertRedirectException("관리자 전용 게시판 입니다.", redirectUrl, HttpServletResponse.SC_UNAUTHORIZED);
+        }
+
+        boolean isEditable = false; // true -> 수정, 삭제 가능 / 관리자는 전부 가능
+        if (memberUtil.isAdmin()
+                || (boardData != null && memberUtil.isLogin() && boardData.getMemberSeq() == memberUtil.getMember().getUserNo())) {
+            isEditable = true;
+        }
+
+        if (List.of("update", "delete").contains(mode) && !isEditable) {
+            String strMode = mode.equals("update") ? "수정" : "삭제";
+            throw new AlertException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 

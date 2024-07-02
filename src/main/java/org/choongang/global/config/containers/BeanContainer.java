@@ -139,6 +139,7 @@ public class BeanContainer {
             dependencies.add(obj);
         } else {
             for(Class clazz : parameters) {
+
                 /**
                  * 인터페이스라면 마이바티스 매퍼일수 있으므로 매퍼로 조회가 되는지 체크합니다.
                  * 매퍼로 생성이 된다면 의존성 주입이 될 수 있도록 dependencies에 추가
