@@ -671,3 +671,14 @@ public class Member {
     private LocalDateTime modDt;
 }
 ```
+
+
+# 마이 포켓몬 
+
+```sql
+CREATE TABLE MY_POKEMON (
+	USER_NO NUMBER(11),
+	SEQ NUMBER(11),
+	PRIMARY KEY(USER_NO, SEQ)
+);
+```
