@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Getter @Setter
+@Setter
 @RequiredArgsConstructor
 public class BoardInfoService {
     private final BoardDataMapper mapper;
