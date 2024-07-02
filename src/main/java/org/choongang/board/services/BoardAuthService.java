@@ -74,26 +74,29 @@ public class BoardAuthService {
             throw new AlertRedirectException("관리자 전용 게시판 입니다.", redirectUrl, HttpServletResponse.SC_UNAUTHORIZED);
         }
 
-        boolean isEditable = false; // true -> 수정, 삭제 가능 / 관리자는 전부 가능
-        if (memberUtil.isAdmin() || boardData.getMemberSeq() == 0L // 비회원 게시글
-                || (boardData != null && memberUtil.isLogin() && boardData.getMemberSeq() == memberUtil.getMember().getUserNo())) {
-            isEditable = true;
-        }
+        if (List.of("update", "delete").contains(mode)) {
+            boolean isEditable = false; // true -> 수정, 삭제 가능 / 관리자는 전부 가능
+            if (memberUtil.isAdmin() || boardData.getMemberSeq() == 0L // 비회원 게시글
+                    || (boardData != null && memberUtil.isLogin() && boardData.getMemberSeq() == memberUtil.getMember().getUserNo())) {
+                isEditable = true;
+            }
 
-        if (List.of("update", "delete").contains(mode) && !isEditable) {
-            String strMode = mode.equals("update") ? "수정" : "삭제";
-            throw new AlertBackException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
-        }
+            if (!isEditable) {
+                String strMode = mode.equals("update") ? "수정" : "삭제";
+                throw new AlertBackException(strMode + " 권한이 없습니다.", HttpServletResponse.SC_UNAUTHORIZED);
+            }
 
-        // 비회원 게시글 수정, 삭제 권한 체크
-        HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
-        if (List.of("update", "delete").contains(mode) && boardData.getMemberSeq() == 0L) {
-            String authKey = "board_" + boardData.getSeq();
-            if(session.getAttribute(authKey) == null) { // 비회원 인증 X
-                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/board/password.jsp");
-                try {
-                    rd.forward(request, response);
-                } catch (Exception e) {}
+            // 비회원 게시글 수정, 삭제 권한 체크
+            HttpSession session = BeanContainer.getInstance().getBean(HttpSession.class);
+            if (boardData.getMemberSeq() == 0L) {
+                String authKey = "board_" + boardData.getSeq();
+                if (session.getAttribute(authKey) == null) { // 비회원 인증 X
+                    RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/templates/board/password.jsp");
+                    try {
+                        rd.forward(request, response);
+                    } catch (Exception e) {
+                    }
+                }
             }
         }
     }
