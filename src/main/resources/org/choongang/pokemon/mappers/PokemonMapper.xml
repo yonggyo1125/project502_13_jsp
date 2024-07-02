@@ -68,4 +68,17 @@
                 INNER JOIN POKEMON P ON M.SEQ = P.SEQ
             WHERE M.USER_NO=#{userNo} ORDER BY P.NAME_KR
     </select>
+
+    <insert id="registerMyPokemon">
+        INSERT INTO MY_POKEMON (USER_NO, SEQ) VALUES (#{userNo}, #{seq})
+    </insert>
+
+    <delete id="deleteMyPokemon">
+        DELETE FROM MY_POKEMON WHERE USER_NO=#{userNo} AND SEQ=#{seq}
+    </delete>
+
+    <delete id="deleteAllMyPokemon">
+        DELETE FROM MY_POKEMON WHERE USER_NO=#{userNo}
+    </delete>
+
 </mapper>
