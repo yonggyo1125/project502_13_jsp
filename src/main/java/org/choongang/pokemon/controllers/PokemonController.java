@@ -12,6 +12,7 @@ import org.choongang.mypage.controllers.RequestProfile;
 import org.choongang.mypage.services.ProfileService;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.exceptions.PokemonNotFoundException;
+import org.choongang.pokemon.services.MyPokemonService;
 import org.choongang.pokemon.services.PokemonInfoService;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public class PokemonController {
 
     private final PokemonInfoService infoService;
     private final ProfileService profileService;
+    private final MyPokemonService pokemonService;
+
     private final MemberUtil memberUtil;
     private final HttpServletRequest request;
 
@@ -55,6 +58,8 @@ public class PokemonController {
     public String popup(@PathVariable("seq") long seq) {
 
         PokemonDetail data = infoService.get(seq).orElseThrow(PokemonNotFoundException::new);
+
+        pokemonService.add(seq); // 발급 받은 포켓몬 저장
 
         request.setAttribute("data", data);
 

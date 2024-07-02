@@ -7,6 +7,8 @@ import org.choongang.global.config.annotations.GetMapping;
 import org.choongang.global.config.annotations.PostMapping;
 import org.choongang.global.config.annotations.RequestMapping;
 import org.choongang.mypage.services.ProfileService;
+import org.choongang.pokemon.entities.PokemonDetail;
+import org.choongang.pokemon.services.MyPokemonService;
 
 import java.util.List;
 
@@ -16,6 +18,7 @@ import java.util.List;
 public class MypageController {
 
     private final ProfileService profileService;
+    private final MyPokemonService pokemonService;
     private final HttpServletRequest request;
 
     /**
@@ -38,8 +41,10 @@ public class MypageController {
      */
     @GetMapping("/info")
     public String info() {
+        List<PokemonDetail> items = pokemonService.getList();
 
         request.setAttribute("addScript", List.of("mypage/profile", "mypage/info"));
+        request.setAttribute("items", items);
 
         return "mypage/info";
     }
