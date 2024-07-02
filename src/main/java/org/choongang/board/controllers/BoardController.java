@@ -2,6 +2,7 @@ package org.choongang.board.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.choongang.board.entities.Board;
 import org.choongang.board.entities.BoardData;
@@ -104,6 +105,21 @@ public class BoardController {
         deleteService.delete(seq);
 
         return "redirect:/board/list/" + board.getBId();
+    }
+
+    @PostMapping("/password")
+    public String password(@RequestParam("seq") long seq, @RequestParam("password") String password, HttpSession session) {
+        if (!authService.passwordCheck(seq, password)) { // 비회원 비밀번호가 일치하지 않는 경우
+            throw new AlertException("비밀번호가 일치하지 않습니다.", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        // 비밀번호가 일치한다면 인증 처리
+        String authKey = "board_" + seq;
+        session.setAttribute(authKey, true);
+
+        String script = "parent.location.reload();";
+        request.setAttribute("script", script);
+        return "commons/execute_script";
     }
 
     /**
