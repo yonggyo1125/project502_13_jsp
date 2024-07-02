@@ -75,7 +75,7 @@ public class BoardAuthService {
         }
 
         boolean isEditable = false; // true -> 수정, 삭제 가능 / 관리자는 전부 가능
-        if (memberUtil.isAdmin()
+        if (memberUtil.isAdmin() || boardData.getMemberSeq() == 0L // 비회원 게시글
                 || (boardData != null && memberUtil.isLogin() && boardData.getMemberSeq() == memberUtil.getMember().getUserNo())) {
             isEditable = true;
         }
