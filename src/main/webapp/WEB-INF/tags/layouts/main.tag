@@ -77,7 +77,7 @@
         </section>
         <nav>
             <div class="layout-width inner">
-                <a href="#">메뉴1</a>
+                <a href="<c:url value='/pokemon/game' />">포켓몬 게임</a>
                 <a href="#">메뉴2</a>
                 <a href="#">메뉴3</a>
                 <a href="#">메뉴4</a>
