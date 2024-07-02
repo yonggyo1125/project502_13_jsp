@@ -2,10 +2,7 @@ package org.choongang.pokemon.game.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.choongang.global.config.annotations.Controller;
-import org.choongang.global.config.annotations.GetMapping;
-import org.choongang.global.config.annotations.PostMapping;
-import org.choongang.global.config.annotations.RequestMapping;
+import org.choongang.global.config.annotations.*;
 
 import java.util.List;
 
@@ -36,8 +33,11 @@ public class PokemonGameController {
     }
 
     @PostMapping("/step2")
-    public String step2() {
+    public String step2(@RequestParam("seq") long seq) {
         commonProcess();
+        
+
+
 
         return "pokemon/game/step2";
     }
