@@ -168,6 +168,9 @@ public class HandlerAdapterImpl implements HandlerAdapter {
         }
 
         Object result = method.invoke(controller, args.toArray());
+        if (result == null) { // 반환값이 void
+            return;
+        }
 
         /**
          *  컨트롤러 타입이 @Controller이면 템플릿 출력,
