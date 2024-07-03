@@ -22,4 +22,5 @@ public interface PokemonMapper {
     int deleteMyPokemon(@Param("userNo") long userNo, @Param("seq") long seq);
     int deleteAllMyPokemon(long userNo);
     List<Long> getMyPokemonSeqs(long userNo);
+    int myPokemonExists(@Param("userNo") long userNo, @Param("seq") long seq);
 }

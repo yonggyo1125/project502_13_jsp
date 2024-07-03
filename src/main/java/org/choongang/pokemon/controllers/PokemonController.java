@@ -86,6 +86,6 @@ public class PokemonController {
 
     private void commonProcess() {
         request.setAttribute("addCss", new String[] {"pokemon/style"});
-        request.setAttribute("addScript", List.of("pokemon/wishlist"));
+        request.setAttribute("addScript", List.of("pokemon/my"));
     }
 }

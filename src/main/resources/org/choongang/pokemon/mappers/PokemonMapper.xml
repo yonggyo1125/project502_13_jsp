@@ -84,4 +84,8 @@
     <select id="getMyPokemonSeqs" resultType="java.lang.Long">
         SELECT SEQ FROM MY_POKEMON WHERE USER_NO=#{userNo}
     </select>
+
+    <select id="myPokemonExists" resultType="int">
+        SELECT COUNT(*) FROM MY_POKEMON WHERE USER_NO=#{userNo} AND SEQ=#{seq}
+    </select>
 </mapper>
