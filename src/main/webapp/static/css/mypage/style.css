@@ -1,0 +1,9 @@
+.pokemon-items {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.pokemon-items .item {
+    width: calc(100% / 4);
+    padding: 5px;
+}

@@ -2,11 +2,11 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:if test="${items != null && !items.isEmpty()}">
 <form name="frmList" method="POST" action="<c:url value='/pokemon/popup' />" target="ifrmProcess">
-<ul>
+<ul class="pokemon-items">
 <c:forEach var="item" items="${items}">
-    <li>
-        <label>
-            <input type="radio" name="seq" value="${item.seq}">
+    <li class="item">
+        <input type="radio" name="seq" value="${item.seq}" id="seq_${item.seq}">
+        <label for="seq_${item.seq}">
             <img src="${item.frontImage}" alt="${item.nameKr}">
             <div>${item.nameKr}</div>
         </label>

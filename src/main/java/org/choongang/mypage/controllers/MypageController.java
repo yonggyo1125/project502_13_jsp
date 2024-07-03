@@ -28,6 +28,7 @@ public class MypageController {
      */
     @GetMapping
     public String index() {
+        commonProcess();
 
         request.setAttribute("addScript", List.of("mypage/profile"));
 
@@ -41,6 +42,8 @@ public class MypageController {
      */
     @GetMapping("/info")
     public String info() {
+        commonProcess();
+
         List<PokemonDetail> items = pokemonService.getList();
 
         request.setAttribute("addScript", List.of("mypage/profile", "mypage/info"));
@@ -64,5 +67,9 @@ public class MypageController {
         request.setAttribute("script", script);
 
         return "commons/execute_script";
+    }
+
+    private void commonProcess() {
+        request.setAttribute("addCss", List.of("mypage/style"));
     }
 }
