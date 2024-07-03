@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-public class FileInfo {
+public class FileInfo extends AbstractFileInfo {
     private long seq;
     private String gid;
     private String location;
@@ -16,8 +16,4 @@ public class FileInfo {
     private String contentType; // 파일 형식
     private int done; // 그룹 작업 완료 여부
     private LocalDateTime regDt;
-
-    private String filePath; // 파일 업로드 서버 경로
-    private String fileUrl; // 웹 접근 주소
-
 }

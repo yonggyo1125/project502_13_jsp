@@ -44,7 +44,7 @@ public class MapperTest {
     @Test
     void getListTest() {
         String gid = "6f117ccd-5a0d-4224-a2ce-40aa1161a525";
-        List<FileInfo> items = mapper.getListUnDone(gid, "loc1");
+        List<FileInfo> items = mapper.getList(gid, "loc1");
         items.forEach(System.out::println);
     }
 
