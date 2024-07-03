@@ -3,6 +3,7 @@ package org.choongang.file.services;
 import lombok.RequiredArgsConstructor;
 import org.choongang.file.entities.FileInfo;
 import org.choongang.file.mappers.FileInfoMapper;
+import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 
 import java.util.List;
@@ -12,7 +13,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FileInfoService {
+
     private final FileInfoMapper mapper;
+
+    private String basePath = AppConfig.get("file.upload.path");
+    private String baseUrl = AppConfig.get("file.upload.url");
 
     public Optional<FileInfo> get(long seq) {
 
