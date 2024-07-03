@@ -7,3 +7,29 @@
     width: calc(100% / 4);
     padding: 5px;
 }
+
+.pokemon-items input[type='radio'] {
+    display: none;
+}
+
+.pokemon-items label {
+    padding: 15px;
+    box-shadow: 2px 2px 5px #333;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.pokemon-items input[type='radio']:checked + label {
+    background: #333;
+    color: #fff;
+}
+
+.pokemon-items input[type='radio']:checked + label * {
+    color: #fff;
+}
+
+.pokemon-items label img {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+}
