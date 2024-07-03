@@ -6,6 +6,7 @@ import org.choongang.global.config.DBConn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
 
 public class MapperTest {
@@ -38,5 +39,30 @@ public class MapperTest {
             mapper.register(item);
             session.clearCache();
         }
+    }
+
+    @Test
+    void getListTest() {
+        String gid = "6f117ccd-5a0d-4224-a2ce-40aa1161a525";
+        List<FileInfo> items = mapper.getListUnDone(gid, "loc1");
+        items.forEach(System.out::println);
+    }
+
+    @Test
+    void updateDoneTest() {
+        String gid = "6f117ccd-5a0d-4224-a2ce-40aa1161a525";
+        mapper.updateDone(gid);
+    }
+
+    @Test
+    void deleteTest() {
+        mapper.delete(15L);
+    }
+
+    @Test
+    void deletesTest() {
+        String gid = "6f117ccd-5a0d-4224-a2ce-40aa1161a525";
+        String location = "loc2";
+        mapper.deletes(gid, location);
     }
 }
