@@ -15,7 +15,7 @@ window.addEventListener("DOMContentLoaded", function() {
     fileEl.multiple = true;
 
     // gid
-    const gidEl = document.querySelector("input[name='gid']");
+    const gidEl = document.querySelector("input[name='gId']");
     const gid = gidEl ? gidEl.value : Date.now();
 
     for (const el of fileUploadButtons) {
@@ -23,7 +23,7 @@ window.addEventListener("DOMContentLoaded", function() {
             // editor - 에디터에 추가될 이미지, attach - 첨부 파일
             const location = this.classList.contains("editor") ? "editor" : "attach";
             fileEl.location = location;
-
+            fileEl.value = "";
             fileEl.click();
         });
     }
@@ -46,7 +46,7 @@ window.addEventListener("DOMContentLoaded", function() {
             }
 
             // 파일 업로드
-            fileManager.upload(files, gid, location);
+            fileManager.upload(files, gid, fileEl.location);
 
         } catch (err) {
             alert(err.message);

@@ -50,7 +50,7 @@
             SELECT SEQ_FILE_INFO.NEXTVAL FROM DUAL
         </selectKey>
 
-        INSERT INTO (SEQ, GID, LOCATION, FILE_NAME, EXTENSION, CONTENT_TYPE)
+        INSERT INTO FILE_INFO (SEQ, GID, LOCATION, FILE_NAME, EXTENSION, CONTENT_TYPE)
             VALUES (#{seq}, #{gid}, #{location}, #{fileName}, #{extension}, #{contentType})
     </insert>
 
