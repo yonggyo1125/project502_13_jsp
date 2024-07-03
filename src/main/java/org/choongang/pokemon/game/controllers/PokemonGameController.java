@@ -2,10 +2,13 @@ package org.choongang.pokemon.game.controllers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.choongang.global.ListData;
 import org.choongang.global.config.annotations.*;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.exceptions.PokemonNotFoundException;
 import org.choongang.pokemon.game.constants.GameResult;
+import org.choongang.pokemon.game.entities.GameLog;
+import org.choongang.pokemon.game.services.GameLogService;
 import org.choongang.pokemon.game.services.PokemonGameService;
 import org.choongang.pokemon.services.PokemonInfoService;
 
@@ -18,6 +21,7 @@ public class PokemonGameController {
 
     private final PokemonGameService gameService;
     private final PokemonInfoService infoService;
+    private final GameLogService logService;
     private final HttpServletRequest request;
 
     @GetMapping
@@ -52,6 +56,17 @@ public class PokemonGameController {
         request.setAttribute("result", result);
 
         return "pokemon/game/step2";
+    }
+
+    @GetMapping("/log")
+    public String gameLog(GameLogSearch search) {
+
+        ListData<GameLog> data = logService.getList(search);
+
+        request.setAttribute("items", data.getItems());
+        request.setAttribute("pagination", data.getPagination());
+
+        return "pokemon/game/log";
     }
 
     private void commonProcess() {
