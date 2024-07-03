@@ -22,9 +22,14 @@ public class MapperProxyHandler implements InvocationHandler {
         if (obj == null) {
             obj = session.getMapper(clz);
         }
-
-        Object result = method.invoke(obj, args);
-
+        Object result = null;
+        try {
+            result = method.invoke(obj, args);
+        } catch (Exception e) {
+            session = DBConn.getSession();
+            obj = session.getMapper(clz);
+            result = method.invoke(obj, args);
+        }
         return result;
     }
 }
