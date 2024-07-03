@@ -6,6 +6,7 @@ import org.choongang.file.mappers.FileInfoMapper;
 import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -76,6 +77,19 @@ public class FileInfoService {
     }
 
     private void addFileInfo(FileInfo data) {
+        long seq = data.getSeq();
+        String extension = Objects.requireNonNullElse(data.getExtension(), "");
+
+        String fileName = seq + extension;
+
+        long folder = seq % 10L; // 0~9 - 총 10개의 디렉토리로 분산 저장
+        File dir = new File(basePath + "/" + folder);
+        if (!dir.exists() || !dir.isDirectory()) {
+            dir.mkdirs();
+        }
+
+        // 파일 업로드 경로
+        String filePath = new File(dir, fileName).getCanonicalPath();
 
     }
 }
