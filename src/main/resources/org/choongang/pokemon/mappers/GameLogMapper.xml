@@ -3,5 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.choongang.pokemon.mappers.GameLogMapper">
-
+    <resultMap id="gameLogMap" type="org.choongang.pokemon.game.entities.GameLog">
+        <result column="SEQ" property="seq" />
+        <result column="USER_NO" property="userNo" />
+        <result column="EMAIL" property="email" />
+        <result column="USER_NAME" property="userName" />
+        <result column="USER_SEQ" property="userSeq" />
+        <result column="USER_PNAME" property="userPname" />
+        <result column="USER_PIMG" property="userPimg" />
+        <result column="USER_SCORE" property="userScore" />
+        <result column="COM_SEQ" property="comSeq" />
+        <result column="COM_PNAME" property="comPname" />
+        <result column="COM_PIMG" property="comPimg" />
+        <result column="COM_SCORE" property="comScore" />
+        <result column="GAME_RESULT" property="gameResult" />
+        <result column="REG_DT" property="regDt" />
+    </resultMap>
 </mapper>

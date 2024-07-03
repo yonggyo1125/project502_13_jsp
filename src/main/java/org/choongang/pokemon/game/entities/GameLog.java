@@ -12,8 +12,12 @@ public class GameLog {
     private long seq;
     private long userNo;
     private long userSeq;
+    private String userPname;
+    private String userPimg;
     private long userScore;
     private long comSeq;
+    private String comPname;
+    private String comPimg;
     private long comScore;
     private GameResult gameResult;
     private LocalDateTime regDt;
