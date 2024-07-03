@@ -1,7 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <c:if test="${items != null && !items.isEmpty()}">
-<form name="frmList" method="POST" action="<c:url value='/pokemon/popup' />" target="ifrmProcess">
+<form id="frmList" name="frmList" method="POST" action="<c:url value='/pokemon/popup' />" target="ifrmProcess">
     <input type="hidden" name="mode" value="update">
     <ul class="pokemon-items">
     <c:forEach var="item" items="${items}">
