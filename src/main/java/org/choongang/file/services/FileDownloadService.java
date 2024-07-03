@@ -7,6 +7,8 @@ import org.choongang.global.config.annotations.Service;
 @RequiredArgsConstructor
 public class FileDownloadService {
 
+    private final FileInfoService infoService;
+
     public void download(long seq) {
 
     }
