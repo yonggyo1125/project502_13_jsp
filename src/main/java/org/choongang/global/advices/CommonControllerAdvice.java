@@ -10,6 +10,8 @@ import org.choongang.member.MemberUtil;
 import org.choongang.member.entities.Member;
 import org.choongang.pokemon.entities.PokemonDetail;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @ControllerAdvice("org.choongang")
 public class CommonControllerAdvice {
@@ -34,6 +36,11 @@ public class CommonControllerAdvice {
     @ModelAttribute
     public PokemonDetail myProfile() {
         return memberUtil.getMyProfile();
+    }
+
+    @ModelAttribute
+    public List<Long> myPokemonSeqs() {
+
     }
 
     /**

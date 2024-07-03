@@ -81,4 +81,7 @@
         DELETE FROM MY_POKEMON WHERE USER_NO=#{userNo}
     </delete>
 
+    <select id="getMyPokemonSeqs" resultType="java.lang.Long">
+        SELECT SEQ FROM MY_POKEMON WHERE USER_NO=#{userNo}
+    </select>
 </mapper>
