@@ -2,9 +2,12 @@ package org.choongang.pokemon.game.services;
 
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.member.MemberUtil;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.exceptions.PokemonNotFoundException;
 import org.choongang.pokemon.game.constants.GameResult;
+import org.choongang.pokemon.game.entities.GameLog;
+import org.choongang.pokemon.mappers.GameLogMapper;
 import org.choongang.pokemon.services.PokemonInfoService;
 
 import static org.choongang.pokemon.game.constants.GameResult.*;
@@ -13,6 +16,8 @@ import static org.choongang.pokemon.game.constants.GameResult.*;
 @RequiredArgsConstructor
 public class PokemonGameService {
     private final PokemonInfoService infoService;
+    private final GameLogMapper mapper;
+    private final MemberUtil memberUtil;
 
     /**
      *
@@ -42,6 +47,15 @@ public class PokemonGameService {
         }
 
         // 기록
+        GameLog log = GameLog.builder()
+                .userNo(memberUtil.getMember().getUserNo())
+                .userSeq(user.getSeq())
+                .userScore(userPoint)
+                .comSeq(computer.getSeq())
+                .comScore(computerPoint)
+                .gameResult(result)
+                .build();
+        mapper.register(log);
 
         return result;
     }

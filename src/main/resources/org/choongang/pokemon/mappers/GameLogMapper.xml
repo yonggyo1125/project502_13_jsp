@@ -32,6 +32,12 @@
                 LEFT JOIN MEMBER M ON G.USER_NO = M.USER_NO
                 LEFT JOIN POKEMON P1 ON G.USER_SEQ = P1.SEQ
                 LEFT JOIN POKEMON P2 ON G.COM_SEQ = P2.SEQ
+            <where>
+                <if test="skey != null and !skey.equals('')">
+                    <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+                    M.EMAIL || M.USER_NAME || P1.NAME_KR || P2.NAME_KR LIKE #{keyword}
+                </if>
+            </where>
             ORDER BY G.SEQ DESC
         )
         <![CDATA[
@@ -43,6 +49,12 @@
             LEFT JOIN MEMBER M ON G.USER_NO = M.USER_NO
             LEFT JOIN POKEMON P1 ON G.USER_SEQ = P1.SEQ
             LEFT JOIN POKEMON P2 ON G.COM_SEQ = P2.SEQ
+        <where>
+            <if test="skey != null and !skey.equals('')">
+                <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
+                M.EMAIL || M.USER_NAME || P1.NAME_KR || P2.NAME_KR LIKE #{keyword}
+            </if>
+        </where>
     </select>
 
     <insert id="register">
