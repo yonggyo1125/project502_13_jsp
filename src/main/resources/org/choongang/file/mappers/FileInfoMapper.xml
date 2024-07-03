@@ -3,7 +3,66 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.choongang.file.mappers.FileInfoMapper">
-    <resultMap id="fileInfoMap">
-
+    <resultMap id="fileInfoMap" type="org.choongang.file.entities.FileInfo">
+        <result column="SEQ" property="seq" />
+        <result column="GID" property="gid" />
+        <result column="LOCATION" property="location" />
+        <result column="FILE_NAME" property="fileName" />
+        <result column="EXTENSION" property="extension" />
+        <result column="CONTENT_TYPE" property="contentType" />
+        <result column="DONE" property="done" />
+        <result column="REG_DT" property="regDt" />
     </resultMap>
+
+    <select id="getList">
+        SELECT * FROM FILE_INFO
+        WHERE GID = #{gid}
+        <if test="location != null and !location.equals('')">
+            AND LOCATION = #{location}
+        </if>
+        ORDER BY SEQ
+    </select>
+
+    <select id="getListDone">
+        SELECT * FROM FILE_INFO
+        WHERE GID = #{gid}
+        <if test="location != null and !location.equals('')">
+            AND LOCATION = #{location}
+        </if>
+        AND DONE=1 ORDER BY SEQ
+    </select>
+
+    <select id="getListUnDone">
+        SELECT * FROM FILE_INFO
+        WHERE GID = #{gid}
+        <if test="location != null and !location.equals('')">
+            AND LOCATION = #{location}
+        </if>
+        AND DONE=0 ORDER BY SEQ
+    </select>
+
+    <select id="get">
+        SELECT * FROM FILE_INFO WHERE SEQ=#{seq}
+    </select>
+
+    <insert id="register">
+        <selectKey keyProperty="seq" order="BEFORE" resultType="long">
+            SELECT SEQ_FILE_INFO.NEXTVAL FROM DUAL
+        </selectKey>
+
+        INSERT INTO (SEQ, GID, LOCATION, FILE_NAME, EXTENSION, CONTENT_TYPE)
+            VALUES (#{seq}, #{gid}, #{location}, #{fileName}, #{extension}, #{contentType})
+    </insert>
+
+    <delete id="delete">
+        DELETE FROM FILE_INFO WHERE SEQ=#{seq}
+    </delete>
+
+    <delete id="deletes">
+        DELETE FROM FILE_INFO
+        WHERE GID=#{gid}
+        <if test="location != null and !location.equals('')">
+            AND LOCATION=#{location}
+        </if>
+    </delete>
 </mapper>
