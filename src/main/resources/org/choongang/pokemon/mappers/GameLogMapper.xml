@@ -22,15 +22,32 @@
     </resultMap>
 
     <select id="getList" resultMap="gameLogMap">
-        SELECT
-            ROWNUM NUM, G.SEQ, G.USER_NO, M.EMAIL, M.USER_NAME, G.USER_SEQ,
-            P1.NAME_KR USER_PNAME, P1.FRONT_IMAGE USER_PIMG, G.USER_SCORE,
-            G.COM_SEQ, P2.NAME_KR COM_PNAME, P2.FRONT_IMAGE COM_PIMG, G.COM_SCORE,
-            G.GAME_RESULT, G.REG_DT
-            FROM GAME_LOG G
+        SELECT * FROM (
+            SELECT
+                ROWNUM NUM, G.SEQ, G.USER_NO, M.EMAIL, M.USER_NAME, G.USER_SEQ,
+                P1.NAME_KR USER_PNAME, P1.FRONT_IMAGE USER_PIMG, G.USER_SCORE,
+                G.COM_SEQ, P2.NAME_KR COM_PNAME, P2.FRONT_IMAGE COM_PIMG, G.COM_SCORE,
+                G.GAME_RESULT, G.REG_DT
+                FROM GAME_LOG G
+                LEFT JOIN MEMBER M ON G.USER_NO = M.USER_NO
+                LEFT JOIN POKEMON P1 ON G.USER_SEQ = P1.SEQ
+                LEFT JOIN POKEMON P2 ON G.COM_SEQ = P2.SEQ
+            ORDER BY G.SEQ DESC
+        )
+        <![CDATA[
+        WHERE NUM >= #{offset} AND NUM < #{endRows}
+        ]]>
+    </select>
+    <select id="getTotal" resultType="int">
+        SELECT COUNT(*) FROM GAME_LOG G
             LEFT JOIN MEMBER M ON G.USER_NO = M.USER_NO
             LEFT JOIN POKEMON P1 ON G.USER_SEQ = P1.SEQ
             LEFT JOIN POKEMON P2 ON G.COM_SEQ = P2.SEQ
-        ORDER BY G.SEQ DESC
     </select>
+
+    <insert id="register">
+        INSERT INTO GAME_LOG
+            (SEQ, USER_NO, USER_SEQ, USER_SCORE, COM_SEQ, COM_SCORE, GAME_RESULT)
+            VALUES (SEQ_GAME_LOG.NEXTVAL, #{userNo}, #{userSeq}, #{userScore}, #{comSeq}, #{comScore}, #{gameResult})
+    </insert>
 </mapper>
