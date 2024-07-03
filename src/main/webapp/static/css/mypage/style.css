@@ -17,6 +17,7 @@
     box-shadow: 2px 2px 5px #333;
     border-radius: 10px;
     cursor: pointer;
+    display: block;
 }
 
 .pokemon-items input[type='radio']:checked + label {
