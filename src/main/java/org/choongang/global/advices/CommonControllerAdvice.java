@@ -40,7 +40,7 @@ public class CommonControllerAdvice {
 
     @ModelAttribute
     public List<Long> myPokemonSeqs() {
-
+        return memberUtil.getMyPokemonSeqs();
     }
 
     /**

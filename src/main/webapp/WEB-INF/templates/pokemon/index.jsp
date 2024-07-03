@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="layout" tagdir="/WEB-INF/tags/layouts" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+<%@ taglib prefix="pk" tagdir="/WEB-INF/tags/pokemon" %>
 <c:url var="searchUrl" value="/pokemon" />
 
 <layout:main>
@@ -24,6 +25,7 @@
                             ${item.nameKr}(${item.name})
                         </div>
                     </a>
+                    <pk:myPokemon seq="${item.seq}" />
                 </li>
             </c:forEach>
         </c:if>
