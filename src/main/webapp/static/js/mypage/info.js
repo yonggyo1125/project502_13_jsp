@@ -8,6 +8,9 @@ window.addEventListener("DOMContentLoaded", function() {
                 return;
             }
 
+            frmList.mode.value = mode;
+
+            frmList.submit();
 
         });
     }
