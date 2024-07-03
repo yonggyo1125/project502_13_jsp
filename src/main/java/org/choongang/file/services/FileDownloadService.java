@@ -1,14 +1,13 @@
 package org.choongang.file.services;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.choongang.file.entities.FileInfo;
 import org.choongang.file.exceptions.FileNotFoundException;
 import org.choongang.global.config.annotations.Service;
+import org.choongang.global.config.containers.BeanContainer;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,18 @@ public class FileDownloadService {
             throw new FileNotFoundException();
         }
 
+        HttpServletResponse response = BeanContainer.getInstance().getBean(HttpServletResponse.class);
+
         try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+            String fileName = new String(data.getFileName().getBytes(), "ISO8859_1"); // 윈도우즈 한글 파일명 깨짐 방지
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+            response.setContentType(data.getContentType());
+            response.setIntHeader("Expires", 0);
+            response.setHeader("Cache-Control", "must-revalidate");
+            response.setContentLengthLong(file.length());
+
+            OutputStream out = response.getOutputStream();
+            out.write(bis.readAllBytes());
 
         } catch (IOException e) {
             e.printStackTrace();
