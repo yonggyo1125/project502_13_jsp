@@ -13,6 +13,7 @@ public class GameLog {
     private long seq;
     private long userNo;
     private String email;
+    private String userName;
     private long userSeq;
     private String userPname;
     private String userPimg;
