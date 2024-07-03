@@ -15,6 +15,7 @@
     <typeHandlers>
         <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.member.constants.UserType" />
         <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.board.constants.Authority" />
+        <typeHandler handler="org.apache.ibatis.type.EnumTypeHandler" javaType="org.choongang.pokemon.game.constants.GameResult" />
     </typeHandlers>
     <environments default="dev">
         <environment id="dev">
@@ -39,6 +40,7 @@
     <mappers>
         <mapper resource="org/choongang/member/mappers/MemberMapper.xml"/>
         <mapper resource="org/choongang/pokemon/mappers/PokemonMapper.xml"/>
+        <mapper resource="org/choongang/pokemon/mappers/GameLogMapper.xml"/>
         <mapper resource="org/choongang/board/mappers/BoardMapper.xml" />
         <mapper resource="org/choongang/board/mappers/BoardDataMapper.xml" />
         <mapper resource="org/choongang/file/mappers/FileInfoMapper.xml" />
