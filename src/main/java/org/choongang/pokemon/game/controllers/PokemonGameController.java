@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.choongang.global.ListData;
 import org.choongang.global.config.annotations.*;
+import org.choongang.member.MemberUtil;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.exceptions.PokemonNotFoundException;
 import org.choongang.pokemon.game.constants.GameResult;
@@ -23,6 +24,7 @@ public class PokemonGameController {
     private final PokemonInfoService infoService;
     private final GameLogService logService;
     private final HttpServletRequest request;
+    private final MemberUtil memberUtil;
 
     @GetMapping
     public String index() {
@@ -61,6 +63,7 @@ public class PokemonGameController {
     @GetMapping("/log")
     public String gameLog(GameLogSearch search) {
 
+        search.setUserNo(memberUtil.getMember().getUserNo());
         ListData<GameLog> data = logService.getList(search);
 
         request.setAttribute("items", data.getItems());

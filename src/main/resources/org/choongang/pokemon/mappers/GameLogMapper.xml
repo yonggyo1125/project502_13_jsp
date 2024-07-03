@@ -37,6 +37,9 @@
                     <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
                     M.EMAIL || M.USER_NAME || P1.NAME_KR || P2.NAME_KR LIKE #{keyword}
                 </if>
+                <if test="userNo > 0">
+                    AND G.USER_NO = #{userNo}
+                </if>
             </where>
             ORDER BY G.SEQ DESC
         )
@@ -53,6 +56,9 @@
             <if test="skey != null and !skey.equals('')">
                 <bind name="keyword" value="'%' + _parameter.getSkey() + '%'" />
                 M.EMAIL || M.USER_NAME || P1.NAME_KR || P2.NAME_KR LIKE #{keyword}
+            </if>
+            <if test="userNo > 0">
+                AND G.USER_NO = #{userNo}
             </if>
         </where>
     </select>
