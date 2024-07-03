@@ -35,16 +35,23 @@ public class FileInfoService {
      * @return
      */
     public List<FileInfo> getList(String gid, String location, String mode) {
+        List<FileInfo> items = null;
+
         mode = Objects.requireNonNullElse(mode, "ALL");
         if (mode.equals("DONE")) {
-            return mapper.getListDone(gid, location);
+            items = mapper.getListDone(gid, location);
 
         } else if (mode.equals("UNDONE")) {
-            return mapper.getListUnDone(gid, location);
+            items = mapper.getListUnDone(gid, location);
 
         } else {
-            return mapper.getList(gid, location);
+            items = mapper.getList(gid, location);
         }
+
+        // 파일 추가 정보 처리
+        items.forEach(this::addFileInfo);
+
+        return items;
     }
 
     public List<FileInfo> getList(String gid, String location) {
