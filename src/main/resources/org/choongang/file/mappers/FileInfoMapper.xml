@@ -14,7 +14,7 @@
         <result column="REG_DT" property="regDt" />
     </resultMap>
 
-    <select id="getList">
+    <select id="getList" resultMap="fileInfoMap">
         SELECT * FROM FILE_INFO
         WHERE GID = #{gid}
         <if test="location != null and !location.equals('')">
@@ -23,7 +23,7 @@
         ORDER BY SEQ
     </select>
 
-    <select id="getListDone">
+    <select id="getListDone" resultMap="fileInfoMap">
         SELECT * FROM FILE_INFO
         WHERE GID = #{gid}
         <if test="location != null and !location.equals('')">
@@ -32,7 +32,7 @@
         AND DONE=1 ORDER BY SEQ
     </select>
 
-    <select id="getListUnDone">
+    <select id="getListUnDone" resultMap="fileInfoMap">
         SELECT * FROM FILE_INFO
         WHERE GID = #{gid}
         <if test="location != null and !location.equals('')">
@@ -41,7 +41,7 @@
         AND DONE=0 ORDER BY SEQ
     </select>
 
-    <select id="get">
+    <select id="get" resultMap="fileInfoMap">
         SELECT * FROM FILE_INFO WHERE SEQ=#{seq}
     </select>
 
@@ -65,4 +65,11 @@
             AND LOCATION=#{location}
         </if>
     </delete>
+
+    <update id="updateDone">
+        UPDATE FILE_INFO
+            SET
+                DONE=1
+            WHERE GID = #{gid}
+    </update>
 </mapper>
