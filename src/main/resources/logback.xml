@@ -15,4 +15,5 @@
     <logger name="org.choongang.member.mappers" level="DEBUG" />
     <logger name="org.choongang.pokemon.mappers" level="DEBUG" />
     <logger name="org.choongang.board.mappers" level="DEBUG" />
+    <logger name="org.choongang.file.mappers" level="DEBUG" />
 </configuration>
