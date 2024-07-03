@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class GameLog {
+    private long num;
     private long seq;
     private long userNo;
     private long userSeq;

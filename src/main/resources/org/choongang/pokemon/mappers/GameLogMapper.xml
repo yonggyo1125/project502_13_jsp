@@ -4,6 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.choongang.pokemon.mappers.GameLogMapper">
     <resultMap id="gameLogMap" type="org.choongang.pokemon.game.entities.GameLog">
+        <result column="NUM" property="num" />
         <result column="SEQ" property="seq" />
         <result column="USER_NO" property="userNo" />
         <result column="EMAIL" property="email" />
@@ -19,4 +20,17 @@
         <result column="GAME_RESULT" property="gameResult" />
         <result column="REG_DT" property="regDt" />
     </resultMap>
+
+    <select id="getList" resultMap="gameLogMap">
+        SELECT
+            ROWNUM NUM, G.SEQ, G.USER_NO, M.EMAIL, M.USER_NAME, G.USER_SEQ,
+            P1.NAME_KR USER_PNAME, P1.FRONT_IMAGE USER_PIMG, G.USER_SCORE,
+            G.COM_SEQ, P2.NAME_KR COM_PNAME, P2.FRONT_IMAGE COM_PIMG, G.COM_SCORE,
+            G.GAME_RESULT, G.REG_DT
+            FROM GAME_LOG G
+            LEFT JOIN MEMBER M ON G.USER_NO = M.USER_NO
+            LEFT JOIN POKEMON P1 ON G.USER_SEQ = P1.SEQ
+            LEFT JOIN POKEMON P2 ON G.COM_SEQ = P2.SEQ
+        ORDER BY G.SEQ DESC
+    </select>
 </mapper>
