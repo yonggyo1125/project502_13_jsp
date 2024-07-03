@@ -70,4 +70,4 @@
     </dd>
 </dl>
 
-
+<jsp:include page="../commons/_file_tpl.jsp" />

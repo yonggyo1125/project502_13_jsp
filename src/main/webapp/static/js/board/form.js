@@ -65,14 +65,34 @@ function callbackFileUpload(files) {
         return;
     }
 
+    const targetEditor = document.getElementById("attach-files-editor");
+    const targetAttach = document.getElementById("attach-files-attach");
+
+    const editorTpl = document.getElementById("editor-tpl").innerHTML;
+    const attachTpl = document.getElementById("attach-tpl").innerHTML;
+
+    const domParser = new DOMParser();
+
     const source = [];
     for (const file of files) {
         const location = file.location;
+        let html, target;
         if (location == 'editor') { // 에디터에 이미지 추가
             source.push(file.fileUrl);
+            html = editorTpl;
+            target = targetEditor;
         } else { // 파일 첨부
-
+            html = attachTpl;
+            target = targetAttach;
         }
+
+        html = html.replace(/\[seq\]/g, file.seq)
+                   .replace(/\[fileName\]/g, file.fileName)
+                   .replace(/\[fileUrl\]/g, file.fileUrl);
+
+        const dom = domParser.parseFromString(html, "text/html");
+        const span = dom.querySelector("span");
+        target.appendChild(span);
     }
 
     // 에디터에 이미지 추가
