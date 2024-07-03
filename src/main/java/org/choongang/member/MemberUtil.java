@@ -9,6 +9,7 @@ import org.choongang.member.entities.Member;
 import org.choongang.pokemon.entities.PokemonDetail;
 import org.choongang.pokemon.services.PokemonInfoService;
 
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -62,8 +63,12 @@ public class MemberUtil {
     }
 
     public List<Long> getMyPokemonSeqs() {
-        List<Long> seqs = infoService.getSeqsByUserNo(getMember().getUserNo());
+        if (isLogin()) {
+            List<Long> seqs = infoService.getSeqsByUserNo(getMember().getUserNo());
 
-        return seqs;
+            return seqs;
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }
