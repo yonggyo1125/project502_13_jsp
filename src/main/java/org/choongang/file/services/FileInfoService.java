@@ -7,6 +7,7 @@ import org.choongang.global.config.AppConfig;
 import org.choongang.global.config.annotations.Service;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -88,8 +89,16 @@ public class FileInfoService {
             dir.mkdirs();
         }
 
-        // 파일 업로드 경로
-        String filePath = new File(dir, fileName).getCanonicalPath();
+        try {
+            // 파일 업로드 경로
+            String filePath = new File(dir, fileName).getCanonicalPath();
 
+            // 파일 업로드 URL
+            String fileUrl = baseUrl + "/" + folder + "/" + fileName;
+
+            data.setFilePath(filePath);
+            data.setFileUrl(fileUrl);
+
+        } catch (IOException e) {}
     }
 }
