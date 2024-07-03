@@ -55,3 +55,28 @@ window.addEventListener("DOMContentLoaded", function() {
     });
     /* 파일 탐색기에서 선택 처리 E */
 });
+
+/**
+* 파일 업로드 후 후속 처리
+*
+*/
+function callbackFileUpload(files) {
+    if (files.length == 0) {
+        return;
+    }
+
+    const source = [];
+    for (const file of files) {
+        const location = file.location;
+        if (location == 'editor') { // 에디터에 이미지 추가
+            source.push(file.fileUrl);
+        } else { // 파일 첨부
+
+        }
+    }
+
+    // 에디터에 이미지 추가
+    if (source.length > 0) {
+        editor.execute('insertImage', { source });
+    }
+}

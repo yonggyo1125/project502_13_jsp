@@ -59,12 +59,14 @@
     <dt>이미지 첨부</dt>
     <dd>
         <button type='button' class="file-upload editor">이미지 선택</button>
+        <div class='attach-files' id="attach-files-editor"></div>
     </dd>
 </dl>
 <dl>
     <dt>파일 첨부</dt>
     <dd>
         <button type='button' class='file-upload'>파일 선택</button>
+        <div class='attach-files' id="attach-files-attach"></div>
     </dd>
 </dl>
 
