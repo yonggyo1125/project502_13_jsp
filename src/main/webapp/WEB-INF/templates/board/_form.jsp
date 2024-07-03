@@ -58,13 +58,13 @@
 <dl>
     <dt>이미지 첨부</dt>
     <dd>
-        <button type='button'>이미지 선택</button>
+        <button type='button' class="file-upload editor">이미지 선택</button>
     </dd>
 </dl>
 <dl>
     <dt>파일 첨부</dt>
     <dd>
-        <button type='button'>파일 선택</button>
+        <button type='button' class='file-upload'>파일 선택</button>
     </dd>
 </dl>
 
