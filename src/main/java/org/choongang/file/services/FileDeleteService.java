@@ -7,6 +7,7 @@ import org.choongang.file.mappers.FileInfoMapper;
 import org.choongang.global.config.annotations.Service;
 
 import java.io.File;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,8 @@ public class FileDeleteService {
      * @param location
      */
     public void deletes(String gid, String location) {
-
+        List<FileInfo> items = infoService.getList(gid, location);
+        items.forEach(this::delete);
     }
 
     public void deletes(String gid) {

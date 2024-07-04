@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.choongang.board.entities.BoardData;
 import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
+import org.choongang.file.services.FileDeleteService;
 import org.choongang.global.config.annotations.Service;
 
 @Service
@@ -12,6 +13,7 @@ public class BoardDeleteService {
     private final BoardDataMapper mapper;
     private final BoardInfoService infoService;
     private final BoardAuthService authService;
+    private final FileDeleteService fileDeleteService;
 
     public void delete(long seq) {
 
@@ -20,5 +22,8 @@ public class BoardDeleteService {
         authService.check(seq, "delete");
 
         mapper.delete(seq);
+
+        // 첨부 파일 삭제
+        fileDeleteService.deletes(data.getGId());
     }
 }
