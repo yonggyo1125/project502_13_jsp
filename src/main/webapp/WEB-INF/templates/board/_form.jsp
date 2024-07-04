@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
+<c:url var="downloadUrl" value="/file/download" />
 
 <input type="hidden" name="bId" value="${data.BId}">
 <input type="hidden" name="gId" value="${data.GId}">
@@ -66,7 +67,19 @@
     <dt>파일 첨부</dt>
     <dd>
         <button type='button' class='file-upload'>파일 선택</button>
-        <div class='attach-files' id="attach-files-attach"></div>
+        <div class='attach-files' id="attach-files-attach">
+        <c:if test="${data.attachFiles != null && !data.attachFiles.isEmpty()}">
+            <c:forEach var="item" items="${data.attachFiles}">
+                <span class="file-item">
+                    <a href="${downloadUrl}/${item.seq}">
+                        ${item.fileName}
+                    </a>
+                    <i class="xi-close remove" data-seq=${item.seq}></i>
+                </span>
+            </c:forEach>
+
+        </c:if>
+        </div>
     </dd>
 </dl>
 
