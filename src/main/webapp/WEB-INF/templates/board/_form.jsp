@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="util" tagdir="/WEB-INF/tags/utils" %>
 <c:url var="downloadUrl" value="/file/download" />
+<c:url var="deleteUrl" value="/file/delete" />
 
 <input type="hidden" name="bId" value="${data.BId}">
 <input type="hidden" name="gId" value="${data.GId}">
@@ -68,7 +69,9 @@
                         ${item.fileName}
                     </a>
                     <i class="xi-file-upload insert-editor" data-url="${item.fileUrl}"></i>
-                    <i class="xi-close remove" data-seq=${item.seq}></i>
+                   <a href="${deleteUrl}/${item.seq}" target="ifrmProcess" onclick="return confirm('정말 삭제하겠습니까?');">
+                    <i class="xi-close remove"></i>
+                   </a>
                 </span>
             </c:forEach>
         </c:if>
@@ -86,7 +89,9 @@
                     <a href="${downloadUrl}/${item.seq}">
                         ${item.fileName}
                     </a>
-                    <i class="xi-close remove" data-seq=${item.seq}></i>
+                    <a href="${deleteUrl}/${item.seq}" target="ifrmProcess" onclick="return confirm('정말 삭제하겠습니까?');">
+                        <i class="xi-close remove"></i>
+                    </a>
                 </span>
             </c:forEach>
         </c:if>

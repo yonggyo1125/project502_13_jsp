@@ -3,11 +3,13 @@
 <c:url var="downloadUrl" value="/file/download" />
 <c:url var="deleteUrl" value="/file/delete" />
 <script type="text/html" id="attach-tpl">
-    <span class="file-item">
+    <span class="file-item" id="file-item-[seq]">
         <a href="${downloadUrl}/[seq]">
             [fileName]
         </a>
-        <i class="xi-close remove" data-seq=[seq]></i>
+        <a href="${deleteUrl}/[seq]" target="ifrmProcess" onclick="return confirm('정말 삭제하겠습니까?');">
+            <i class="xi-close remove"></i>
+        </a>
     </span>
 </script>
 
