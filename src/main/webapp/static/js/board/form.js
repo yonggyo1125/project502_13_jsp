@@ -100,6 +100,12 @@ function callbackFileUpload(files) {
         const dom = domParser.parseFromString(html, "text/html");
         const span = dom.querySelector("span");
         target.appendChild(span);
+
+        const insertEditorEl = span.querySelector(".insert-editor");
+        if (insertEditorEl) {
+            insertEditorEl.addEventListener("click", e => insertEditor(e.currentTarget.dataset.url));
+        }
+
     }
 
     // 에디터에 이미지 추가
@@ -113,6 +119,6 @@ function callbackFileUpload(files) {
 * 본문 이미지 추가
 *
 */
-function insertEditor(const imageUrl) {
+function insertEditor(imageUrl) {
     editor.execute('insertImage', {source: [imageUrl] });
 }
