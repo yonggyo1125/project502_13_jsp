@@ -122,3 +122,14 @@ function callbackFileUpload(files) {
 function insertEditor(imageUrl) {
     editor.execute('insertImage', {source: [imageUrl] });
 }
+
+/**
+* 파일 삭제 후속 처리
+*
+*/
+function callbackFileDelete(seq) {
+    const el = document.getElementById(`file-item-${seq}`);
+    if (el) {
+        el.parentElement.removeChild(el);
+    }
+}
