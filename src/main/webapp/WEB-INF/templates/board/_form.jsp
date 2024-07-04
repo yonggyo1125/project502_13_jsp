@@ -64,7 +64,7 @@
         <div class='attach-files' id="attach-files-editor">
         <c:if test="${data.editorFiles != null && !data.editorFiles.isEmpty()}">
             <c:forEach var="item" items="${data.editorFiles}">
-                <span class="file-item">
+                <span class="file-item" id="file-item-${item.seq}">
                     <a href="${downloadUrl}/${item.seq}">
                         ${item.fileName}
                     </a>
@@ -85,7 +85,7 @@
         <div class='attach-files' id="attach-files-attach">
         <c:if test="${data.attachFiles != null && !data.attachFiles.isEmpty()}">
             <c:forEach var="item" items="${data.attachFiles}">
-                <span class="file-item">
+                <span class="file-item" id="file-item-${item.seq}">
                     <a href="${downloadUrl}/${item.seq}">
                         ${item.fileName}
                     </a>
