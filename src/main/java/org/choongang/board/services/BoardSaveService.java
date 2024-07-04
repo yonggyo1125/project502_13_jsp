@@ -7,6 +7,7 @@ import org.choongang.board.controllers.RequestBoardData;
 import org.choongang.board.entities.BoardData;
 import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.board.validators.BoardSaveValidator;
+import org.choongang.file.mappers.FileInfoMapper;
 import org.choongang.global.config.annotations.Service;
 import org.choongang.global.config.containers.BeanContainer;
 import org.choongang.global.exceptions.AlertException;
@@ -26,10 +27,12 @@ import java.util.Optional;
 public class BoardSaveService {
 
     private final BoardDataMapper mapper;
+    private final FileInfoMapper fileInfoMapper;
     private final BoardSaveValidator validator;
     private final MemberUtil memberUtil;
     private final BoardInfoService infoService;
     private final BoardAuthService authService;
+
 
     public Optional<BoardData> save(RequestBoardData form) {
 
@@ -81,6 +84,9 @@ public class BoardSaveService {
                 throw new AlertException("게시글 등록에 실패하였습니다.", HttpServletResponse.SC_BAD_REQUEST);
             }
         }
+
+        // 파일 업로드 완료 처리
+        fileInfoMapper.updateDone(data.getGId());
 
         return infoService.get(data.getSeq());
     }
