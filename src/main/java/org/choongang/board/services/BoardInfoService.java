@@ -11,6 +11,8 @@ import org.choongang.board.exceptions.BoardConfigNotFoundException;
 import org.choongang.board.exceptions.BoardNotFoundException;
 import org.choongang.board.mappers.BoardDataMapper;
 import org.choongang.board.services.config.BoardConfigInfoService;
+import org.choongang.file.entities.FileInfo;
+import org.choongang.file.services.FileInfoService;
 import org.choongang.global.ListData;
 import org.choongang.global.Pagination;
 import org.choongang.global.config.annotations.Service;
@@ -27,6 +29,7 @@ public class BoardInfoService {
     private final BoardDataMapper mapper;
     private final BoardConfigInfoService configInfoService;
     //private final BoardAuthService authService;
+    private final FileInfoService fileInfoService;
 
     private Board board;
 
@@ -41,9 +44,8 @@ public class BoardInfoService {
      */
     public Optional<BoardData> get(long seq) {
         BoardData data = mapper.get(seq);
-        //authService.setBoardData(data);
 
-        //authService.check(seq, "view");
+        addBoardData(data);
 
         return Optional.ofNullable(data);
     }
@@ -88,6 +90,9 @@ public class BoardInfoService {
 
         List<BoardData> items = mapper.getList(search);
 
+        // 추가 데이터 처리
+        items.forEach(this::addBoardData);
+
         // 페이징 처리
         int total = mapper.getTotal(search);
         HttpServletRequest request = BeanContainer.getInstance().getBean(HttpServletRequest.class);
@@ -104,5 +109,27 @@ public class BoardInfoService {
 
     public ListData<BoardData> getList(String bId) {
         return getList(bId, new BoardSearch());
+    }
+
+    /**
+     * 게시글에 추가될 정보 처리
+     *      - 에디터 첨부 이미지 파일, 일반 첨부 파일
+     * @param data
+     */
+    private void addBoardData(BoardData data) {
+        if (data == null) {
+            return;
+        }
+
+        String gid = data.getGId();
+
+        // 에디터 첨부 이미지 파일 목록
+        List<FileInfo> editorFiles = fileInfoService.getListDone(gid, "editor");
+
+        // 일반 첨부 파일 목록
+        List<FileInfo> attachFiles = fileInfoService.getListDone(gid, "attach");
+
+        data.setEditorFiles(editorFiles);
+        data.setAttachFiles(attachFiles);
     }
 }
