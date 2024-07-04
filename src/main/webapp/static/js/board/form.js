@@ -54,6 +54,13 @@ window.addEventListener("DOMContentLoaded", function() {
 
     });
     /* 파일 탐색기에서 선택 처리 E */
+
+    /* 이미지 본문 추가 처리 S */
+    const insertEditors = document.getElementsByClassName("insert-editor");
+    for (const el of insertEditors) {
+        el.addEventListener("click", (e) => insertEditor(e.currentTarget.dataset.url));
+    }
+    /* 이미지 본문 추가 처리 E */
 });
 
 /**
@@ -99,4 +106,13 @@ function callbackFileUpload(files) {
     if (source.length > 0) {
         editor.execute('insertImage', { source });
     }
+}
+
+
+/**
+* 본문 이미지 추가
+*
+*/
+function insertEditor(const imageUrl) {
+    editor.execute('insertImage', {source: [imageUrl] });
 }
