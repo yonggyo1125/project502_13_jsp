@@ -60,7 +60,19 @@
     <dt>이미지 첨부</dt>
     <dd>
         <button type='button' class="file-upload editor">이미지 선택</button>
-        <div class='attach-files' id="attach-files-editor"></div>
+        <div class='attach-files' id="attach-files-editor">
+        <c:if test="${data.editorFiles != null && !data.editorFiles.isEmpty()}">
+            <c:forEach var="item" items="${data.editorFiles}">
+                <span class="file-item">
+                    <a href="${downloadUrl}/${item.seq}">
+                        ${item.fileName}
+                    </a>
+                    <i class="xi-file-upload insert-editor" data-url="${item.fileUrl}"></i>
+                    <i class="xi-close remove" data-seq=${item.seq}></i>
+                </span>
+            </c:forEach>
+        </c:if>
+        </div>
     </dd>
 </dl>
 <dl>
@@ -77,7 +89,6 @@
                     <i class="xi-close remove" data-seq=${item.seq}></i>
                 </span>
             </c:forEach>
-
         </c:if>
         </div>
     </dd>

@@ -15,7 +15,7 @@
         <a href="${downloadUrl}/[seq]">
             [fileName]
         </a>
-        <i class="xi-file-upload insert-editor" data-url=[fileUrl]></i>
+        <i class="xi-file-upload insert-editor" data-url="[fileUrl]"></i>
         <i class="xi-close remove" data-seq=[seq]></i>
     </span>
 </script>
